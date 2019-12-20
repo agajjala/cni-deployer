@@ -1,5 +1,5 @@
 locals {
-  vpc_type = "inbound"
+  vpc_type = "outbound"
 }
 
 module "vpc" {
