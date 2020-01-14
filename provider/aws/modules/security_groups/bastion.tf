@@ -1,8 +1,8 @@
 resource "aws_security_group" "bastion" {
   name        = "${var.vpc_type}-bastion-${var.deployment_id}"
-  vpc_id      = "${var.vpc_id}"
+  vpc_id      = var.vpc_id
 
-  tags        = "${var.tags}"
+  tags        = var.tags
 }
 
 ###############################
@@ -14,8 +14,8 @@ resource "aws_security_group_rule" "bastion_sfdc_ssh" {
   from_port   = "22"
   to_port     = "22"
   protocol    = "tcp"
-  cidr_blocks = "${var.sfdc_cidr}"
-  security_group_id = "${aws_security_group.bastion.id}"
+  cidr_blocks = var.sfdc_cidr
+  security_group_id = aws_security_group.bastion.id
 }
 
 ###############################
@@ -32,7 +32,7 @@ resource "aws_security_group_rule" "bastion_internet_all" {
   to_port     = 0
   protocol    = "-1"
   cidr_blocks = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.bastion.id}"
+  security_group_id = aws_security_group.bastion.id
 }
 
 ###############################

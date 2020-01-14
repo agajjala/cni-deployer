@@ -7,4 +7,5 @@ variable "vpc_type" {
 }
 variable "vpc_id" {}
 variable "flow_logs_iam_role_arn" {}
+variable "flow_logs_cloudwatch_group_arn" {}
 variable "flow_logs_retention_in_days" {}
