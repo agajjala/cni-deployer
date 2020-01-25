@@ -9,7 +9,7 @@ resource "aws_eip" "nat" {
 
   tags       = var.tags
 
-  depends_on = ["aws_internet_gateway.igw"]
+  depends_on = [aws_internet_gateway.igw]
 }
 
 resource "aws_nat_gateway" "ngw" {

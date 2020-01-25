@@ -1,18 +1,8 @@
-variable "tags" {
-  type = "map"
+variable tags {
+  type = map(string)
 }
-variable "vpc_id" {}
-variable "public_subnet_cidr_blocks" {
-  type = "list"
+variable vpc_id {}
+variable subnet_az_ids {
+  type = list(string)
 }
-variable "public_subnet_availability_zone_ids" {
-  type = "list"
-}
-variable "public_subnet_count" {}
-variable "private_subnet_cidr_blocks" {
-  type = "list"
-}
-variable "private_subnet_availability_zone_ids" {
-  type = "list"
-}
-variable "private_subnet_count" {}
+variable vpc_cidr {}

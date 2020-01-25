@@ -1,7 +1,5 @@
 variable "tags" {
-  type = "map"
+  type = map(string)
 }
 variable "vpc_id" {}
-variable "nat_gateway_subnet_id" {
-  type = "list"
-}
+variable "nat_gateway_subnet_id" {}

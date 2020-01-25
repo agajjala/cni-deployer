@@ -16,7 +16,7 @@ resource aws_secuirty_group_rule sitebridge_inbound_data_plane_all_ports {
   from_port         = 0
   to_port           = 0
   protocol          = -1
-  cidr_blocks       = formatlist(local.data_plane_cdir_template, var.data_plane_ips)
+  cidr_blocks       = formatlist(local.data_plane_cidr_template, var.data_plane_ips)
   security_group_id = var.sitebridge_security_group_id
 }
 
@@ -42,7 +42,7 @@ resource aws_secuirty_group_rule sitebridge_outbound_data_plane_all_ports {
   from_port         = 0
   to_port           = 0
   protocol          = -1
-  cidr_blocks       = formatlist(local.data_plane_cdir_template, var.data_plane_ips)
+  cidr_blocks       = formatlist(local.data_plane_cidr_template, var.data_plane_ips)
   security_group_id = var.sitebridge_security_group_id
 }
 

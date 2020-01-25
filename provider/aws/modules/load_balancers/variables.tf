@@ -1,9 +1,9 @@
-variable "deployment_id" {}
+variable "resource_prefix" {}
 variable "tags" {
-  type = "map"
+  type = map(string)
 }
 variable "vpc_id" {}
 variable "vpc_type" {}
 variable "private_subnet_ids" {
-  type = "list"
+  type = list(string)
 }

@@ -1,6 +1,6 @@
 variable deployment_id {}
 variable tags {
-  type = "map"
+  type = map(string)
 }
 variable vpc_id {}
 variable private_subnet_ids {

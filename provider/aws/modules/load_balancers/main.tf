@@ -1,5 +1,5 @@
 resource "aws_lb" "private_network" {
-  name                             = "${var.vpc_type}-private-network-${var.deployment_id}"
+  name                             = "${var.vpc_type}-${var.resource_prefix}"
   internal                         = true
   load_balancer_type               = "network"
   subnets                          = var.private_subnet_ids
@@ -10,10 +10,15 @@ resource "aws_lb" "private_network" {
 }
 
 resource "aws_lb_target_group" "traffic_proxy" {
-  name     = "${var.vpc_type}-traffic-proxy-${var.deployment_id}"
+  name     = "${var.vpc_type}-${var.resource_prefix}"
   port     = 8443
-  protocol = "HTTP"
+  protocol = "TCP"
   vpc_id   = var.vpc_id
+
+  stickiness {
+    enabled = false
+    type = "lb_cookie"
+  }
 
   tags     = var.tags
 }

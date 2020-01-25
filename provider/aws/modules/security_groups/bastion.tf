@@ -1,5 +1,5 @@
 resource "aws_security_group" "bastion" {
-  name        = "${var.vpc_type}-bastion-${var.deployment_id}"
+  name        = "${var.vpc_type}-bastion-${var.resource_prefix}"
   vpc_id      = var.vpc_id
 
   tags        = var.tags
@@ -14,7 +14,7 @@ resource "aws_security_group_rule" "bastion_sfdc_ssh" {
   from_port   = "22"
   to_port     = "22"
   protocol    = "tcp"
-  cidr_blocks = var.sfdc_cidr
+  cidr_blocks = var.sfdc_cidr_blocks
   security_group_id = aws_security_group.bastion.id
 }
 
@@ -26,13 +26,13 @@ resource "aws_security_group_rule" "bastion_sfdc_ssh" {
 #  Egress (starts)
 ###############################
 
-resource "aws_security_group_rule" "bastion_internet_all" {
-  type        = "egress"
-  from_port   = 0
-  to_port     = 0
-  protocol    = "-1"
-  cidr_blocks = ["0.0.0.0/0"]
-  security_group_id = aws_security_group.bastion.id
+resource "aws_security_group_rule" "bastion_nginx_all" {
+  type                     = "egress"
+  from_port                = 0
+  to_port                  = 0
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.nginx.id
+  security_group_id        = aws_security_group.bastion.id
 }
 
 ###############################
