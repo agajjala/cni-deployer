@@ -1,0 +1,10 @@
+.idea/*
+*.tf
+*.tfvars.json
+.tfstate
+.tfstate.backup
+*_apply
+*_destroy
+ .idea/
+**/__pycache__/*
+**/\.terraform
