@@ -1,9 +1,8 @@
 module vpce_connections_key {
-  source         = "../..//kms_key"
-  tags           = var.tags
-  key_name       = local.vpce_connections_name
-  admin_role_arn = var.admin_role_arn
-  source_json    = data.aws_iam_policy_document.kms_key_sns_access.json
+  source             = "../../kms_key"
+  tags               = var.tags
+  admin_role_arn     = var.admin_role_arn
+  source_json_policy = data.aws_iam_policy_document.kms_key_sns_access.json
 }
 
 resource aws_sns_topic vpce_connections {

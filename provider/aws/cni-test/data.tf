@@ -1,7 +1,5 @@
-data external az_ids {
-  program = ["python", "${path.module}/../scripts/az_ids.py"]
+data aws_caller_identity current {}
 
-  query = {
-    region = var.region
-  }
+data aws_availability_zones available {
+  state = "available"
 }

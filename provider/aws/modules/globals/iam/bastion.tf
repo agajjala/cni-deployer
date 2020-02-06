@@ -1,5 +1,5 @@
 ###############################
-#  Inbound (starts)
+#  Inbound
 ###############################
 
 resource "aws_iam_role" "inbound_bastion" {
@@ -31,11 +31,7 @@ resource "aws_iam_instance_profile" "inbound_bastion" {
 }
 
 ###############################
-#  Inbound (ends)
-###############################
-
-###############################
-#  Outbound (starts)
+#  Outbound
 ###############################
 
 resource "aws_iam_role" "outbound_bastion" {
@@ -65,7 +61,3 @@ resource "aws_iam_instance_profile" "outbound_bastion" {
   name_prefix  = local.outbound_bastion_iam_role_name
   role         = aws_iam_role.outbound_bastion.name
 }
-
-###############################
-#  Outbound (ends)
-###############################

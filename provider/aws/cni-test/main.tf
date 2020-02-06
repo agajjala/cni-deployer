@@ -7,7 +7,9 @@ provider aws {
 }
 
 locals {
-  resource_prefix = "${var.env_name}-${var.deployment_id}"
+  resource_prefix = "${var.env_name}-${var.region}-${var.deployment_id}"
+  admin_role_arn  = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.admin_role_name}"
+  az_names        = slice(sort(data.aws_availability_zones.available.names), 0, var.az_count)
 }
 
 module globals {
@@ -15,8 +17,18 @@ module globals {
   region                      = var.region
   resource_prefix             = local.resource_prefix
   tags                        = var.tags
-  admin_role_name             = var.admin_role_name
+  admin_role_arn              = local.admin_role_arn
   flow_logs_retention_in_days = var.flow_logs_retention_in_days
+  lambda_layers               = var.lambda_layers
+  lambda_s3_bucket            = var.lambda_s3_bucket
+  lambda_s3_key               = var.lambda_s3_key
+  lambda_memory_size          = var.lambda_memory_size
+}
+
+module transit_gateway {
+  source = "../modules/tgw"
+  tags   = var.tags
+  name   = local.resource_prefix
 }
 
 module inbound_vpc {
@@ -26,10 +38,18 @@ module inbound_vpc {
   tags                           = var.tags
   vpc_cidr                       = var.inbound_vpc_cidr
   sfdc_cidr_blocks               = var.sfdc_vpn_cidrs
-  az_count                       = var.az_count
+  az_names                       = local.az_names
+  enable_nat_gateway             = var.enable_inbound_nat_gateway
   zone_name                      = "cni-inbound.salesforce.com"
-  flow_logs_cloudwatch_group_arn = module.globals.cloudwatch_log_group_inbound_flow_logs_arn
-  flow_logs_iam_role_arn         = module.globals.iam_role_flow_logs_arn
+  admin_role_arn                 = local.admin_role_arn
+  flow_log_iam_role_arn          = module.globals.iam_role_flow_logs_arn
+  flow_log_retention_in_days     = var.flow_logs_retention_in_days
+  data_plane_cluster_role_arn    = module.globals.data_plane_cluster_role_arn
+  data_plane_cluster_role_name   = module.globals.data_plane_cluster_role_name
+  data_plane_node_role_arn       = module.globals.data_plane_node_role_arn
+  data_plane_node_role_name      = module.globals.data_plane_node_role_name
+  scaling_config                 = var.scaling_config
+  transit_gateway_id             = module.transit_gateway.tgw_id
 }
 
 module outbound_vpc {
@@ -40,8 +60,16 @@ module outbound_vpc {
   tags                           = var.tags
   vpc_cidr                       = var.outbound_vpc_cidr
   sfdc_cidr_blocks               = var.sfdc_vpn_cidrs
-  az_count                       = var.az_count
+  az_names                       = local.az_names
+  enable_nat_gateway             = var.enable_outbound_nat_gateway
   zone_name                      = "cni-outbound.salesforce.com"
-  flow_logs_cloudwatch_group_arn = module.globals.cloudwatch_log_group_outbound_flow_logs_arn
-  flow_logs_iam_role_arn         = module.globals.iam_role_flow_logs_arn
+  admin_role_arn                 = local.admin_role_arn
+  flow_log_iam_role_arn          = module.globals.iam_role_flow_logs_arn
+  flow_log_retention_in_days     = var.flow_logs_retention_in_days
+  data_plane_cluster_role_arn    = module.globals.data_plane_cluster_role_arn
+  data_plane_cluster_role_name   = module.globals.data_plane_cluster_role_name
+  data_plane_node_role_arn       = module.globals.data_plane_node_role_arn
+  data_plane_node_role_name      = module.globals.data_plane_node_role_name
+  scaling_config                 = var.scaling_config
+  transit_gateway_id             = module.transit_gateway.tgw_id
 }

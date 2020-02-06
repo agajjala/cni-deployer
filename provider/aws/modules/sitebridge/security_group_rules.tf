@@ -1,5 +1,5 @@
 ###############################
-#  Ingress (starts)
+#  Ingress
 ###############################
 
 resource aws_security_group_rule sitebridge_inbound_mtu_discovery {
@@ -30,11 +30,7 @@ resource aws_secuirty_group_rule sitebridge_inbound_control_plane_all_ports {
 }
 
 ###############################
-#  Ingress (ends)
-###############################
-
-###############################
-#  Egress (starts)
+#  Egress
 ###############################
 
 resource aws_secuirty_group_rule sitebridge_outbound_data_plane_all_ports {
@@ -54,7 +50,3 @@ resource aws_secuirty_group_rule sitebridge_outbound_control_plane_all_ports {
   cidr_blocks       = formatlist(local.control_plane_cidr_template, var.control_plane_ips)
   security_group_id = var.sitebridge_security_group_id
 }
-
-###############################
-#  Egress (ends)
-###############################

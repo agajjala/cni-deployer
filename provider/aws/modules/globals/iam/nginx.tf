@@ -1,5 +1,5 @@
 ###############################
-#  Inbound (starts)
+#  Inbound
 ###############################
 
 resource "aws_iam_role" "inbound_nginx" {
@@ -71,11 +71,7 @@ resource "aws_iam_role_policy_attachment" "inbound_nginx_cloudwatch_write_access
 }
 
 ###############################
-#  Inbound (ends)
-###############################
-
-###############################
-#  Outbound (starts)
+#  Outbound
 ###############################
 
 resource "aws_iam_role" "outbound_nginx" {
@@ -145,7 +141,3 @@ resource "aws_iam_role_policy_attachment" "outbound_nginx_cloudwatch_write_acces
   role       = aws_iam_role.outbound_nginx.name
   policy_arn = aws_iam_policy.cloudwatch_write_access.arn
 }
-
-###############################
-#  Outbound (ends)
-###############################
