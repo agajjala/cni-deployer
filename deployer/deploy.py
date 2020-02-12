@@ -43,7 +43,7 @@ def validate_arguments(args):
     """
     assert (args.get('c') is not None)
     assert (args.get('tfdir') is not None)
-    assert (args.get('tvarspath') is not None)
+    assert (args.get('tfvarspath') is not None)
 
 
 
@@ -81,7 +81,7 @@ def main():
     parser = argparse.ArgumentParser(description="This program wraps terraform to provide some additional flexibility")
     parser.add_argument("-c", help='the terraform command you want to run')
     parser.add_argument("-tfdir", help="directory of the .tf file")
-    parser.add_argument("-tvarspath", help="path to the tfars.json file path")
+    parser.add_argument("-tfvarspath", help="path to the tfvars.json file path")
     parser.add_argument("-auto", help="0: will prompt the user 1: will apply the generated plan", default='0')
     parser.add_argument("--set",
                         metavar="KEY=VALUE",

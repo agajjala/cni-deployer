@@ -10,7 +10,7 @@ def load_config(json_filename):
 
 
 def init(args):
-    tfvars = load_config(args['tvarspath'])
+    tfvars = load_config(args['tfvarspath'])
     backend_config = load_config('backend_config.json')
 
     init_arguments = []
