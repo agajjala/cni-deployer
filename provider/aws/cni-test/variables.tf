@@ -24,11 +24,21 @@ variable lambda_layers {
   description = "List of lambda layer ARNs to apply on each lambda function"
   type        = list(string)
 }
-variable lambda_s3_bucket {
-  description = "Name of the s3 bucket in which lambda artifacts are stored"
+variable artifact_bucket {
+  description = "Name of the S3 bucket in which artifacts are stored"
 }
-variable lambda_s3_key {
-  description = "Name of the lambda function artifact"
+variable lambda_layer_s3_key {
+  description = "Name of the lambda layer object in the artifact bucket"
+}
+variable lambda_layer_s3_object_version {
+  description = "Version of the lambda layer object in the artifact bucket. A value of $LATEST provides the latest version."
+}
+variable lambda_function_s3_key {
+  description = "Name of the lambda function object in the artifact bucket"
+}
+variable lambda_function_s3_object_version {
+  description = "Version of the lambda layer object in the artifact bucket. A value of $LATEST provides the latest version."
+  default     = null
 }
 variable lambda_memory_size {
   description = "Memory to allocate for each lambda function in MB"
@@ -52,12 +62,14 @@ variable az_count {
 variable enable_inbound_nat_gateway {
   description = "If true, enables creation of a NAT gateway for each public subnet in the inbound VPC"
   type    = bool
-  default = false
 }
 variable enable_outbound_nat_gateway {
   description = "If true, enables creation of a NAT gateway for each public subnet in the outbound VPC"
   type    = bool
-  default = false
+}
+variable write_local_pem_files {
+  description = "If true, writes generated private keys as local pem files in the directory of the root module"
+  type        = bool
 }
 variable scaling_config {
   type = object({

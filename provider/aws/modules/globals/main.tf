@@ -27,8 +27,11 @@ module lambda {
   source                                      = "./lambda"
   resource_prefix                             = var.resource_prefix
   tags                                        = var.tags
-  s3_bucket                                   = var.lambda_s3_bucket
-  s3_key                                      = var.lambda_s3_key
+  artifact_bucket                             = var.artifact_bucket
+  layer_s3_key                                = var.lambda_layer_s3_key
+  layer_s3_object_version                     = var.lambda_layer_s3_object_version
+  function_s3_key                             = var.lambda_function_s3_key
+  function_s3_object_version                  = var.lambda_function_s3_object_version
   memory_size                                 = var.lambda_memory_size
   layers                                      = var.lambda_layers
   private_link_event_handler_role_arn         = module.iam.ctrl_private_link_event_handler_role_arn

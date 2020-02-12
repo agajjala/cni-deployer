@@ -3,14 +3,17 @@ locals {
 }
 
 resource aws_lambda_function function {
-  function_name    = var.function_name
-  role             = var.role_arn
-  s3_bucket        = var.s3_bucket
-  s3_key           = var.s3_key
-  runtime          = var.runtime
-  handler          = var.handler
-  layers           = var.layers
-  memory_size      = var.memory_size
+  function_name     = var.function_name
+  role              = var.role_arn
+  s3_bucket         = var.s3_bucket
+  s3_key            = var.s3_key
+  s3_object_version = var.s3_object_version == "$LATEST" ? null : var.s3_object_version
+  runtime           = var.runtime
+  handler           = var.handler
+  layers            = var.layers
+  memory_size       = var.memory_size
+  tags              = var.tags
+
   # TODO: figure out a sane method of generating source_code_hash
 
   tracing_config {
@@ -20,8 +23,6 @@ resource aws_lambda_function function {
   environment {
     variables = var.environment_variables
   }
-
-  tags             = var.tags
 }
 
 resource aws_cloudwatch_event_rule schedule {

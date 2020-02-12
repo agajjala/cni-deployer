@@ -6,8 +6,11 @@ variable layers {
   type = list(string)
 }
 variable memory_size {}
-variable s3_bucket {}
-variable s3_key {}
+variable artifact_bucket {}
+variable layer_s3_key {}
+variable layer_s3_object_version {}
+variable function_s3_key {}
+variable function_s3_object_version {}
 variable inbound_supervisor_role_arn {}
 variable outbound_supervisor_role_arn {}
 variable dynamodb_stream_fanout_role_arn {}

@@ -17,8 +17,11 @@ variable outbound_nginx_ecr_repo_arn {
 variable outbound_nginx_s3_bucket_arn {
   default = "*"
 }
-variable lambda_s3_bucket {}
-variable lambda_s3_key {}
+variable artifact_bucket {}
+variable lambda_layer_s3_key {}
+variable lambda_layer_s3_object_version {}
+variable lambda_function_s3_key {}
+variable lambda_function_s3_object_version {}
 variable lambda_memory_size {}
 variable lambda_layers {
   type = list(string)

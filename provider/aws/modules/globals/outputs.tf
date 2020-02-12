@@ -1,3 +1,11 @@
+output bastion_autoscaling_group_role_arn {
+  value = module.iam.bastion_autoscaling_group_role_arn
+}
+
+output bastion_instance_profile_arn {
+  value = module.iam.bastion_instance_profile_arn
+}
+
 output iam_role_flow_logs_arn {
   value = module.iam.flow_logs_role_arn
 }

@@ -1,6 +1,6 @@
 resource aws_eks_node_group data_plane {
   cluster_name    = aws_eks_cluster.data_plane.name
-  node_group_name = var.cluster_name
+  node_group_name = var.resource_prefix
   node_role_arn   = var.data_plane_node_role_arn
   subnet_ids      = var.subnet_ids
 
@@ -10,9 +10,12 @@ resource aws_eks_node_group data_plane {
     min_size     = 1
   }
 
-//  remote_access {
-//    source_security_group_ids = [var.bastion_sg_id]
-//  }
+  remote_access {
+    ec2_ssh_key               = var.node_group_key_name
+    source_security_group_ids = [
+      var.bastion_security_group_id
+    ]
+  }
 
   # Ensure that IAM Role permissions are created before and deleted after EKS Node Group handling.
   # Otherwise, EKS will not be able to properly delete EC2 Instances and Elastic Network Interfaces.

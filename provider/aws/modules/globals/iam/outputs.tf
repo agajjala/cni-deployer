@@ -1,3 +1,11 @@
+output bastion_autoscaling_group_role_arn {
+  value = aws_iam_service_linked_role.bastion_autoscaling_group.arn
+}
+
+output bastion_instance_profile_arn {
+  value = aws_iam_instance_profile.bastion.arn
+}
+
 output flow_logs_role_arn {
   value = aws_iam_role.flow_logs.arn
 }

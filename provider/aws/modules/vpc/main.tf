@@ -1,5 +1,5 @@
 locals {
-  vpc_tags                   = merge(var.tags, var.additional_vpc_tags)
+  vpc_tags                   = merge(var.tags, var.additional_vpc_tags, {Name: var.vpc_name})
   subnet_tags                = merge(var.tags, var.additional_subnet_tags)
   /*
     A VPC requires fewer public addresses to be allocated compared to private addresses, so the last subnet CIDR in the
@@ -17,7 +17,7 @@ resource aws_vpc default {
   cidr_block            = var.vpc_cidr
   enable_dns_support    = true
   enable_dns_hostnames  = true
-  tags                  = var.tags
+  tags                  = local.vpc_tags
 }
 
 ###############################

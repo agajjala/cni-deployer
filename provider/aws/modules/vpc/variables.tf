@@ -1,5 +1,6 @@
 variable tags {
-  type = map(string)
+  description = "Map of tags used to annotate each resource supporting tags"
+  type        = map(string)
 }
 variable vpc_name {}
 variable vpc_cidr {}

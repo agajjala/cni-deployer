@@ -14,6 +14,9 @@ variable s3_bucket {
 variable s3_key {
   description = "Name of the function artifact"
 }
+variable s3_object_version {
+  description = "Version of the function artifact"
+}
 variable runtime {
   description = "Name of the runtime to use"
   default     = "python3.7"
