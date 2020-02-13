@@ -1,4 +1,4 @@
-# cni-tf
+# CNI Terraform
 
 ## Requirements
 
