@@ -59,6 +59,7 @@ module inbound_vpc {
   admin_role_arn                     = local.admin_role_arn
   flow_log_iam_role_arn              = module.globals.iam_role_flow_logs_arn
   flow_log_retention_in_days         = var.flow_logs_retention_in_days
+  data_plane_cluster_name            = var.inbound_data_plane_cluster_name
   data_plane_cluster_role_arn        = module.globals.data_plane_cluster_role_arn
   data_plane_cluster_role_name       = module.globals.data_plane_cluster_role_name
   data_plane_node_role_arn           = module.globals.data_plane_node_role_arn
@@ -85,6 +86,7 @@ module outbound_vpc {
   admin_role_arn                     = local.admin_role_arn
   flow_log_iam_role_arn              = module.globals.iam_role_flow_logs_arn
   flow_log_retention_in_days         = var.flow_logs_retention_in_days
+  data_plane_cluster_name            = var.outbound_data_plane_cluster_name
   data_plane_cluster_role_arn        = module.globals.data_plane_cluster_role_arn
   data_plane_cluster_role_name       = module.globals.data_plane_cluster_role_name
   data_plane_node_role_arn           = module.globals.data_plane_node_role_arn

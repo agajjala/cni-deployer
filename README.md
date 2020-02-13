@@ -26,6 +26,14 @@
     brew install kubectl
    ```
 
+   If you have Docker installed, follow these additional steps ([this will ensure your `kubectl` symlinks point to the brew installation](https://stackoverflow.com/a/55737973)):
+
+   ```
+   rm /usr/local/bin/kubectl
+
+   brew link --overwrite kubernetes-cli
+    ```
+
 4. Install [aws-iam-authenticator](https://github.com/awsdocs/amazon-eks-user-guide/blob/master/doc_source/install-aws-iam-authenticator.md):
 
     ```
@@ -54,7 +62,9 @@
     | lambda\_layer\_s3\_key | Name of the lambda layer object in the artifact bucket | `string` |
     | lambda\_function\_s3\_key | Name of the lambda function object in the artifact bucket | `string` |
     | inbound\_vpc\_cidr | CIDR of the inbound VPC | `string` |
+    | inbound\_data\_plane\_cluster\_name | Name to give the inbound data plane cluster in EKS | `string` |
     | outbound\_vpc\_cidr | CIDR of the outbound VPC | `string` |
+    | outbound\_data\_plane\_cluster\_name | Name to give the outbound data plane cluster in EKS | `string` |
 
 3. Run the following command to perform a sanity check on your configuration file:
 

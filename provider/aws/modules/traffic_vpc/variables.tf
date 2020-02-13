@@ -19,6 +19,7 @@ variable zone_name {}
 variable admin_role_arn {}
 variable flow_log_retention_in_days {}
 variable flow_log_iam_role_arn {}
+variable data_plane_cluster_name {}
 variable data_plane_cluster_role_arn {}
 variable data_plane_cluster_role_name {}
 variable data_plane_node_role_arn {}

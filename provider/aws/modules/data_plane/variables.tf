@@ -1,12 +1,12 @@
-variable resource_prefix {}
 variable tags {
   type = map(string)
 }
 variable admin_role_arn {}
-variable data_plane_cluster_role_arn {}
-variable data_plane_cluster_role_name {}
-variable data_plane_node_role_arn {}
-variable data_plane_node_role_name {}
+variable cluster_name {}
+variable cluster_role_arn {}
+variable cluster_role_name {}
+variable node_group_role_arn {}
+variable node_group_role_name {}
 variable retention_in_days {}
 variable subnet_ids {
   type = list(string)

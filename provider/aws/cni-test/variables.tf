@@ -61,8 +61,16 @@ variable inbound_vpc_cidr {
   description = "CIDR of the inbound VPC"
   type        = string
 }
+variable inbound_data_plane_cluster_name {
+  description = "Name to give the inbound data plane cluster in EKS"
+  type        = string
+}
 variable outbound_vpc_cidr {
   description = "CIDR of the outbound VPC"
+  type        = string
+}
+variable outbound_data_plane_cluster_name {
+  description = "Name to give the outbound data plane cluster in EKS"
   type        = string
 }
 variable az_count {
