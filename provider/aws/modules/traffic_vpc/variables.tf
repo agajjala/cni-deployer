@@ -29,13 +29,6 @@ variable bastion_image_id {}
 variable bastion_instance_profile_arn {}
 variable bastion_key_name {}
 variable node_group_key_name {}
-variable scaling_config {
-  type = object({
-    desired_size = number,
-    max_size     = number,
-    min_size     = number
-  })
-}
 //variable sitebridge_bgp_asn {}
 //variable sitebridge_gateway_ips {
 //  type = list(string)

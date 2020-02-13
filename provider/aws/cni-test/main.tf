@@ -19,7 +19,6 @@ module globals {
   tags                              = var.tags
   admin_role_arn                    = local.admin_role_arn
   flow_logs_retention_in_days       = var.flow_logs_retention_in_days
-  lambda_layers                     = var.lambda_layers
   artifact_bucket                   = var.artifact_bucket
   lambda_layer_s3_key               = var.lambda_layer_s3_key
   lambda_layer_s3_object_version    = var.lambda_layer_s3_object_version
@@ -64,7 +63,6 @@ module inbound_vpc {
   data_plane_cluster_role_name       = module.globals.data_plane_cluster_role_name
   data_plane_node_role_arn           = module.globals.data_plane_node_role_arn
   data_plane_node_role_name          = module.globals.data_plane_node_role_name
-  scaling_config                     = var.scaling_config
   transit_gateway_id                 = module.transit_gateway.tgw_id
   bastion_autoscaling_group_role_arn = module.globals.bastion_autoscaling_group_role_arn
   bastion_instance_profile_arn       = module.globals.bastion_instance_profile_arn
@@ -91,7 +89,6 @@ module outbound_vpc {
   data_plane_cluster_role_name       = module.globals.data_plane_cluster_role_name
   data_plane_node_role_arn           = module.globals.data_plane_node_role_arn
   data_plane_node_role_name          = module.globals.data_plane_node_role_name
-  scaling_config                     = var.scaling_config
   transit_gateway_id                 = module.transit_gateway.tgw_id
   bastion_autoscaling_group_role_arn = module.globals.bastion_autoscaling_group_role_arn
   bastion_instance_profile_arn       = module.globals.bastion_instance_profile_arn

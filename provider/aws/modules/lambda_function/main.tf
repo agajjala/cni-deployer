@@ -7,7 +7,7 @@ resource aws_lambda_function function {
   role              = var.role_arn
   s3_bucket         = var.s3_bucket
   s3_key            = var.s3_key
-  s3_object_version = var.s3_object_version == "$LATEST" ? null : var.s3_object_version
+  s3_object_version = var.s3_object_version == "" ? null : var.s3_object_version
   runtime           = var.runtime
   handler           = var.handler
   layers            = var.layers

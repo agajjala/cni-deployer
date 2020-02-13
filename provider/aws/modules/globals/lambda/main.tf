@@ -13,7 +13,7 @@ resource aws_lambda_layer_version common {
   layer_name        = "${var.resource_prefix}-common"
   s3_bucket         = var.artifact_bucket
   s3_key            = var.layer_s3_key
-  s3_object_version = var.layer_s3_object_version == "$LATEST" ? null : var.layer_s3_object_version
+  s3_object_version = var.layer_s3_object_version == "" ? null : var.layer_s3_object_version
 }
 
 

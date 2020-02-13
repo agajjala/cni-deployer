@@ -1,10 +1,10 @@
 
 import os
 import argparse
-import subprocess
+from validate_config import validate_config
+from plan_config import plan_config
 from apply_config import apply_config
 from delete_config import delete_config
-from common import common
 
 
 def parse_var(s):
@@ -42,9 +42,7 @@ def validate_arguments(args):
     :return:
     """
     assert (args.get('c') is not None)
-    assert (args.get('tfdir') is not None)
-    assert (args.get('tfvarspath') is not None)
-
+    assert (args.get('module') is not None)
 
 
 def get_fixed_arguments(args):
@@ -64,14 +62,17 @@ def run(args):
     :return:
     """
     # change dir to where the .tf file is
-    os.chdir(args['tfdir'])
-    print('Changed directory to :{}'.format(os.path.abspath(os.curdir)))
-    assert(os.path.abspath(os.curdir).endswith(os.path.basename(args['tfdir'])))
-
-    common.init(args)
+    os.chdir(args['module'])
+    module_dir = os.path.abspath(os.curdir)
+    print('Changed directory to: {}'.format(module_dir))
+    assert(module_dir.endswith(os.path.basename(args['module'])))
 
     # check which terraform command is being used and call related function
-    if args['c'] == 'apply':
+    if args['c'] == 'validate':
+        validate_config(args)
+    if args['c'] == 'plan':
+        plan_config(args)
+    elif args['c'] == 'apply':
         apply_config(args)
     elif args['c'] == 'destroy':
         delete_config(args)
@@ -79,10 +80,9 @@ def run(args):
 
 def main():
     parser = argparse.ArgumentParser(description="This program wraps terraform to provide some additional flexibility")
-    parser.add_argument("-c", help='the terraform command you want to run')
-    parser.add_argument("-tfdir", help="directory of the .tf file")
-    parser.add_argument("-tfvarspath", help="path to the tfvars.json file path")
-    parser.add_argument("-auto", help="0: will prompt the user 1: will apply the generated plan", default='0')
+    parser.add_argument("-c", help='the terraform command you want to run [validate, plan, apply, destroy]')
+    parser.add_argument("-module", help="absolute path to the target module")
+    parser.add_argument("-tfvars", help="absolute path to the tfvars.json to pass to the module")
     parser.add_argument("--set",
                         metavar="KEY=VALUE",
                         nargs='+',

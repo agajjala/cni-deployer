@@ -33,7 +33,6 @@ module lambda {
   function_s3_key                             = var.lambda_function_s3_key
   function_s3_object_version                  = var.lambda_function_s3_object_version
   memory_size                                 = var.lambda_memory_size
-  layers                                      = var.lambda_layers
   private_link_event_handler_role_arn         = module.iam.ctrl_private_link_event_handler_role_arn
   inbound_supervisor_role_arn                 = module.iam.ctrl_inbound_supervisor_role_arn
   inbound_private_link_api_endpoint_role_arn  = module.iam.ctrl_inbound_private_link_api_endpoint_role_arn

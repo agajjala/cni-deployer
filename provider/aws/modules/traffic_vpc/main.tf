@@ -69,7 +69,6 @@ module data_plane {
   retention_in_days            = var.flow_log_retention_in_days
   subnet_ids                   = concat(module.vpc.private_subnet_ids, module.vpc.public_subnet_ids)
   public_access_cidrs          = var.sfdc_cidr_blocks
-  scaling_config               = var.scaling_config
   cluster_security_group_ids   = [
     module.security_groups.data_plane_cluster_sg_id
   ]

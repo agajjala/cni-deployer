@@ -2,15 +2,16 @@ variable resource_prefix {}
 variable tags {
   type = map(string)
 }
-variable layers {
-  type = list(string)
-}
 variable memory_size {}
 variable artifact_bucket {}
 variable layer_s3_key {}
-variable layer_s3_object_version {}
+variable layer_s3_object_version {
+  default = ""
+}
 variable function_s3_key {}
-variable function_s3_object_version {}
+variable function_s3_object_version {
+  default = ""
+}
 variable inbound_supervisor_role_arn {}
 variable outbound_supervisor_role_arn {}
 variable dynamodb_stream_fanout_role_arn {}

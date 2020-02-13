@@ -19,10 +19,11 @@ variable outbound_nginx_s3_bucket_arn {
 }
 variable artifact_bucket {}
 variable lambda_layer_s3_key {}
-variable lambda_layer_s3_object_version {}
-variable lambda_function_s3_key {}
-variable lambda_function_s3_object_version {}
-variable lambda_memory_size {}
-variable lambda_layers {
-  type = list(string)
+variable lambda_layer_s3_object_version {
+  default = ""
 }
+variable lambda_function_s3_key {}
+variable lambda_function_s3_object_version {
+  default = ""
+}
+variable lambda_memory_size {}

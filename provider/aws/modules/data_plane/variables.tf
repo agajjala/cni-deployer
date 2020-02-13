@@ -27,12 +27,5 @@ variable enabled_cluster_log_types {
     "scheduler"
   ]
 }
-variable scaling_config {
-  type = object({
-    desired_size = number,
-    max_size     = number,
-    min_size     = number
-  })
-}
 variable node_group_key_name {}
 variable bastion_security_group_id {}

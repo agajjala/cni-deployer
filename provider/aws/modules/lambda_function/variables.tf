@@ -15,7 +15,8 @@ variable s3_key {
   description = "Name of the function artifact"
 }
 variable s3_object_version {
-  description = "Version of the function artifact"
+  description = "Version of the object in the S3 bucket used to create the lambda function. Omitting this field defaults to the latest version."
+  default     = ""
 }
 variable runtime {
   description = "Name of the runtime to use"
