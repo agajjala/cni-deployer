@@ -1,5 +1,5 @@
 locals {
-  pem_file_path = "${path.root}/${var.key_name}"
+  pem_file_path = "${path.root}/${var.key_name}.pem"
 }
 
 resource tls_private_key private_key {
