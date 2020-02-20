@@ -60,18 +60,12 @@ variable sfdc_vpn_cidrs {
 variable inbound_vpc_cidr {
   description = "CIDR of the inbound VPC"
   type        = string
-}
-variable inbound_data_plane_cluster_name {
-  description = "Name to give the inbound data plane cluster in EKS"
-  type        = string
+  default     = "10.20.8.0/22"
 }
 variable outbound_vpc_cidr {
   description = "CIDR of the outbound VPC"
   type        = string
-}
-variable outbound_data_plane_cluster_name {
-  description = "Name to give the outbound data plane cluster in EKS"
-  type        = string
+  default     = "10.20.12.0/22"
 }
 variable az_count {
   description = "Number of availability zones to deploy to"

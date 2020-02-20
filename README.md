@@ -44,10 +44,10 @@
 
 ## Deploy a test environment
 
-1. Make a copy of the base configuration file.
+1. Make a copy of the base manifest file.
 
     ```
-   cp base_config.tfvars.json cni_test.tfvars.json
+   cp base_manifest.tfvars.json cni_test.tfvars.json
    ```
 
 2. Populate the empty values in `cni_test.tfvars.json` to reflect your desired setup. The table below details the meaning of each field.
@@ -61,21 +61,17 @@
     | artifact\_bucket | Name of the S3 bucket in which artifacts are stored | `string` |
     | lambda\_layer\_s3\_key | Name of the lambda layer object in the artifact bucket | `string` |
     | lambda\_function\_s3\_key | Name of the lambda function object in the artifact bucket | `string` |
-    | inbound\_vpc\_cidr | CIDR of the inbound VPC | `string` |
-    | inbound\_data\_plane\_cluster\_name | Name to give the inbound data plane cluster in EKS | `string` |
-    | outbound\_vpc\_cidr | CIDR of the outbound VPC | `string` |
-    | outbound\_data\_plane\_cluster\_name | Name to give the outbound data plane cluster in EKS | `string` |
 
-3. Run the following command to perform a sanity check on your configuration file:
+3. Run the following command to perform a sanity check on your manifest:
 
    ```
-   python deployer/deploy.py -c plan -module $(pwd)/provider/aws/cni-test/ -tfvars $(pwd)/cni_test.tfvars.json
+   python deployer/deploy.py -c plan -module $(pwd)/provider/aws/cni-test/ -manifest $(pwd)/cni_test.tfvars.json
    ```
 
 4. If the previous step was successful, run this command to deploy the environment:
 
     ```
-    python deployer/deploy.py -c apply -module $(pwd)/provider/aws/cni-test/ -tfvars $(pwd)/cni_test.tfvars.json
+    python deployer/deploy.py -c apply -module $(pwd)/provider/aws/cni-test/ -manifest $(pwd)/cni_test.tfvars.json
     ```
 
 5. You should now have a running test environment.
@@ -84,7 +80,7 @@
 
 #### Validate
 
-The `validate` is a read-only command that verifies a provided `-module` is syntactically valid. This check is purely static and does not take into account provided variables or existing state.
+`validate` is a read-only command that verifies a provided `-module` (along with its nested modules) is syntactically valid. This check is purely static and does not take into account provided variables or existing state.
 
     python deployer/deploy.py -c validate -module $(pwd)/provider/aws/cni-test/
 
@@ -92,16 +88,16 @@ The `validate` is a read-only command that verifies a provided `-module` is synt
 
 `plan` is a read-only command that outputs the exact list of changes Terraform will perform. This list of changes is stored as a `terraform_plan` file in the provided `-module` directory. This file is used by a successive `apply` command to perform the listed changes.
 
-    python deployer/deploy.py -c plan -module $(pwd)/provider/aws/cni-test/ -tfvars $(pwd)/cni_test.tfvars.json
+    python deployer/deploy.py -c plan -module $(pwd)/provider/aws/cni-test/ -manifest $(pwd)/cni_test.tfvars.json
 
 #### Apply
 
 The `apply` command reads the `terraform_plan` file output by the previous `plan` run and performs each change that was listed. `plan` should always be run before `apply`.
 
-    python deployer/deploy.py -c apply -module $(pwd)/provider/aws/cni-test/ -tfvars $(pwd)/cni_test.tfvars.json
+    python deployer/deploy.py -c apply -module $(pwd)/provider/aws/cni-test/ -manifest $(pwd)/cni_test.tfvars.json
 
 #### Destroy
 
 The `destroy` command destroys all infrastructure created by Terraform. This command will prompt for confirmation before destroying.
 
-    python deployer/deploy.py -c apply -module $(pwd)/provider/aws/cni-test/ -tfvars $(pwd)/cni_test.tfvars.json
+    python deployer/deploy.py -c apply -module $(pwd)/provider/aws/cni-test/ -manifest $(pwd)/cni_test.tfvars.json

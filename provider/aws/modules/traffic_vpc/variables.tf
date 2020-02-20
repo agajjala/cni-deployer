@@ -3,7 +3,6 @@ variable resource_prefix {}
 variable tags {
   type = map(string)
 }
-variable vpc_type {}
 variable vpc_cidr {}
 variable sfdc_cidr_blocks {
   type = list(string)

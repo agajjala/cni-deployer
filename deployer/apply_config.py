@@ -3,7 +3,7 @@ from common import common
 
 
 def validate_args(args):
-    assert('tfvars' in args)
+    assert('manifest' in args)
 
 
 def apply_config(args):

@@ -1,5 +1,5 @@
 resource "aws_security_group" "bastion" {
-  name        = "${var.resource_prefix}-${var.vpc_type}-bastion"
+  name        = "${var.resource_prefix}-bastion"
   vpc_id      = var.vpc_id
 
   tags        = var.tags

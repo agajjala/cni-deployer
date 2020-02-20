@@ -1,5 +1,5 @@
 resource "aws_security_group" "nginx" {
-  name        = "${var.resource_prefix}-${var.vpc_type}-nginx"
+  name        = "${var.resource_prefix}-nginx"
   vpc_id      = var.vpc_id
 
   tags        = var.tags

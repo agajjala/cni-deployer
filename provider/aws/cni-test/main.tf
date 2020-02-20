@@ -7,9 +7,11 @@ provider aws {
 }
 
 locals {
-  resource_prefix = "${var.env_name}-${var.region}-${var.deployment_id}"
-  admin_role_arn  = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.admin_role_name}"
-  az_names        = slice(sort(data.aws_availability_zones.available.names), 0, var.az_count)
+  resource_prefix              = "${var.env_name}-${var.region}-${var.deployment_id}"
+  admin_role_arn               = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.admin_role_name}"
+  az_names                     = slice(sort(data.aws_availability_zones.available.names), 0, var.az_count)
+  inbound_vpc_resource_prefix  = "${local.resource_prefix}-inbound"
+  outbound_vpc_resource_prefix = "${local.resource_prefix}-outbound"
 }
 
 module globals {
@@ -48,9 +50,8 @@ module node_group_key_pair {
 module inbound_vpc {
   source                             = "../modules/traffic_vpc"
   region                             = var.region
-  resource_prefix                    = local.resource_prefix
+  resource_prefix                    = local.inbound_vpc_resource_prefix
   tags                               = var.tags
-  vpc_type                           = "inbound"
   vpc_cidr                           = var.inbound_vpc_cidr
   sfdc_cidr_blocks                   = var.sfdc_vpn_cidrs
   az_names                           = local.az_names
@@ -59,7 +60,7 @@ module inbound_vpc {
   admin_role_arn                     = local.admin_role_arn
   flow_log_iam_role_arn              = module.globals.iam_role_flow_logs_arn
   flow_log_retention_in_days         = var.flow_logs_retention_in_days
-  data_plane_cluster_name            = var.inbound_data_plane_cluster_name
+  data_plane_cluster_name            = "${local.inbound_vpc_resource_prefix}-data-plane"
   data_plane_cluster_role_arn        = module.globals.data_plane_cluster_role_arn
   data_plane_cluster_role_name       = module.globals.data_plane_cluster_role_name
   data_plane_node_role_arn           = module.globals.data_plane_node_role_arn
@@ -75,9 +76,8 @@ module inbound_vpc {
 module outbound_vpc {
   source                             = "../modules/traffic_vpc"
   region                             = var.region
-  resource_prefix                    = local.resource_prefix
+  resource_prefix                    = local.outbound_vpc_resource_prefix
   tags                               = var.tags
-  vpc_type                           = "outbound"
   vpc_cidr                           = var.inbound_vpc_cidr
   sfdc_cidr_blocks                   = var.sfdc_vpn_cidrs
   az_names                           = local.az_names
@@ -86,7 +86,7 @@ module outbound_vpc {
   admin_role_arn                     = local.admin_role_arn
   flow_log_iam_role_arn              = module.globals.iam_role_flow_logs_arn
   flow_log_retention_in_days         = var.flow_logs_retention_in_days
-  data_plane_cluster_name            = var.outbound_data_plane_cluster_name
+  data_plane_cluster_name            = "${local.outbound_vpc_resource_prefix}-data-plane"
   data_plane_cluster_role_arn        = module.globals.data_plane_cluster_role_arn
   data_plane_cluster_role_name       = module.globals.data_plane_cluster_role_name
   data_plane_node_role_arn           = module.globals.data_plane_node_role_arn

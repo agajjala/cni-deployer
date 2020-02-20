@@ -10,13 +10,13 @@ def load_config(json_filename):
 
 
 def init(args):
-    tfvars = load_config(args['tfvars'])
+    manifest = load_config(args['manifest'])
     backend_config = load_config('backend_config.json')
 
     init_arguments = []
     for key, value in backend_config.items():
         init_arguments.append('-backend-config')
-        arg = key + '=' + value.format(**tfvars)
+        arg = key + '=' + value.format(**manifest)
         init_arguments.append(arg)
 
     init_arguments.insert(0, 'init')
@@ -38,6 +38,6 @@ def clear_local_state_cache():
     cached_state_files = glob.iglob(os.path.join(terraform_cache_dir, '*.tfstate'))
 
     if cached_state_files:
-        print('Cleared local state cache.')
         for file in cached_state_files:
             os.remove(file)
+        print('Cleared local state cache.')

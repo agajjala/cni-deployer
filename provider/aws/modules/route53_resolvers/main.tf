@@ -1,7 +1,6 @@
 resource aws_route53_resolver_endpoint outbound {
-  name      = "${var.vpc_type}-${var.deployment_id}"
-  direction = "OUTBOUND"
-
+  name               = var.resource_prefix
+  direction          = "OUTBOUND"
   security_group_ids = var.security_group_ids
 
   dynamic ip_address {
@@ -16,7 +15,7 @@ resource aws_route53_resolver_endpoint outbound {
 }
 
 resource aws_route53_resolver_rule rules {
-  name                 = "${var.vpc_type}-${var.forwarded_domains[count.index]}-${var.deployment_id}"
+  name                 = "${var.resource_prefix}-${var.forwarded_domains[count.index]}"
   domain_name          = var.forwarded_domains[count.index]
   rule_type            = "FORWARD"
   resolver_endpoint_id = aws_route53_resolver_endpoint.outbound.id
@@ -34,7 +33,7 @@ resource aws_route53_resolver_rule rules {
 }
 
 resource aws_route53_resolver_rule_association associations {
-  name             = "${var.vpc_type}-${var.forwarded_domains[count.index]}-${var.deployment_id}"
+  name             = "${var.resource_prefix}-${var.forwarded_domains[count.index]}"
   resolver_rule_id = aws_route53_resolver_rule.rules[count.index].id
   vpc_id           = var.vpc_id
 

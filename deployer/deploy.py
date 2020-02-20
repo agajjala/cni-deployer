@@ -82,7 +82,7 @@ def main():
     parser = argparse.ArgumentParser(description="This program wraps terraform to provide some additional flexibility")
     parser.add_argument("-c", help='the terraform command you want to run [validate, plan, apply, destroy]')
     parser.add_argument("-module", help="absolute path to the target module")
-    parser.add_argument("-tfvars", help="absolute path to the tfvars.json to pass to the module")
+    parser.add_argument("-manifest", help="absolute path to the tfvars.json to pass to the module")
     parser.add_argument("--set",
                         metavar="KEY=VALUE",
                         nargs='+',

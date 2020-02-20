@@ -3,7 +3,7 @@ from common import common
 
 
 def validate_args(args):
-    assert('tfvars' in args)
+    assert('manifest' in args)
 
 
 def plan_config(args):
@@ -13,4 +13,4 @@ def plan_config(args):
     common.init(args)
 
     subprocess.run(
-        ['terraform', 'plan', '-var-file', args['tfvars'], '-out', 'terraform_plan'])
+        ['terraform', 'plan', '-var-file', args['manifest'], '-out', 'terraform_plan'])

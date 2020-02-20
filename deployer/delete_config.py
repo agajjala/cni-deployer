@@ -3,7 +3,7 @@ from common import common
 
 
 def validate_args(args):
-    assert('tffvars' in args)
+    assert('manifest' in args)
 
 
 def delete_config(args):
@@ -12,5 +12,5 @@ def delete_config(args):
     common.clear_local_state_cache()
     common.init(args)
 
-    subprocess.run(['terraform', 'destroy', '-var-file', args['tfvars']])
+    subprocess.run(['terraform', 'destroy', '-var-file', args['manifest']])
 
