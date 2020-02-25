@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "cni-inbound.fullname" . }}
+  namespace: {{ .Values.namespace }}
+  labels: {{- include "cni-inbound.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "cni-inbound.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "cni-inbound.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+      - name: {{ .Chart.Name }}
+        image: {{ .Values.nginx_inbound.image }}:{{ .Values.nginx_inbound.version }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        resources:
+          requests:
+            cpu: {{ .Values.resources.requests.cpu }}
+          limits:
+            cpu: {{ .Values.resources.limits.cpu }}
+        ports:
+        - containerPort: 8443
+          protocol: TCP
+          name: mtls
+        volumeMounts: 
+        - name: cni
+          mountPath: /host_cni
+        - name: cni-log-volume
+          mountPath: /cni/log
+        - name: cni-collection-volume
+          mountPath: /cni/monitoring
+      volumes:
+      - name: cni
+        emptyDir: {}
+      - name: cni-log-volume
+        emptyDir: {}
+      - name: cni-collection-volume
+        emptyDir: {}

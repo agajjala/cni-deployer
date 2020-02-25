@@ -1,0 +1,56 @@
+# Default values for cni-outbound.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+namespace: cni-outbound
+replicaCount: 3
+# Following sets a config on the pod of the same name
+# This should be set roughly equal to the max connection lifespan expected
+# in order for clients to not receive error codes during pod termination
+terminationGracePeriodSeconds: 300
+
+aws:
+  ec2:
+    metadata_url: "http://169.254.169.254/latest"
+
+nginx_outbound:
+  image: 985884022631.dkr.ecr.us-west-2.amazonaws.com/eks-dp-test-nginx-latest
+  version: "nginx-zipkinv16"
+
+cluster-autoscaler:
+  image: k8s.gcr.io/cluster-autoscaler
+  version: v1.2.2
+
+image:
+  tag: latest
+  pullPolicy: Always
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+# This currently assumes AWS, we can revisit if we have to be on other
+# substrates
+loadbalancer:
+  type: nlb
+  internalLoadBalancer: "yes"
+  proxyProtocol: "*"
+
+service:
+  type: LoadBalancer
+
+# Value should be overriden in aws with ${ #stage(\"pre_deploy\").outputs.kubernetesServiceAccountName }
+serviceAccount:
+  name: cni-outbound
+
+resources:
+  requests:
+    cpu: 100m
+  limits:
+    cpu: 100m
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

@@ -1,46 +1,65 @@
 # CNI Terraform
+```bash
+cni-tf
+├── Applications     --> CNI Kubernetes Applications
+│   ├── Makefile
+│   └── cni-inbound  --> CNI Inbound HelmChart Template Definitions
+|   └── cni-outbound --> CNI Outbound HelmChart Template Definitions
+├── Infrastructure
+│   ├── deployer     --> Coomand Line Tool for Infrastructure-as-code deployment
+│   └── provider     --> TF Infrastructure-as-code
+├── Manifests
+│   ├── Dev          --> CNI Deployment Manifests for Developers
+│   └── Prod         --> CNI Deployment Manifests for Production
+└── README.md
+```
 
 ## Requirements
 
 1. Install Terraform:
 
-    ```
+```
     brew install terraform
-   ```
+```
 
 2. Install the AWS CLI:
 
-    ```
+```
     brew install awscli
-   ```
+```
 
     If it is already installed, ensure it is updated to the latest version:
 
-    ```
+```
     brew upgrade awscli
-   ```
+```
 
 3. Install kubectl:
 
-    ```
+```
     brew install kubectl
-   ```
+```
 
-   If you have Docker installed, follow these additional steps ([this will ensure your `kubectl` symlinks point to the brew installation](https://stackoverflow.com/a/55737973)):
+If you have Docker installed, follow these additional steps ([this will ensure your `kubectl` symlinks point to the brew installation](https://stackoverflow.com/a/55737973)):
 
-   ```
+```
    rm /usr/local/bin/kubectl
-
    brew link --overwrite kubernetes-cli
-    ```
+```
 
 4. Install [aws-iam-authenticator](https://github.com/awsdocs/amazon-eks-user-guide/blob/master/doc_source/install-aws-iam-authenticator.md):
 
-    ```
+```
     brew install aws-iam-authenticator
-   ```
+```
 
-5. Confirm your `python` alias points to `python3`
+5. Install Helm:
+
+```
+    brew install kubernetes-helm
+```
+
+6. Confirm your `python` alias points to `python3`
 
 ## Deploy a test environment
 
