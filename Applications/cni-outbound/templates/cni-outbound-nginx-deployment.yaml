@@ -3,22 +3,19 @@ kind: Deployment
 metadata:
   name: {{ include "cni-outbound.fullname" . }}
   namespace: {{ .Values.namespace }}
-  labels: {{- include "cni-outbound.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ include "cni-outbound.name" . }}
-      app.kubernetes.io/instance: {{ .Release.Name }}
+      name: {{ include "cni-outbound.fullname" . }}
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: {{ include "cni-outbound.name" . }}
-        app.kubernetes.io/instance: {{ .Release.Name }}
+        name: {{ include "cni-outbound.fullname" . }}
     spec:
       containers:
       - name: {{ .Chart.Name }}
-        image: {{ .Values.nginx_outbound.image }}:{{ .Values.nginx_outbound.version }}
+        image: {{ .Values.dataplane_outbound.image }}:{{ .Values.dataplane_outbound.version }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         resources:
           requests:

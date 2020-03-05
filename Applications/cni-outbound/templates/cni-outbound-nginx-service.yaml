@@ -4,13 +4,15 @@ metadata:
   name: {{ include "cni-outbound.fullname" . }}
   namespace: {{ .Release.Namespace }}
   annotations:
+    {{- $env := .Values.env_name}}{{$deploymentID := .Values.deployment_id}}
+    {{- $tags := (printf "env_name=%v,deployment_id=%v" $env $deploymentID) }}
     service.beta.kubernetes.io/aws-load-balancer-type: {{ .Values.loadbalancer.type }}
-    service.beta.kubernetes.io/aws-load-balancer-internal: {{ .Values.loadbalancer.internalLoadBalancer }}
-  labels:
-{{ include "cni-outbound.labels" . | indent 4 }}
-    {{- range $label_name, $label_value := .Values.platform_labels }}
-    {{ $label_name }}: {{ $label_value }}
+    service.beta.kubernetes.io/aws-load-balancer-additional-resource-tags: “{{ $tags }}”
+    {{- if eq .Values.loadbalancer.internalLoadBalancer "yes" }}
+    service.beta.kubernetes.io/aws-load-balancer-internal: "true"
     {{- end }}
+  labels:
+    name: {{ include "cni-outbound.fullname" . }}
 spec:
   type: {{ .Values.service.type }}
   ports:
@@ -19,5 +21,4 @@ spec:
     protocol: TCP
     name: https
   selector:
-    app.kubernetes.io/name: {{ include "cni-outbound.name" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
+    name: {{ include "cni-outbound.fullname" . }}

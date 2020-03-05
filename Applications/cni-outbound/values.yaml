@@ -1,7 +1,9 @@
 # Default values for cni-outbound.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
-
+env_name: dev
+deployment_id: dev
+region: us-west-2
 namespace: cni-outbound
 replicaCount: 3
 # Following sets a config on the pod of the same name
@@ -13,13 +15,24 @@ aws:
   ec2:
     metadata_url: "http://169.254.169.254/latest"
 
-nginx_outbound:
+direction: outbound
+
+dataplane_outbound:
   image: 985884022631.dkr.ecr.us-west-2.amazonaws.com/eks-dp-test-nginx-latest
   version: "nginx-zipkinv16"
 
-cluster-autoscaler:
+cluster_autoscaler:
   image: k8s.gcr.io/cluster-autoscaler
-  version: v1.2.2
+  version: "v1.14.7"
+
+cluster_autoscaler_resources:
+  requests:
+    cpu: 100m
+    memory: 300Mi
+  limits:
+    cpu: 100m
+    memory: 300Mi
+
 
 image:
   tag: latest
@@ -45,9 +58,9 @@ serviceAccount:
 
 resources:
   requests:
-    cpu: 100m
+    cpu: 1000m
   limits:
-    cpu: 100m
+    cpu: 1000m
 
 nodeSelector: {}
 

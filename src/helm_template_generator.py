@@ -1,4 +1,5 @@
 import os
+import sys
 import subprocess
 import yaml
 
@@ -25,12 +26,12 @@ class ManifestProcessor:
             print ("Creation of the template directory %s failed" % path)
             raise e
 
-    def generate_helm_template(self, manifest_data):
+    def generate_helm_template(self, manifest_data, manifest_file):
 
         #Inbound Dataplane Template
         inbound_eks_cluster_name = self.form_eks_cluster_name(manifest_data['env_name'], manifest_data['region'], manifest_data['deployment_id'], "inbound")
         self.create_output_template_dirs(inbound_eks_cluster_name)
-        response = subprocess.run(['helm', 'template', manifest_data['deployment_id'], INBOUND_HELM_TEMPLATE_PATH, '--output-dir', os.path.join(HELM_TEMPLATE_OUTPUT_PATH,inbound_eks_cluster_name)])
+        response = subprocess.run(['helm', 'template', manifest_data['deployment_id'], INBOUND_HELM_TEMPLATE_PATH, '--values',  manifest_file, '--output-dir', os.path.join(HELM_TEMPLATE_OUTPUT_PATH,inbound_eks_cluster_name)])
         if response.returncode != 0:
             print(response)
             sys.exit('Helm template generation failed')
@@ -38,7 +39,7 @@ class ManifestProcessor:
         # Outbound Dataplane Template
         outbound_eks_cluster_name = self.form_eks_cluster_name(manifest_data['env_name'], manifest_data['region'], manifest_data['deployment_id'], "outbound")
         self.create_output_template_dirs(outbound_eks_cluster_name)
-        response = subprocess.run(['helm', 'template', manifest_data['deployment_id'], OUTBOUND_HELM_TEMPLATE_PATH, '--output-dir', os.path.join(HELM_TEMPLATE_OUTPUT_PATH,outbound_eks_cluster_name)])
+        response = subprocess.run(['helm', 'template', manifest_data['deployment_id'], OUTBOUND_HELM_TEMPLATE_PATH, '--values',  manifest_file, '--output-dir', os.path.join(HELM_TEMPLATE_OUTPUT_PATH,outbound_eks_cluster_name)])
         if response.returncode != 0:
             print(response)
             sys.exit('Helm template generation failed')
@@ -47,7 +48,7 @@ class ManifestProcessor:
         with open(manifest_file, 'r') as file:
             manifest_data = yaml.load(file, Loader=yaml.FullLoader)
             print("***Generating Helm Templates for manifest: ", manifest_file)
-            self.generate_helm_template(manifest_data)
+            self.generate_helm_template(manifest_data, manifest_file)
 
     def fetch_manifest_files_list(self, manifests_dir_path):
         manifest_file_list = []

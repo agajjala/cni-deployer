@@ -8,8 +8,10 @@ artifact_bucket: ''
 lambda_layer_s3_key: ''
 lambda_function_s3_key: ''
 dataplane_inbound:
-  name: 985884022631.dkr.ecr.us-west-2.amazonaws.com/eks-dp-test-nginx-latest
-  version: 'nginx-zipkinv17'
+  image: 985884022631.dkr.ecr.us-west-2.amazonaws.com/cni-nginx-proxy-inbound
+  version: '18'
 dataplane_outbound:
-  name: 985884022631.dkr.ecr.us-west-2.amazonaws.com/eks-dp-test-nginx-latest
-  version: 'nginx-zipkinv17'
+  image: 985884022631.dkr.ecr.us-west-2.amazonaws.com/cni-nginx-proxy-outbound
+  version: '18'
+loadbalancer:
+  internalLoadBalancer: "yes"
