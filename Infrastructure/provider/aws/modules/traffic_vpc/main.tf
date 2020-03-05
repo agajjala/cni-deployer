@@ -1,20 +1,40 @@
+locals {
+  /*
+    A VPC requires fewer public addresses to be allocated compared to private addresses, so the last subnet CIDR in the
+    prefix is used as a base CIDR for creating public subnets.
+  */
+  public_subnet_base_cidr = cidrsubnet(var.vpc_cidr, 2, length(var.az_names))
+  private_subnet_cidrs    = length(var.private_subnet_cidrs) == 0 ? [
+    for i in range(var.az_count): cidrsubnet(var.vpc_cidr, 2, i)
+  ] : var.private_subnet_cidrs
+  public_subnet_cidrs     = length(var.public_subnet_cidrs) == 0 ? [
+    for i in range(var.az_count): cidrsubnet(local.public_subnet_base_cidr, 2, i)
+  ] : var.public_subnet_cidrs
+}
+
 module vpc {
-  source                 = "../vpc"
-  tags                   = var.tags
-  vpc_name               = var.resource_prefix
-  vpc_cidr               = var.vpc_cidr
-  additional_vpc_tags    = {"kubernetes.io/cluster/${var.data_plane_cluster_name}": "shared"}
-  additional_subnet_tags = {"kubernetes.io/cluster/${var.data_plane_cluster_name}": "shared"}
-  az_names               = var.az_names
-  enable_nat_gateway     = var.enable_nat_gateway
+  source                    = "../vpc"
+  tags                      = var.tags
+  vpc_name                  = var.resource_prefix
+  vpc_cidr                  = var.vpc_cidr
+  vpc_tags                  = {"kubernetes.io/cluster/${var.data_plane_cluster_name}": "shared"}
+  private_subnet_tags       = {"kubernetes.io/cluster/${var.data_plane_cluster_name}": "shared", "kubernetes.io/role/internal-elb": "1"}
+  public_subnet_tags        = {"kubernetes.io/cluster/${var.data_plane_cluster_name}": "shared", "kubernetes.io/role/elb": "1"}
+  private_subnet_cidrs      = local.private_subnet_cidrs
+  public_subnet_cidrs       = local.public_subnet_cidrs
+  az_names                  = var.az_names
+  enable_nat_gateway        = var.enable_nat_gateway
+  enable_private_nat_routes = var.enable_private_nat_routes
 }
 
 module security_groups {
-  source           = "../security_groups"
-  resource_prefix  = var.resource_prefix
-  tags             = var.tags
-  vpc_id           = module.vpc.vpc_id
-  sfdc_cidr_blocks = var.sfdc_cidr_blocks
+  source                     = "../security_groups"
+  resource_prefix            = var.resource_prefix
+  tags                       = var.tags
+  vpc_id                     = module.vpc.vpc_id
+  sfdc_cidr_blocks           = var.sfdc_cidr_blocks
+  endpoint_ingress_port_from = var.endpoint_ingress_port_from
+  endpoint_ingress_port_to   = var.endpoint_ingress_port_to
 }
 
 module route53_zone {
@@ -60,22 +80,18 @@ module data_plane {
   node_group_role_name         = var.data_plane_node_role_name
   admin_role_arn               = var.admin_role_arn
   retention_in_days            = var.flow_log_retention_in_days
-  subnet_ids                   = concat(module.vpc.private_subnet_ids, module.vpc.public_subnet_ids)
+  private_subnet_ids           = module.vpc.private_subnet_ids
+  public_subnet_ids            = module.vpc.public_subnet_ids
   public_access_cidrs          = var.sfdc_cidr_blocks
   cluster_security_group_ids   = [
     module.security_groups.data_plane_cluster_sg_id
   ]
+  node_group_instance_types    = var.data_plane_node_group_instance_types
   bastion_security_group_id    = module.security_groups.bastion_sg_id
   node_group_key_name          = var.node_group_key_name
-}
-
-resource aws_security_group_rule node_group_allow_bastion_ssh {
-  type                     = "ingress"
-  from_port                = 22
-  to_port                  = 22
-  protocol                 = "tcp"
-  source_security_group_id = module.data_plane.remote_access_security_group_id
-  security_group_id        = module.security_groups.bastion_sg_id
+  node_group_desired_size      = var.data_plane_node_group_desired_size
+  node_group_max_size          = var.data_plane_node_group_max_size
+  node_group_min_size          = var.data_plane_node_group_min_size
 }
 
 module tgw_attachment {

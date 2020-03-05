@@ -4,19 +4,33 @@ variable tags {
 }
 variable vpc_name {}
 variable vpc_cidr {}
-variable additional_vpc_tags {
+variable vpc_tags {
   type    = map(string)
   default = {}
 }
-variable additional_subnet_tags {
+variable private_subnet_tags {
   type    = map(string)
   default = {}
+}
+variable public_subnet_tags {
+  type    = map(string)
+  default = {}
+}
+variable private_subnet_cidrs {
+  type = list(string)
+}
+variable public_subnet_cidrs {
+  type = list(string)
 }
 variable az_names {
   type        = list(string)
   description = "A list of availability zone names. Must be three or fewer."
 }
 variable enable_nat_gateway {
+  type    = bool
+  default = false
+}
+variable enable_private_nat_routes {
   type    = bool
   default = false
 }

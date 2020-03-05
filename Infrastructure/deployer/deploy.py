@@ -1,10 +1,12 @@
-
-import os
 import argparse
-from validate_config import validate_config
-from plan_config import plan_config
-from apply_config import apply_config
-from delete_config import delete_config
+import glob
+import os
+from common import common
+from terraform.init import init
+from terraform.validate import validate
+from terraform.plan import plan
+from terraform.apply import apply
+from terraform.destroy import destroy
 
 
 def parse_var(s):
@@ -42,7 +44,7 @@ def validate_arguments(args):
     :return:
     """
     assert (args.get('c') is not None)
-    assert (args.get('module') is not None)
+    assert (args.get('manifest') is not None)
 
 
 def get_fixed_arguments(args):
@@ -54,6 +56,15 @@ def get_fixed_arguments(args):
     return vars(args)
 
 
+def run_tf_command(manifest, args, tf_command):
+    module_path = args['module']
+    os.chdir(module_path)
+    print('Changed directory to: {}'.format(module_path))
+
+    init(manifest)
+    tf_command(manifest)
+
+
 def run(args):
     """
     run the terraform command specified by the user in the directory
@@ -61,28 +72,23 @@ def run(args):
     :param args:
     :return:
     """
-    # change dir to where the .tf file is
-    os.chdir(args['module'])
-    module_dir = os.path.abspath(os.curdir)
-    print('Changed directory to: {}'.format(module_dir))
-    assert(module_dir.endswith(os.path.basename(args['module'])))
+    manifest = common.load_yaml(args['manifest'])
 
-    # check which terraform command is being used and call related function
     if args['c'] == 'validate':
-        validate_config(args)
+        run_tf_command(manifest, args, validate)
     if args['c'] == 'plan':
-        plan_config(args)
+        run_tf_command(manifest, args, plan)
     elif args['c'] == 'apply':
-        apply_config(args)
+        run_tf_command(manifest, args, apply)
     elif args['c'] == 'destroy':
-        delete_config(args)
+        run_tf_command(manifest, args, destroy)
 
 
 def main():
     parser = argparse.ArgumentParser(description="This program wraps terraform to provide some additional flexibility")
     parser.add_argument("-c", help='the terraform command you want to run [validate, plan, apply, destroy]')
-    parser.add_argument("-module", help="absolute path to the target module")
-    parser.add_argument("-manifest", help="absolute path to the tfvars.json to pass to the module")
+    parser.add_argument("-module", help="path to the target module")
+    parser.add_argument("-manifest", help="path to the manifest to pass to the module")
     parser.add_argument("--set",
                         metavar="KEY=VALUE",
                         nargs='+',
@@ -94,15 +100,15 @@ def main():
                              "values are always treated as strings.")
 
     args = parser.parse_args()
-    terraform_arguments = get_fixed_arguments(args)
+    deploy_args = get_fixed_arguments(args)
 
     if args.set:
-        terraform_arguments = parse_vars(args.set)
+        deploy_args = parse_vars(args.set)
 
-    print("values:{}".format(terraform_arguments))
-    validate_arguments(terraform_arguments)
+    print("values:{}".format(deploy_args))
+    validate_arguments(deploy_args)
 
-    run(terraform_arguments)
+    run(deploy_args)
 
 
 if __name__=='__main__':

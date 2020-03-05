@@ -1,6 +1,0 @@
-{
-  "bucket": "tf-state-cni-{region}-{env_name}-{deployment_id}",
-  "dynamodb_table": "tf-state-cni-{env_name}-{deployment_id}",
-  "region": "{region}",
-  "key": "cni-test"
-}

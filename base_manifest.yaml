@@ -1,0 +1,9 @@
+region: us-west-2
+env_name: dev
+deployment_id:
+tags:
+  region: us-west-2
+  env_name: dev
+  deployment_id:
+lambda_layer_s3_key:
+lambda_function_s3_key:

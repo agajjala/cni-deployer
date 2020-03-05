@@ -1,3 +1,5 @@
+data aws_caller_identity current {}
+
 data aws_iam_policy_document kms_key_sns_access {
   statement {
     actions = [
@@ -17,7 +19,7 @@ data aws_iam_policy_document kms_key_sns_access {
   }
 }
 
-data aws_iam_policy_document vpce_connections_publish_access {
+data aws_iam_policy_document inbound_vpce_connections_publish_access {
   statement {
     actions = [
       "SNS:Publish"
@@ -31,7 +33,26 @@ data aws_iam_policy_document vpce_connections_publish_access {
     }
 
     resources = [
-      aws_sns_topic.vpce_connections.arn
+      aws_sns_topic.inbound_vpce_connections.arn
+    ]
+  }
+}
+
+data aws_iam_policy_document outbound_vpce_connections_publish_access {
+  statement {
+    actions = [
+      "SNS:Publish"
+    ]
+
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["vpce.amazonaws.com"]
+    }
+
+    resources = [
+      aws_sns_topic.outbound_vpce_connections.arn
     ]
   }
 }

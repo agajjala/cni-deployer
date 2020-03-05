@@ -41,7 +41,7 @@ variable layers {
 variable timeout {
   description = "Timeout in seconds for each lambda invocation"
   type        = number
-  default     = 5
+  default     = 300
 }
 variable has_schedule {
   description = "If true, enables invocation of the function based on a schedule expression"

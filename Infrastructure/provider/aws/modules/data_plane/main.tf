@@ -23,7 +23,7 @@ resource aws_eks_cluster data_plane {
   vpc_config {
     endpoint_private_access = true
     endpoint_public_access  = true
-    subnet_ids              = var.subnet_ids
+    subnet_ids              = concat(var.private_subnet_ids, var.public_subnet_ids)
     security_group_ids      = var.cluster_security_group_ids
     public_access_cidrs     = var.public_access_cidrs
   }
@@ -55,12 +55,13 @@ resource aws_eks_node_group data_plane {
   cluster_name    = aws_eks_cluster.data_plane.name
   node_group_name = var.cluster_name
   node_role_arn   = var.node_group_role_arn
-  subnet_ids      = var.subnet_ids
+  subnet_ids      = var.private_subnet_ids
+  instance_types  = var.node_group_instance_types
 
   scaling_config {
-    desired_size = 1
-    max_size     = 1
-    min_size     = 1
+    desired_size = var.node_group_desired_size
+    max_size     = var.node_group_max_size
+    min_size     = var.node_group_min_size
   }
 
   remote_access {

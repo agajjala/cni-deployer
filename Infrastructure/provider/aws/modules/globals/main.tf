@@ -11,6 +11,7 @@ module iam {
 
 module sns {
   source          = "./sns"
+  region          = var.region
   resource_prefix = var.resource_prefix
   tags            = var.tags
   admin_role_arn  = var.admin_role_arn
@@ -24,27 +25,35 @@ module dynamodb {
 }
 
 module lambda {
-  source                                      = "./lambda"
-  resource_prefix                             = var.resource_prefix
-  tags                                        = var.tags
-  artifact_bucket                             = var.artifact_bucket
-  layer_s3_key                                = var.lambda_layer_s3_key
-  layer_s3_object_version                     = var.lambda_layer_s3_object_version
-  function_s3_key                             = var.lambda_function_s3_key
-  function_s3_object_version                  = var.lambda_function_s3_object_version
-  memory_size                                 = var.lambda_memory_size
-  private_link_event_handler_role_arn         = module.iam.ctrl_private_link_event_handler_role_arn
-  inbound_supervisor_role_arn                 = module.iam.ctrl_inbound_supervisor_role_arn
-  inbound_private_link_api_endpoint_role_arn  = module.iam.ctrl_inbound_private_link_api_endpoint_role_arn
-  outbound_supervisor_role_arn                = module.iam.ctrl_outbound_supervisor_role_arn
-  outbound_private_link_api_endpoint_role_arn = module.iam.ctrl_outbound_private_link_api_endpoint_role_arn
-  dynamodb_stream_fanout_role_arn             = module.iam.ctrl_dynamodb_stream_fanout_role_arn
-  inbound_private_link_stream_role_arn        = module.iam.ctrl_inbound_private_link_stream_role_arn
-  outbound_private_link_stream_role_arn       = module.iam.ctrl_outbound_private_link_stream_role_arn
-  inbound_private_link_stream_arn             = module.dynamodb.inbound_private_links_stream_arn
-  outbound_private_link_stream_arn            = module.dynamodb.outbound_private_links_stream_arn
-  vpce_connections_topic_arn                  = module.sns.vpce_connections_topic_arn
-  dynamodb_stream_fanout_topic_arn            = module.sns.dynamodb_stream_fanout_topic_arn
+  source                                        = "./lambda"
+  resource_prefix                               = var.resource_prefix
+  tags                                          = var.tags
+  bucket_name                                   = var.bucket_name
+  layer_s3_key                                  = var.lambda_layer_s3_key
+  layer_s3_object_version                       = var.lambda_layer_s3_object_version
+  function_s3_key                               = var.lambda_function_s3_key
+  function_s3_object_version                    = var.lambda_function_s3_object_version
+  memory_size                                   = var.lambda_memory_size
+  inbound_private_link_event_handler_role_arn   = module.iam.ctrl_inbound_private_link_event_handler_role_arn
+  inbound_private_link_stream_role_name         = module.iam.ctrl_inbound_private_link_stream_role_name
+  outbound_private_link_event_handler_role_arn  = module.iam.ctrl_outbound_private_link_event_handler_role_arn
+  outbound_private_link_stream_role_name        = module.iam.ctrl_outbound_private_link_stream_role_name
+  inbound_supervisor_role_arn                   = module.iam.ctrl_inbound_supervisor_role_arn
+  inbound_private_link_api_endpoint_role_arn    = module.iam.ctrl_inbound_private_link_api_endpoint_role_arn
+  outbound_supervisor_role_arn                  = module.iam.ctrl_outbound_supervisor_role_arn
+  outbound_private_link_api_endpoint_role_arn   = module.iam.ctrl_outbound_private_link_api_endpoint_role_arn
+  dynamodb_stream_fanout_role_arn               = module.iam.ctrl_dynamodb_stream_fanout_role_arn
+  dynamodb_stream_fanout_role_name              = module.iam.ctrl_dynamodb_stream_fanout_role_name
+  inbound_private_link_stream_role_arn          = module.iam.ctrl_inbound_private_link_stream_role_arn
+  outbound_private_link_stream_role_arn         = module.iam.ctrl_outbound_private_link_stream_role_arn
+  inbound_private_link_stream_arn               = module.dynamodb.inbound_private_links_stream_arn
+  outbound_private_link_stream_arn              = module.dynamodb.outbound_private_links_stream_arn
+  inbound_vpce_connections_topic_arn            = module.sns.inbound_vpce_connections_topic_arn
+  inbound_vpce_connections_kms_key_arn          = module.sns.inbound_vpce_connections_kms_key_arn
+  outbound_vpce_connections_topic_arn           = module.sns.outbound_vpce_connections_topic_arn
+  outbound_vpce_connections_kms_key_arn         = module.sns.outbound_vpce_connections_kms_key_arn
+  dynamodb_stream_fanout_topic_arn              = module.sns.dynamodb_stream_fanout_topic_arn
+  dynamodb_stream_fanout_kms_key_arn            = module.sns.dynamodb_stream_fanout_kms_key_arn
 }
 
 module api_gateway {

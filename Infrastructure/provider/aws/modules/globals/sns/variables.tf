@@ -1,3 +1,4 @@
+variable region {}
 variable resource_prefix {}
 variable tags {
   type = map(string)

@@ -21,6 +21,16 @@ EOF
   tags = var.tags
 }
 
+resource aws_iam_role_policy_attachment outbound_supervisor_lambda_basic_execution {
+  role       = aws_iam_role.outbound_supervisor.name
+  policy_arn = local.lambda_basic_execution_role_arn
+}
+
+resource aws_iam_role_policy_attachment outbound_supervisor_cloudwatch_metric_write_access {
+  role       = aws_iam_role.outbound_supervisor.name
+  policy_arn = aws_iam_policy.cloudwatch_metric_write_access.arn
+}
+
 resource aws_iam_role_policy_attachment outbound_supervisor_xray_write_access {
   role       = aws_iam_role.outbound_supervisor.name
   policy_arn = local.xray_write_access_arn
@@ -38,5 +48,5 @@ resource aws_iam_role_policy_attachment outbound_supervisor_route53_read_write_a
 
 resource aws_iam_role_policy_attachment outbound_supervisor_dynamodb_read_write_access {
   role       = aws_iam_role.outbound_supervisor.name
-  policy_arn = aws_iam_policy.outbound_dynamodb_read_write_access.arn
+  policy_arn = aws_iam_policy.dynamodb_read_write_access.arn
 }

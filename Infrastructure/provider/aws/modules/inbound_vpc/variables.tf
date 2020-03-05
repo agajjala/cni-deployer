@@ -4,13 +4,28 @@ variable tags {
   type = map(string)
 }
 variable vpc_cidr {}
+variable private_subnet_cidrs {
+  type    = list(string)
+  default = []
+}
+variable public_subnet_cidrs {
+  type    = list(string)
+  default = []
+}
 variable sfdc_cidr_blocks {
   type = list(string)
+}
+variable az_count {
+  type = number
 }
 variable az_names {
   type = list(string)
 }
 variable enable_nat_gateway {
+  type    = bool
+  default = false
+}
+variable enable_private_nat_routes {
   type    = bool
   default = false
 }
@@ -29,6 +44,26 @@ variable bastion_image_id {}
 variable bastion_instance_profile_arn {}
 variable bastion_key_name {}
 variable node_group_key_name {}
+variable data_plane_node_group_instance_types {
+  type = list(string)
+}
+variable data_plane_node_group_desired_size {
+  type = number
+}
+variable data_plane_node_group_max_size {
+  type = number
+}
+variable data_plane_node_group_min_size {
+  type = number
+}
+variable endpoint_ingress_port_from {
+  description = "The starting port to allow ingress traffic for private endpoints"
+  type        = number
+}
+variable endpoint_ingress_port_to {
+  description = "The ending port to allow ingress traffic for private endpoints"
+  type        = number
+}
 //variable sitebridge_bgp_asn {}
 //variable sitebridge_gateway_ips {
 //  type = list(string)

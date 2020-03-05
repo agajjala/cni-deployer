@@ -1,11 +1,7 @@
 locals {
-  vpc_tags                   = merge(var.tags, var.additional_vpc_tags, {Name: var.vpc_name})
-  subnet_tags                = merge(var.tags, var.additional_subnet_tags)
-  /*
-    A VPC requires fewer public addresses to be allocated compared to private addresses, so the last subnet CIDR in the
-    prefix is used as a base CIDR for creating public subnets.
-  */
-  public_subnet_base_cidr    = cidrsubnet(var.vpc_cidr, 2, length(var.az_names))
+  vpc_tags                   = merge(var.tags, var.vpc_tags, {Name: var.vpc_name})
+  private_subnet_tags        = merge(var.tags, var.private_subnet_tags)
+  public_subnet_tags         = merge(var.tags, var.public_subnet_tags)
   nat_gateway_resource_count = var.enable_nat_gateway ? length(var.az_names) : 0
 }
 
@@ -26,9 +22,9 @@ resource aws_vpc default {
 
 resource aws_subnet private {
   vpc_id                = aws_vpc.default.id
-  cidr_block            = cidrsubnet(var.vpc_cidr, 2, count.index)
-  availability_zone     = element(var.az_names, count.index)
-  tags                  = local.subnet_tags
+  cidr_block            = var.private_subnet_cidrs[count.index]
+  availability_zone     = var.az_names[count.index]
+  tags                  = local.private_subnet_tags
 
   count                 = length(var.az_names)
 }
@@ -39,9 +35,9 @@ resource aws_subnet private {
 
 resource aws_subnet public {
   vpc_id                = aws_vpc.default.id
-  cidr_block            = cidrsubnet(local.public_subnet_base_cidr, 2, count.index)
-  availability_zone     = element(var.az_names, count.index)
-  tags                  = local.subnet_tags
+  cidr_block            = var.public_subnet_cidrs[count.index]
+  availability_zone     = var.az_names[count.index]
+  tags                  = local.public_subnet_tags
 
   count                 = length(var.az_names)
 }
@@ -100,7 +96,7 @@ resource aws_route private_nat {
   nat_gateway_id         = aws_nat_gateway.ngw[count.index].id
   destination_cidr_block = "0.0.0.0/0"
 
-  count                  = local.nat_gateway_resource_count
+  count                  = var.enable_private_nat_routes ? local.nat_gateway_resource_count : 0
 }
 
 ###############################

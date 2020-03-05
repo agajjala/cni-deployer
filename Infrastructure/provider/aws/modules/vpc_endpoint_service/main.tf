@@ -1,7 +1,6 @@
 resource aws_vpc_endpoint_service default {
-  acceptance_required        = true
-  network_load_balancer_arns = var.network_load_balancer_arns
-
+  acceptance_required        = var.require_acceptance
+  network_load_balancer_arns = [var.nlb_arn]
   tags                       = var.tags
 }
 

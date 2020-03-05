@@ -1,4 +1,6 @@
 locals {
+  inbound_config_hash_key                      = "id"
+  outbound_config_hash_key                     = "id"
   private_links_table_global_secondary_indices = [
     {
       name: "EndpointId",

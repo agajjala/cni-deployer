@@ -1,7 +1,7 @@
 resource aws_dynamodb_table outbound_config_settings {
   name             = "${var.resource_prefix}_OutboundConfigSettings"
   billing_mode     = "PAY_PER_REQUEST"
-  hash_key         = "id"
+  hash_key         = local.outbound_config_hash_key
   stream_enabled   = true
   stream_view_type = "NEW_AND_OLD_IMAGES"
 
@@ -14,7 +14,7 @@ resource aws_dynamodb_table outbound_config_settings {
   }
 
   attribute {
-    name = "id"
+    name = local.outbound_config_hash_key
     type = "S"
   }
 

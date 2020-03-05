@@ -2,6 +2,24 @@ locals {
   lambda_invocation_method = "POST"
 }
 
+resource aws_api_gateway_stage default {
+  stage_name    = "default"
+  rest_api_id   = aws_api_gateway_rest_api.controller.id
+  deployment_id = aws_api_gateway_deployment.default.id
+}
+
+resource aws_api_gateway_deployment default {
+  rest_api_id = aws_api_gateway_rest_api.controller.id
+
+  variables = {
+    deployed_at = timestamp()
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
 resource aws_api_gateway_rest_api controller {
   name = "${var.resource_prefix}-controller"
   tags = var.tags

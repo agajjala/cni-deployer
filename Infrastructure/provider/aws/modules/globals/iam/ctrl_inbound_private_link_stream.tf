@@ -21,6 +21,11 @@ EOF
   tags = var.tags
 }
 
+resource aws_iam_role_policy_attachment inbound_private_link_stream_lambda_basic_execution {
+  role       = aws_iam_role.inbound_private_link_stream.name
+  policy_arn = local.lambda_basic_execution_role_arn
+}
+
 resource aws_iam_role_policy_attachment inbound_private_link_stream_xray_write_access {
   role       = aws_iam_role.inbound_private_link_stream.name
   policy_arn = local.xray_write_access_arn
@@ -33,7 +38,7 @@ resource aws_iam_role_policy_attachment inbound_private_link_stream_dynamodb_str
 
 resource aws_iam_role_policy_attachment inbound_private_link_stream_dynamodb_read_write_access {
   role       = aws_iam_role.inbound_private_link_stream.name
-  policy_arn = aws_iam_policy.inbound_dynamodb_read_write_access.arn
+  policy_arn = aws_iam_policy.dynamodb_read_write_access.arn
 }
 
 resource aws_iam_role_policy_attachment inbound_private_link_stream_sns_publish {
