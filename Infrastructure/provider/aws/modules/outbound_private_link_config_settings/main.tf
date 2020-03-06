@@ -1,3 +1,7 @@
+locals {
+  formatted_proxy_url = format("%s://%s:%d", var.nlb_protocol, var.nlb_dns_name, var.nlb_port)
+}
+
 resource aws_dynamodb_table_item auth {
   table_name = var.table_name
   hash_key   = var.table_hash_key
@@ -44,6 +48,6 @@ resource aws_dynamodb_table_item infra_vpcs {
 
   item = jsonencode({
     "${var.table_hash_key}": {"S": "infra_vpcs"},
-    "Payload": {"S": "[{\"vpc_id\": \"${var.vpc_id}\", \"subnet_ids\": ${jsonencode(var.private_subnet_ids)}, \"proxy_url\": \"${var.nlb_dns_name}\", \"status\": \"inService\", \"total_capacity\": 100, \"security_group_ids\": [\"${var.nginx_sg_id}\"]}]"}
+    "Payload": {"S": "[{\"vpc_id\": \"${var.vpc_id}\", \"subnet_ids\": ${jsonencode(var.private_subnet_ids)}, \"proxy_url\": \"${local.formatted_proxy_url}\", \"status\": \"inService\", \"total_capacity\": 100, \"security_group_ids\": [\"${var.nginx_sg_id}\"]}]"}
   })
 }
