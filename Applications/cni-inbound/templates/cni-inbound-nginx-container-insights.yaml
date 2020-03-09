@@ -57,7 +57,7 @@ roleRef:
 
 # create configmap for cwagent config
 apiVersion: v1
-{{- $clustername := (printf "%v-%v-%v-%v-dataplane" .Values.env_name .Values.deployment_id .Values.region .Values.direction) }}
+{{- $clustername := (printf "%v-%v-%v-%v-data-plane" .Values.env_name .Values.deployment_id .Values.region .Values.direction) }}
 data:
   # Configuration is in Json format. No matter what configure change you make,
   # please keep the Json blob valid.
@@ -172,7 +172,7 @@ spec:
 ---
 
 # create configmap for cluster name and aws region for CloudWatch Logs
-{{- $clustername := (printf "%v-%v-%v-%v-dataplane" .Values.env_name .Values.deployment_id .Values.region .Values.direction) }}
+{{- $clustername := (printf "%v-%v-%v-%v-data-plane" .Values.env_name .Values.deployment_id .Values.region .Values.direction) }}
 apiVersion: v1
 data:
   cluster.name: {{ $clustername }}
