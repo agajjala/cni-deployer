@@ -1,0 +1,26 @@
+region: us-west-2
+env_name: dev
+deployment_id: perf-test
+tags:
+  region: us-west-2
+  env_name: dev
+  deployment_id: perf-test
+lambda_layer_s3_key: zip/cni_common-udmalpe-b062e5d7-f07f-4097-93ba-d6e5d91c55cb.zip
+lambda_function_s3_key: zip/api_v1.zip
+lambda_memory_size: 2048
+inbound_data_plane_node_group_instance_types:
+  - m5.4xlarge
+inbound_data_plane_node_group_max_size: 6
+outbound_data_plane_node_group_instance_types:
+  - m5.4xlarge
+outbound_vpc_cidr: 10.200.0.0/16
+outbound_vpc_private_subnet_cidrs:
+  - 10.200.3.0/24
+  - 10.200.4.0/24
+  - 10.200.5.0/24
+outbound_vpc_public_subnet_cidrs:
+  - 10.200.0.0/24
+  - 10.200.1.0/24
+  - 10.200.2.0/24
+outbound_data_plane_node_group_max_size: 6
+
