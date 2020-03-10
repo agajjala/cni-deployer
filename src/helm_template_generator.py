@@ -14,7 +14,7 @@ class ManifestProcessor:
         pass
 
     def form_eks_cluster_name(self,env_name, region_name, deployment_id, direction):
-        return '{}-{}-{}-{}-data-plane'.format(env_name, deployment_id, region_name, direction)
+        return '{}-{}-{}-{}-data-plane'.format(env_name, region_name, deployment_id, direction)
 
     def create_output_template_dirs(self, eks_cluster_name):
 
