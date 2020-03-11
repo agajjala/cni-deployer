@@ -7,7 +7,7 @@ metadata:
     {{- $env := .Values.env_name}}{{$deploymentID := .Values.deployment_id}}
     {{- $tags := (printf "env_name=%v,deployment_id=%v" $env $deploymentID) }}
     service.beta.kubernetes.io/aws-load-balancer-type: {{ .Values.loadbalancer.type }}
-    service.beta.kubernetes.io/aws-load-balancer-additional-resource-tags: “{{ $tags }}”
+    service.beta.kubernetes.io/aws-load-balancer-additional-resource-tags: "{{ $tags }}"
     {{- if eq .Values.loadbalancer.internalLoadBalancer "yes" }}
     service.beta.kubernetes.io/aws-load-balancer-internal: "true"
     {{- end }}
