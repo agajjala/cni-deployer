@@ -1,3 +1,13 @@
+---
+# create cni-inbound namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.namespace }}
+  labels:
+    name: {{ .Values.namespace }}
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
