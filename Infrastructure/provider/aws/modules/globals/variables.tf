@@ -27,3 +27,4 @@ variable lambda_function_s3_object_version {
   default = ""
 }
 variable lambda_memory_size {}
+variable authorizer_id {}

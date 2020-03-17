@@ -28,6 +28,7 @@ module globals {
   admin_role_arn                    = local.admin_role_arn
   flow_logs_retention_in_days       = var.flow_logs_retention_in_days
   bucket_name                       = local.artifact_bucket_name
+  authorizer_id                     = var.authorizer_id
   lambda_layer_s3_key               = var.lambda_layer_s3_key
   lambda_layer_s3_object_version    = var.lambda_layer_s3_object_version
   lambda_function_s3_key            = var.lambda_function_s3_key

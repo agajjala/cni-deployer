@@ -30,6 +30,7 @@ module v1 {
   api_id                               = aws_api_gateway_rest_api.controller.id
   root_resource_id                     = aws_api_gateway_rest_api.controller.root_resource_id
   execution_arn                        = aws_api_gateway_rest_api.controller.execution_arn
+  authorizer_id                        = var.authorizer_id
   lambda_invocation_method             = local.lambda_invocation_method
   info_inbound_get_lambda              = var.info_inbound_get_lambda
   info_outbound_get_lambda             = var.info_outbound_get_lambda

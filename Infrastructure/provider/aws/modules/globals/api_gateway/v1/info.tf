@@ -23,6 +23,7 @@ module info_inbound_get {
   api_id        = var.api_id
   resource_id   = aws_api_gateway_resource.info_inbound.id
   http_method   = "GET"
+  authorizer_id = var.authorizer_id
   execution_arn = var.execution_arn
   endpoint_path = aws_api_gateway_resource.info_inbound.path
   invoke_arn    = var.info_inbound_get_lambda.invoke_arn
@@ -44,6 +45,7 @@ module info_outbound_get {
   api_id        = var.api_id
   resource_id   = aws_api_gateway_resource.info_outbound.id
   http_method   = "GET"
+  authorizer_id = var.authorizer_id
   execution_arn = var.execution_arn
   endpoint_path = aws_api_gateway_resource.info_outbound.path
   invoke_arn    = var.info_outbound_get_lambda.invoke_arn

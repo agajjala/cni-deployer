@@ -1,6 +1,10 @@
 variable api_id {}
 variable resource_id {}
 variable http_method {}
+variable authorization {
+  default = "CUSTOM"
+}
+variable authorizer_id {}
 variable execution_arn {}
 variable endpoint_path {}
 variable invoke_arn {}

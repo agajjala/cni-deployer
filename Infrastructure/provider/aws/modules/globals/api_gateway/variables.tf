@@ -2,6 +2,7 @@ variable resource_prefix {}
 variable tags {
   type = map(string)
 }
+variable authorizer_id {}
 variable info_inbound_get_lambda {
   type = object({
     invoke_arn    = string,

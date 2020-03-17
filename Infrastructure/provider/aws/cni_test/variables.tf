@@ -25,6 +25,10 @@ variable flow_logs_retention_in_days {
   type        = number
   default     = 30
 }
+variable authorizer_id {
+  description = "ID of an existing authorizer"
+  type        = string
+}
 variable bucket_name {
   description = "Name of the S3 bucket in which objects are stored. Omitting this field defaults to a value of \"sfdc-cni-artifacts-{env_name}-{region}\"."
   type        = string

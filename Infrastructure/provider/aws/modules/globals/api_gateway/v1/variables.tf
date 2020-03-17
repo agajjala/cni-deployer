@@ -1,6 +1,7 @@
 variable api_id {}
 variable root_resource_id {}
 variable execution_arn {}
+variable authorizer_id {}
 variable lambda_invocation_method {}
 variable info_inbound_get_lambda {
   type = object({

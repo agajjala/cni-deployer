@@ -23,6 +23,7 @@ module privatelinks_inbound_get {
   api_id        = var.api_id
   resource_id   = aws_api_gateway_resource.privatelinks_inbound.id
   http_method   = "GET"
+  authorizer_id = var.authorizer_id
   execution_arn = var.execution_arn
   endpoint_path = aws_api_gateway_resource.privatelinks_inbound.path
   invoke_arn    = var.privatelinks_inbound_get_lambda.invoke_arn
@@ -44,6 +45,7 @@ module privatelinks_inbound_item_get {
   api_id        = var.api_id
   resource_id   = aws_api_gateway_resource.privatelinks_inbound_item.id
   http_method   = "GET"
+  authorizer_id = var.authorizer_id
   execution_arn = var.execution_arn
   endpoint_path = aws_api_gateway_resource.privatelinks_inbound_item.path
   invoke_arn    = var.privatelinks_inbound_get_one_lambda.invoke_arn
@@ -55,6 +57,7 @@ module privatelinks_inbound_item_update {
   api_id        = var.api_id
   resource_id   = aws_api_gateway_resource.privatelinks_inbound_item.id
   http_method   = "PUT"
+  authorizer_id = var.authorizer_id
   execution_arn = var.execution_arn
   endpoint_path = aws_api_gateway_resource.privatelinks_inbound_item.path
   invoke_arn    = var.privatelinks_inbound_update_lambda.invoke_arn
@@ -66,6 +69,7 @@ module privatelinks_inbound_item_delete {
   api_id        = var.api_id
   resource_id   = aws_api_gateway_resource.privatelinks_inbound_item.id
   http_method   = "DELETE"
+  authorizer_id = var.authorizer_id
   execution_arn = var.execution_arn
   endpoint_path = aws_api_gateway_resource.privatelinks_inbound_item.path
   invoke_arn    = var.privatelinks_inbound_delete_lambda.invoke_arn
@@ -77,6 +81,7 @@ module privatelinks_inbound_item_retry {
   api_id        = var.api_id
   resource_id   = aws_api_gateway_resource.privatelinks_inbound_item.id
   http_method   = "PATCH"
+  authorizer_id = var.authorizer_id
   execution_arn = var.execution_arn
   endpoint_path = aws_api_gateway_resource.privatelinks_inbound_item.path
   invoke_arn    = var.privatelinks_inbound_retry_lambda.invoke_arn
@@ -98,6 +103,7 @@ module privatelinks_outbound_get {
   api_id        = var.api_id
   resource_id   = aws_api_gateway_resource.privatelinks_outbound.id
   http_method   = "GET"
+  authorizer_id = var.authorizer_id
   execution_arn = var.execution_arn
   endpoint_path = aws_api_gateway_resource.privatelinks_outbound.path
   invoke_arn    = var.privatelinks_outbound_get_lambda.invoke_arn
@@ -109,6 +115,7 @@ module privatelinks_outbound_create {
   api_id        = var.api_id
   resource_id   = aws_api_gateway_resource.privatelinks_outbound.id
   http_method   = "POST"
+  authorizer_id = var.authorizer_id
   execution_arn = var.execution_arn
   endpoint_path = aws_api_gateway_resource.privatelinks_outbound.path
   invoke_arn    = var.privatelinks_outbound_create_lambda.invoke_arn
@@ -130,6 +137,7 @@ module privatelinks_outbound_item_get {
   api_id        = var.api_id
   resource_id   = aws_api_gateway_resource.privatelinks_outbound_item.id
   http_method   = "GET"
+  authorizer_id = var.authorizer_id
   execution_arn = var.execution_arn
   endpoint_path = aws_api_gateway_resource.privatelinks_outbound_item.path
   invoke_arn    = var.privatelinks_outbound_get_one_lambda.invoke_arn
@@ -141,6 +149,7 @@ module privatelinks_outbound_item_update {
   api_id        = var.api_id
   resource_id   = aws_api_gateway_resource.privatelinks_outbound_item.id
   http_method   = "PUT"
+  authorizer_id = var.authorizer_id
   execution_arn = var.execution_arn
   endpoint_path = aws_api_gateway_resource.privatelinks_outbound_item.path
   invoke_arn    = var.privatelinks_outbound_update_lambda.invoke_arn
@@ -152,6 +161,7 @@ module privatelinks_outbound_item_delete {
   api_id        = var.api_id
   resource_id   = aws_api_gateway_resource.privatelinks_outbound_item.id
   http_method   = "DELETE"
+  authorizer_id = var.authorizer_id
   execution_arn = var.execution_arn
   endpoint_path = aws_api_gateway_resource.privatelinks_outbound_item.path
   invoke_arn    = var.privatelinks_outbound_delete_lambda.invoke_arn
@@ -163,6 +173,7 @@ module privatelinks_outbound_item_retry {
   api_id        = var.api_id
   resource_id   = aws_api_gateway_resource.privatelinks_outbound_item.id
   http_method   = "PATCH"
+  authorizer_id = var.authorizer_id
   execution_arn = var.execution_arn
   endpoint_path = aws_api_gateway_resource.privatelinks_outbound_item.path
   invoke_arn    = var.privatelinks_outbound_retry_lambda.invoke_arn
