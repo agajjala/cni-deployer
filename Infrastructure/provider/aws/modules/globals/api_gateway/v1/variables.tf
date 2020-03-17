@@ -68,3 +68,15 @@ variable privatelinks_outbound_delete_lambda {
     function_name = string
   })
 }
+variable privatelinks_inbound_retry_lambda {
+  type = object({
+    invoke_arn    = string,
+    function_name = string
+  })
+}
+variable privatelinks_outbound_retry_lambda {
+  type = object({
+    invoke_arn    = string,
+    function_name = string
+  })
+}

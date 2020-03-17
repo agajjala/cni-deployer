@@ -71,4 +71,6 @@ module api_gateway {
   privatelinks_outbound_get_one_lambda  = module.lambda.privatelinks_outbound_get_one_lambda
   privatelinks_outbound_delete_lambda   = module.lambda.privatelinks_outbound_delete_lambda
   privatelinks_outbound_update_lambda   = module.lambda.privatelinks_outbound_update_lambda
+  privatelinks_inbound_retry_lambda     = module.lambda.privatelinks_inbound_retry_lambda
+  privatelinks_outbound_retry_lambda    = module.lambda.privatelinks_outbound_retry_lambda
 }

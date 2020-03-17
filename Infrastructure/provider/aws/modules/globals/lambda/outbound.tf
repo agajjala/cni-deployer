@@ -167,3 +167,18 @@ module outbound_private_link_get_one {
 
   tags                  = var.tags
 }
+
+module outbound_private_link_retry {
+  source                = "../../../modules/lambda_function"
+  function_name         = "${var.resource_prefix}-out-pl-retry"
+  role_arn              = var.dynamodb_stream_fanout_role_arn
+  s3_bucket             = var.bucket_name
+  s3_key                = var.function_s3_key
+  s3_object_version     = var.function_s3_object_version
+  handler               = "app.api_handler"
+  layers                = local.common_layers
+  memory_size           = var.memory_size
+  environment_variables = local.common_environment_variables
+
+  tags                  = var.tags
+}

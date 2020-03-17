@@ -82,3 +82,17 @@ output privatelinks_outbound_get_one_lambda {
     function_name = module.outbound_private_link_get_one.function_name
   }
 }
+
+output privatelinks_inbound_retry_lambda {
+  value = {
+    invoke_arn    = module.inbound_private_link_retry.invoke_arn
+    function_name = module.inbound_private_link_retry.function_name
+  }
+}
+
+output privatelinks_outbound_retry_lambda {
+  value = {
+    invoke_arn    = module.outbound_private_link_retry.invoke_arn
+    function_name = module.outbound_private_link_retry.function_name
+  }
+}

@@ -72,6 +72,17 @@ module privatelinks_inbound_item_delete {
   function_name = var.privatelinks_inbound_delete_lambda.function_name
 }
 
+module privatelinks_inbound_item_retry {
+  source        = "../../../api_gateway_rest_lambda_endpoint"
+  api_id        = var.api_id
+  resource_id   = aws_api_gateway_resource.privatelinks_inbound_item.id
+  http_method   = "PATCH"
+  execution_arn = var.execution_arn
+  endpoint_path = aws_api_gateway_resource.privatelinks_inbound_item.path
+  invoke_arn    = var.privatelinks_inbound_retry_lambda.invoke_arn
+  function_name = var.privatelinks_inbound_retry_lambda.function_name
+}
+
 ###############################
 #  /privatelinks/outbound
 ###############################
@@ -145,4 +156,15 @@ module privatelinks_outbound_item_delete {
   endpoint_path = aws_api_gateway_resource.privatelinks_outbound_item.path
   invoke_arn    = var.privatelinks_outbound_delete_lambda.invoke_arn
   function_name = var.privatelinks_outbound_delete_lambda.function_name
+}
+
+module privatelinks_outbound_item_retry {
+  source        = "../../../api_gateway_rest_lambda_endpoint"
+  api_id        = var.api_id
+  resource_id   = aws_api_gateway_resource.privatelinks_outbound_item.id
+  http_method   = "PATCH"
+  execution_arn = var.execution_arn
+  endpoint_path = aws_api_gateway_resource.privatelinks_outbound_item.path
+  invoke_arn    = var.privatelinks_outbound_retry_lambda.invoke_arn
+  function_name = var.privatelinks_outbound_retry_lambda.function_name
 }

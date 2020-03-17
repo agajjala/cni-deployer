@@ -37,9 +37,11 @@ module v1 {
   privatelinks_inbound_get_one_lambda  = var.privatelinks_inbound_get_one_lambda
   privatelinks_inbound_update_lambda   = var.privatelinks_inbound_update_lambda
   privatelinks_inbound_delete_lambda   = var.privatelinks_inbound_delete_lambda
+  privatelinks_inbound_retry_lambda    = var.privatelinks_inbound_retry_lambda
   privatelinks_outbound_get_lambda     = var.privatelinks_outbound_get_lambda
   privatelinks_outbound_create_lambda  = var.privatelinks_outbound_create_lambda
   privatelinks_outbound_get_one_lambda = var.privatelinks_outbound_get_one_lambda
   privatelinks_outbound_update_lambda  = var.privatelinks_outbound_update_lambda
   privatelinks_outbound_delete_lambda  = var.privatelinks_outbound_delete_lambda
+  privatelinks_outbound_retry_lambda   = var.privatelinks_outbound_retry_lambda
 }

@@ -37,7 +37,7 @@ resource aws_dynamodb_table_item connection_notification_topic {
   hash_key   = var.table_hash_key
 
   item = jsonencode({
-    "${var.table_hash_key}": {"S": "connectionNotificationTopic"},
+    "${var.table_hash_key}": {"S": "connection_notification_topic"},
     "Payload": {"S": "\"${var.vpce_connections_topic_arn}\""}
   })
 }
