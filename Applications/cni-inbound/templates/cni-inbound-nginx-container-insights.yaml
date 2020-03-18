@@ -233,6 +233,15 @@ data:
   containers.conf: |
     <source>
       @type tail
+      @id in_tail_nginx_stream_logs
+      path /var/log/nginx/stream.log
+      pos_file /var/log/nginx/stream.log.pos
+      tag *
+      read_from_head true
+    </source>
+
+    <source>
+      @type tail
       @id in_tail_container_logs
       @label @containers
       path /var/log/containers/*.log
