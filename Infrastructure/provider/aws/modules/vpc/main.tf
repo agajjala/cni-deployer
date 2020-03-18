@@ -36,6 +36,7 @@ resource aws_subnet private {
 resource aws_subnet public {
   vpc_id                = aws_vpc.default.id
   cidr_block            = var.public_subnet_cidrs[count.index]
+  map_public_ip_on_launch = var.map_public_ip_on_launch
   availability_zone     = var.az_names[count.index]
   tags                  = local.public_subnet_tags
 

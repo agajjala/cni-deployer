@@ -22,6 +22,10 @@ variable private_subnet_cidrs {
 variable public_subnet_cidrs {
   type = list(string)
 }
+variable map_public_ip_on_launch {
+  type = bool
+  default = false
+}
 variable az_names {
   type        = list(string)
   description = "A list of availability zone names. Must be three or fewer."
