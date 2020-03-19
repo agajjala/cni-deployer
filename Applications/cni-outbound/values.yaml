@@ -18,8 +18,8 @@ aws:
 direction: outbound
 
 dataplane_outbound:
-  image: 985884022631.dkr.ecr.us-west-2.amazonaws.com/eks-dp-test-nginx-latest
-  version: "nginx-zipkinv16"
+  image: 985884022631.dkr.ecr.us-west-2.amazonaws.com/cni-nginx-proxy-outbound
+  version: '19'
 
 cluster_autoscaler:
   image: k8s.gcr.io/cluster-autoscaler

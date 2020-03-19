@@ -10,4 +10,9 @@ lambda_function_s3_key: zip/api_v1.zip
 lambda_memory_size: 2048
 outbound_vpc_cidr: 10.20.8.0/22
 authorizer_id: 08alb1
-
+dataplane_inbound:
+  image: 985884022631.dkr.ecr.us-west-2.amazonaws.com/cni-nginx-proxy-inbound
+  version: '19'
+dataplane_outbound:
+  image: 985884022631.dkr.ecr.us-west-2.amazonaws.com/cni-nginx-proxy-outbound
+  version: '19'

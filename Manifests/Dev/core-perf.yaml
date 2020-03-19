@@ -24,4 +24,10 @@ outbound_vpc_public_subnet_cidrs:
   - 10.200.2.0/24
 outbound_data_plane_node_group_max_size: 6
 authorizer_id: nulqib
+dataplane_inbound:
+  image: 985884022631.dkr.ecr.us-west-2.amazonaws.com/cni-nginx-proxy-inbound
+  version: '19'
+dataplane_outbound:
+  image: 985884022631.dkr.ecr.us-west-2.amazonaws.com/cni-nginx-proxy-outbound
+  version: '19'
 
