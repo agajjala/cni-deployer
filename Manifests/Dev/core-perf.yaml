@@ -35,3 +35,4 @@ outbound_vpcs_config:
   vpc_cidrs:
     - 10.200.0.0/16
     - 10.201.0.0/16
+

@@ -72,10 +72,20 @@ variable outbound_vpc_cidr {
   type        = string
   default     = "10.20.12.0/22"
 }
+variable monitoring_vpc_cidr {
+  description = "CIDR of the monitoring VPC"
+  type        = string
+  default     = "172.16.0.0/24"
+}
 variable az_count {
   description = "Number of availability zones to deploy to"
   type        = number
   default     = 3
+}
+variable monitoring_instance_type {
+  description = "Type of monitoring instance"
+  type        = string
+  default     = "t3.medium"
 }
 variable enable_inbound_nat_gateway {
   description = "If true, enables creation of a NAT gateway for each public subnet in the inbound VPC"
@@ -87,12 +97,22 @@ variable enable_outbound_nat_gateway {
   type        = bool
   default     = true
 }
+variable enable_monitoring_nat_gateway {
+  description = "If true, enables creation of a NAT gateway for each public subnet in the monitoring VPC"
+  type        = bool
+  default     = true
+}
 variable enable_inbound_private_nat_routes {
   description = "If true, creates routes in private subnet route tables to route traffic to a NAT gateway. Has no effect is NAT gateways are not enabled."
   type        = bool
   default     = true
 }
 variable enable_outbound_private_nat_routes {
+  description = "If true, creates routes in private subnet route tables to route traffic to a NAT gateway. Has no effect is NAT gateways are not enabled."
+  type        = bool
+  default     = true
+}
+variable enable_monitoring_private_nat_routes {
   description = "If true, creates routes in private subnet route tables to route traffic to a NAT gateway. Has no effect is NAT gateways are not enabled."
   type        = bool
   default     = true
@@ -119,6 +139,16 @@ variable outbound_vpc_private_subnet_cidrs {
 }
 variable outbound_vpc_public_subnet_cidrs {
   description = "List of the CIDRs to use for the outbound VPC public subnets"
+  type        = list(string)
+  default     = []
+}
+variable monitoring_vpc_private_subnet_cidrs {
+  description = "List of the CIDRs to use for the monitoring VPC private subnets"
+  type        = list(string)
+  default     = []
+}
+variable monitoring_vpc_public_subnet_cidrs {
+  description = "List of the CIDRs to use for the monitoring VPC public subnets"
   type        = list(string)
   default     = []
 }

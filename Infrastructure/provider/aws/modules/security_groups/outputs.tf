@@ -13,3 +13,7 @@ output sitebridge_sg_id {
 output data_plane_cluster_sg_id {
   value = aws_security_group.data_plane_cluster.id
 }
+
+output monitoring_ec2_sg_id {
+  value = aws_security_group.monitoring_ec2.id
+}
