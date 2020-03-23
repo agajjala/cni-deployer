@@ -2,8 +2,8 @@ resource aws_api_gateway_method method {
   rest_api_id   = var.api_id
   resource_id   = var.resource_id
   http_method   = var.http_method
-  authorization = var.authorization
-  authorizer_id = var.authorizer_id
+  authorization = var.authorizer_id == "" ? "NONE" : "CUSTOM"
+  authorizer_id = var.authorizer_id == "" ? null : var.authorizer_id
 }
 
 resource aws_api_gateway_integration integration {
