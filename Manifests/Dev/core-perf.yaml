@@ -30,4 +30,8 @@ dataplane_inbound:
 dataplane_outbound:
   image: 985884022631.dkr.ecr.us-west-2.amazonaws.com/cni-nginx-proxy-outbound
   version: '19'
+outbound_vpcs_config:
+  vpc_cidrs:
+    - 10.200.0.0/16
+    - 10.201.0.0/16
 
