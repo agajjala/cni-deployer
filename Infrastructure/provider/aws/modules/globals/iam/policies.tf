@@ -79,6 +79,7 @@ resource aws_iam_policy private_link_access {
         "ec2:DescribeVpcEndpointServices",
         "ec2:DescribeVpcEndpoints",
         "ec2:DescribeSubnets",
+        "ec2:DescribeSecurityGroups",
         "ec2:DescribeNetworkInterfaces",
         "ec2:RejectVpcEndpointConnections"
       ],
@@ -164,6 +165,32 @@ resource aws_iam_policy sns_publish {
       ],
       "Effect": "Allow",
       "Resource": "*"
+    }
+  ]
+}
+EOF
+}
+
+resource aws_iam_policy ecr_manage {
+  name = "${var.resource_prefix}-ecr-manage"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Resource": "*",
+      "Effect": "Allow",
+      "Action": [
+        "ecr:GetAuthorizationToken",
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:GetRepositoryPolicy",
+        "ecr:DescribeRepositories",
+        "ecr:ListImages",
+        "ecr:DescribeImages",
+        "ecr:BatchGetImage"
+      ]
     }
   ]
 }

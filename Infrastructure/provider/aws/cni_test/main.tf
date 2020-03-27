@@ -142,12 +142,14 @@ module monitoring_vpc {
   vpc_cidr                             = var.monitoring_vpc_cidr
   private_subnet_cidrs                 = var.monitoring_vpc_private_subnet_cidrs
   public_subnet_cidrs                  = var.monitoring_vpc_public_subnet_cidrs
-  sfdc_cidr_blocks                     = var.sfdc_vpn_cidrs
+  sfdc_cidr_blocks                     = concat(var.sfdc_vpn_cidrs, var.kaiju_agent_cidrs)
   az_count                             = var.az_count
   az_names                             = local.az_names
   image_id                             = data.aws_ami.bastion_image_id.id
   instance_type                        = var.monitoring_instance_type
-  ec2_key_name                         = module.monitoring_ec2_key_pair.key_name
+  key_name                             = module.monitoring_ec2_key_pair.key_name
+  iam_instance_profile                 = module.globals.monitoring_ec2_instance_profile_name
+  docker_image_id                      = join(":",[var.monitoring.image, var.monitoring.version])
   enable_nat_gateway                   = var.enable_monitoring_nat_gateway
   enable_private_nat_routes            = var.enable_monitoring_private_nat_routes
   zone_name                            = local.monitoring_hosted_zone_name

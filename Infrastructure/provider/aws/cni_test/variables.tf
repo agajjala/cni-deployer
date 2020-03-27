@@ -61,7 +61,17 @@ variable lambda_memory_size {
 variable sfdc_vpn_cidrs {
   description = "List of SFDC VPN CIDRs for access whitelisting"
   type        = list(string)
-  default     = ["204.14.239.0/24"]
+  default     = ["204.14.239.0/24","13.110.54.0/24"]  # AmerWest and AmerWest1
+}
+variable kaiju_agent_cidrs {
+  description = "List of Kaiju Agent CIDRs for access whitelisting"
+  type        = list(string)
+  default     = ["34.204.119.37/32", "34.225.218.148/32", "34.225.187.88/32", "52.5.215.92/32",    # Heroku Virginia
+                 "54.249.107.199/32", "18.179.67.175/32", "13.112.84.84/32", "52.196.166.80/32",   # Heroku Tokyo
+                 "52.212.82.183/32", "34.246.233.208/32", "34.254.138.50/32", "34.254.145.177/32", # Heroku Dublin
+                 "13.238.81.165/32", "13.238.131.20/32", "13.237.246.34/32", "13.210.28.44/32",    # Heroku Sydney
+                 "3.120.4.237/32", "18.197.232.248/32", "52.57.11.174/32", "3.120.7.69/32",        # Heroku Frankfurt
+                 "52.89.186.231/32", "54.202.153.27/32", "54.69.101.88/32", "35.161.249.213/32"]   # Heroku Oregon
 }
 variable inbound_vpc_cidr {
   description = "CIDR of the inbound VPC"
@@ -77,6 +87,13 @@ variable monitoring_vpc_cidr {
   description = "CIDR of the monitoring VPC"
   type        = string
   default     = "172.16.0.0/24"
+}
+variable monitoring {
+  description = "Information of CNI monitoring dcoker image"
+  type        = object({
+    image     = string
+    version   = string
+  })
 }
 variable az_count {
   description = "Number of availability zones to deploy to"
