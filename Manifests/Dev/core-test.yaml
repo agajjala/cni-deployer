@@ -7,7 +7,7 @@ tags:
   deployment_id: stage1
 outbound_vpc_cidr: 10.20.8.0/22
 outbound_vpc_cidr_2: 10.20.12.0/22
-lambda_layer_s3_key: zip/latest_common_layer.zip
+lambda_layer_s3_key: zip/cni_common_v265.zip
 lambda_function_s3_key: zip/api_v1.zip
 monitoring:
   image: 985884022631.dkr.ecr.us-west-2.amazonaws.com/cni-monitoring
