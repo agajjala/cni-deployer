@@ -28,6 +28,7 @@ data kubernetes_service inbound {
   provider = kubernetes.inbound
   metadata {
     name = var.inbound_service_name
+    namespace = var.inbound_namespace
   }
 }
 
@@ -52,6 +53,7 @@ data kubernetes_service outbound {
   provider = kubernetes.outbound
   metadata {
     name = var.outbound_service_name
+    namespace = var.outbound_namespace
   }
 }
 
