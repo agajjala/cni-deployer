@@ -19,7 +19,11 @@ direction: inbound
 
 dataplane_inbound:
   image: 985884022631.dkr.ecr.us-west-2.amazonaws.com/cni-nginx-proxy-inbound
-  version: "19"
+  version: "latest"
+
+metrics_exporter:
+  image: 985884022631.dkr.ecr.us-west-2.amazonaws.com/cni-metrics-exporter
+  version: 'latest'
 
 cluster_autoscaler:
   image: k8s.gcr.io/cluster-autoscaler
@@ -32,6 +36,12 @@ cluster_autoscaler_resources:
   limits:
     cpu: 100m
     memory: 300Mi
+
+metrics_exporter_resources:
+  requests:
+    cpu: 0.5
+  limits:
+    cpu: 1
 
 image:
   tag: latest

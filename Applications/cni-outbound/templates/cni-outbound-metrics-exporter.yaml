@@ -1,0 +1,83 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cni-outbound-metrics-exporter-cfgmap
+  namespace: {{ .Values.namespace }}
+  labels:
+    name: cni-outbound-metrics-exporter
+data:
+  {{- $clustername := (printf "%v-%v-%v-%v-data-plane" .Values.env_name .Values.region .Values.deployment_id .Values.direction) }}
+  metrics_export_cfg: |
+    region: {{ .Values.region }}
+    metrics_query_configs:
+      - namespace: "ContainerInsights"
+        period: 60
+        dimension_filters:
+          - config:
+              keys: ["ClusterName"]
+              values: ["{{ $clustername }}"]
+        metrics_list:
+          - cluster_failed_node_count
+          - namespace_number_of_running_pods
+          - node_cpu_limit
+          - node_cpu_reserved_capacity
+          - node_cpu_usage_total
+          - node_cpu_usage_total
+          - node_cpu_utilization
+          - node_filesystem_utilization
+          - node_memory_limit
+          - node_memory_reserved_capacity
+          - node_memory_utilization
+          - node_memory_working_set
+          - node_network_total_bytes
+          - node_number_of_running_containers
+          - node_number_of_running_pods
+          - pod_cpu_reserved_capacity
+          - pod_cpu_utilization
+          - pod_cpu_utilization_over_pod_limit
+          - pod_memory_reserved_capacity
+          - pod_memory_utilization
+          - pod_memory_utilization_over_pod_limit
+          - pod_network_rx_bytes
+          - pod_network_tx_bytes
+          - pod_number_of_container_restarts
+          - service_number_of_running_pods
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cni-outbound-metrics-exporter
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: cni-outbound-metrics-exporter
+  template:
+    metadata:
+      labels:
+        name: cni-outbound-metrics-exporter
+    spec:
+      containers:
+      - name: cni-outbound-metrics-exporter
+        image: {{ .Values.metrics_exporter.image }}:{{ .Values.metrics_exporter.version }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        resources:
+          requests:
+            cpu: {{ .Values.metrics_exporter_resources.requests.cpu }}
+          limits:
+            cpu: {{ .Values.metrics_exporter_resources.limits.cpu }}
+        volumeMounts:
+        - name: metrics-exporter-cfg
+          mountPath: /cni-metrics-exporter/metrics-config.yaml
+          subPath: metrics-config.yaml
+      volumes:
+      - name: metrics-exporter-cfg
+        configMap:
+          name: cni-outbound-metrics-exporter-cfgmap
+          items:
+          - key: metrics_export_cfg
+            path: metrics-config.yaml
+            mode: 0755
+
