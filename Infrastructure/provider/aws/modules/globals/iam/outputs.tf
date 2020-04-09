@@ -77,3 +77,7 @@ output data_plane_node_role_name {
 output monitoring_ec2_instance_profile_name {
   value = aws_iam_instance_profile.monitoring_ec2.name
 }
+
+output api_gateway_logs_role_arn {
+  value = aws_iam_role.api_gateway_logs.arn
+}

@@ -81,3 +81,4 @@ variable privatelinks_outbound_retry_lambda {
     function_name = string
   })
 }
+variable api_gateway_logs_role_arn {}

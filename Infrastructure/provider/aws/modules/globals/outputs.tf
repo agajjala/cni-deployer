@@ -65,3 +65,7 @@ output outbound_private_link_api_endpoint_role_arn {
 output monitoring_ec2_instance_profile_name {
   value = module.iam.monitoring_ec2_instance_profile_name
 }
+
+output iam_role_api_gateway_logs_arn {
+  value = module.iam.api_gateway_logs_role_arn
+}
