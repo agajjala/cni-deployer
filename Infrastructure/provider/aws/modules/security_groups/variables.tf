@@ -3,7 +3,11 @@ variable tags {
   type = map(string)
 }
 variable vpc_id {}
+variable vpc_cidr {}
 variable sfdc_cidr_blocks {
+  type = list(string)
+}
+variable kaiju_agent_cidrs {
   type = list(string)
 }
 variable endpoint_ingress_port_from {

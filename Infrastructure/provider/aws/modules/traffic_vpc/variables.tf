@@ -15,6 +15,9 @@ variable public_subnet_cidrs {
 variable sfdc_cidr_blocks {
   type = list(string)
 }
+variable kaiju_agent_cidrs {
+  type = list(string)
+}
 variable az_count {
   type = number
 }

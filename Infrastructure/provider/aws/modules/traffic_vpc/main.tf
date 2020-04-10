@@ -32,7 +32,9 @@ module security_groups {
   resource_prefix            = var.resource_prefix
   tags                       = var.tags
   vpc_id                     = module.vpc.vpc_id
+  vpc_cidr                   = module.vpc.vpc_cidr
   sfdc_cidr_blocks           = var.sfdc_cidr_blocks
+  kaiju_agent_cidrs          = var.kaiju_agent_cidrs
   endpoint_ingress_port_from = var.endpoint_ingress_port_from
   endpoint_ingress_port_to   = var.endpoint_ingress_port_to
 }

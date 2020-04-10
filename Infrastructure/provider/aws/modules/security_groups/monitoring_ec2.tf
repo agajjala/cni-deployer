@@ -15,10 +15,19 @@ resource aws_security_group_rule monitoring_ec2_in_allow_sfdc_ssh {
 
 resource aws_security_group_rule monitoring_ec2_in_allow_sfdc_and_kaiju_http {
   type              = "ingress"
-  from_port         = 80   # TODO: Eanble 443
-  to_port           = 80   # TODO: Enable 443
+  from_port         = 80
+  to_port           = 80
   protocol          = "tcp"
-  cidr_blocks       = var.sfdc_cidr_blocks # TODO: Modify it to include Kaiju Agent IPs
+  cidr_blocks       = concat(var.sfdc_cidr_blocks, var.kaiju_agent_cidrs)
+  security_group_id = aws_security_group.monitoring_ec2.id
+}
+
+resource aws_security_group_rule monitoring_ec2_in_allow_sfdc_and_kaiju_https {
+  type              = "ingress"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  cidr_blocks       = concat(var.sfdc_cidr_blocks, var.kaiju_agent_cidrs, [var.vpc_cidr])
   security_group_id = aws_security_group.monitoring_ec2.id
 }
 
