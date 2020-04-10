@@ -125,3 +125,29 @@ The `apply` command reads the `terraform_plan` file output by the previous `plan
 The `destroy` command destroys all infrastructure created by Terraform. This command will prompt for confirmation before destroying.
 
     python deployer/deploy.py -c destroy -module provider/aws/cni_test/ -manifest test_manifest.yaml
+
+## Deploy to EKS clusters
+
+1. First, make sure your manifest is under `Manifests/Dev`. In the parent directory of this repository, run the following command:
+
+```
+make template
+```
+
+This will run `helm` to generate a number of k8s service files based on the contents of your manifest.
+
+2. To submit services to a running EKS cluster, you will first need to update your local `kubeconfig` to point to it. Do this by running the following:
+
+```
+aws eks --region <REGION> update-kubeconfig --name <NAME OF EKS CLUSTER>
+```
+
+3. Run the next command to deploy the generated service files to the EKS cluster:
+
+```
+kubectl apply -f Manifest/Output/<RESOURCE_PREFIX>-<INBOUND OR OUTBOUND>-data-plane/cni-inbound/templates/
+```
+
+The EKS cluster should now be fully provisioned.
+
+Note: in order too deploy to both the inbound and outbound EKS clusters, you'll need to repeat steps 2 and 3 for both inbound and outbound.

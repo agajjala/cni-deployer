@@ -44,4 +44,6 @@ variable endpoint_ingress_port_to {
   description = "The ending port to allow ingress traffic for private endpoints"
   type        = number
 }
-variable ec2_key_name {}
+variable key_name {}
+variable iam_instance_profile {}
+variable docker_image_id {}

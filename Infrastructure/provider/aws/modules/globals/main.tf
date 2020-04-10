@@ -61,6 +61,7 @@ module api_gateway {
   resource_prefix                       = var.resource_prefix
   tags                                  = var.tags
   authorizer_id                         = var.authorizer_id
+  api_gateway_logs_role_arn             = module.iam.api_gateway_logs_role_arn
   info_inbound_get_lambda               = module.lambda.info_inbound_get_lambda
   info_outbound_get_lambda              = module.lambda.info_outbound_get_lambda
   privatelinks_inbound_get_lambda       = module.lambda.privatelinks_inbound_get_lambda

@@ -3,9 +3,10 @@ locals {
 }
 
 resource aws_api_gateway_stage default {
-  stage_name    = "default"
-  rest_api_id   = aws_api_gateway_rest_api.controller.id
-  deployment_id = aws_api_gateway_deployment.default.id
+  stage_name            = "default"
+  rest_api_id           = aws_api_gateway_rest_api.controller.id
+  deployment_id         = aws_api_gateway_deployment.default.id
+  xray_tracing_enabled  = true
 }
 
 resource aws_api_gateway_deployment default {
@@ -24,6 +25,22 @@ resource aws_api_gateway_rest_api controller {
   name = "${var.resource_prefix}-controller"
   tags = var.tags
 }
+
+resource aws_api_gateway_account cni_account {
+  cloudwatch_role_arn = var.api_gateway_logs_role_arn
+}
+
+resource aws_api_gateway_method_settings setting {
+  rest_api_id = aws_api_gateway_rest_api.controller.id
+  stage_name  = "default"
+  method_path = "*/*"
+  settings {
+    logging_level      = "INFO"
+    data_trace_enabled = true
+    metrics_enabled    = true
+  }
+}
+
 
 module v1 {
   source                               = "./v1"

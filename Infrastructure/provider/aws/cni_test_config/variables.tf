@@ -8,7 +8,13 @@ variable inbound_service_name {
   default = "nginx-dp"
 }
 variable inbound_api_key {}
+variable inbound_namespace {
+  default = "cni-inbound"
+}
 variable outbound_service_name {
   default = "nginx-dp"
 }
 variable outbound_api_key {}
+variable outbound_namespace {
+  default = "cni-outbound"
+}

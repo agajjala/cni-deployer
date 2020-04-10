@@ -2,7 +2,10 @@ variable image_id {}
 variable instance_type {}
 variable vpc_id {}
 variable subnet_id {}
-variable ec2_key_name {}
+variable key_name {}
+variable iam_instance_profile {}
+variable region {}
+variable docker_image_id {}
 variable tags {
   type = map(string)
 }

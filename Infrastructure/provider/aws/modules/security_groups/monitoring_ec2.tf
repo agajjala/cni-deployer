@@ -1,5 +1,5 @@
 resource aws_security_group monitoring_ec2 {
-  name              = "${var.resource_prefix}-monitoring-ec2"
+  name              = "${var.resource_prefix}-ec2"
   vpc_id            = var.vpc_id
   tags              = var.tags
 }
