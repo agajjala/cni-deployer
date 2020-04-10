@@ -46,3 +46,14 @@ resource aws_iam_role_policy_attachment monitoring_ec2_private_link_access {
   policy_arn = aws_iam_policy.private_link_access.arn
   role       = aws_iam_role.monitoring_ec2.name
 }
+
+resource aws_iam_role_policy_attachment monitoring_ec2_dynamodb_read_access {
+  policy_arn = aws_iam_policy.dynamodb_read_access.arn
+  role       = aws_iam_role.monitoring_ec2.name
+}
+
+resource aws_iam_role_policy_attachment monitoring_ec2_s3_manage_access {
+  policy_arn = aws_iam_policy.s3_read_write_access.arn
+  role       = aws_iam_role.monitoring_ec2.name
+}
+

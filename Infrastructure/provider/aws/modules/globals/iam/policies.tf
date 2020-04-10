@@ -151,6 +151,41 @@ resource aws_iam_policy dynamodb_read_write_access {
 EOF
 }
 
+resource aws_iam_policy dynamodb_read_access {
+  name = "${var.resource_prefix}-ddb-ro"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+        "dynamodb:GetItem",
+        "dynamodb:Scan",
+        "dynamodb:Query",
+        "dynamodb:BatchGetItem",
+        "dynamodb:DescribeTable",
+        "dynamodb:ConditionCheckItem"
+      ],
+      "Effect": "Allow",
+      "Resource": [
+        "arn:aws:dynamodb:${var.region}:${data.aws_caller_identity.current.account_id}:table/${var.resource_prefix}_InboundConfigSettings",
+        "arn:aws:dynamodb:${var.region}:${data.aws_caller_identity.current.account_id}:table/${var.resource_prefix}_InboundConfigSettings/index/*",
+        "arn:aws:dynamodb:${var.region}:${data.aws_caller_identity.current.account_id}:table/${var.resource_prefix}_InboundPrivateLinks",
+        "arn:aws:dynamodb:${var.region}:${data.aws_caller_identity.current.account_id}:table/${var.resource_prefix}_InboundPrivateLinks/index/*",
+        "arn:aws:dynamodb:${var.region}:${data.aws_caller_identity.current.account_id}:table/${var.resource_prefix}_OutboundConfigSettings",
+        "arn:aws:dynamodb:${var.region}:${data.aws_caller_identity.current.account_id}:table/${var.resource_prefix}_OutboundConfigSettings/index/*",
+        "arn:aws:dynamodb:${var.region}:${data.aws_caller_identity.current.account_id}:table/${var.resource_prefix}_OutboundPrivateLinks",
+        "arn:aws:dynamodb:${var.region}:${data.aws_caller_identity.current.account_id}:table/${var.resource_prefix}_OutboundPrivateLinks/index/*",
+        "arn:aws:dynamodb:${var.region}:${data.aws_caller_identity.current.account_id}:table/DynamoDBLockTable",
+        "arn:aws:dynamodb:${var.region}:${data.aws_caller_identity.current.account_id}:table/DynamoDBLockTable/index/*"
+      ]
+    }
+  ]
+}
+EOF
+}
+
 # TODO: obtain the exact topic(s) to publish to
 resource aws_iam_policy sns_publish {
   name = "${var.resource_prefix}-sns-publish"
@@ -190,6 +225,27 @@ resource aws_iam_policy ecr_manage {
         "ecr:ListImages",
         "ecr:DescribeImages",
         "ecr:BatchGetImage"
+      ]
+    }
+  ]
+}
+EOF
+}
+
+resource aws_iam_policy s3_read_write_access {
+  name = "${var.resource_prefix}-s3-manage"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Resource": "*",
+      "Effect": "Allow",
+      "Action": [
+        "s3:Get*",
+        "s3:List*",
+        "s3:Put*"
       ]
     }
   ]
