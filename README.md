@@ -125,6 +125,12 @@ The `apply` command reads the `terraform_plan` file output by the previous `plan
 The `destroy` command destroys all infrastructure created by Terraform. This command will prompt for confirmation before destroying.
 
     python deployer/deploy.py -c destroy -module provider/aws/cni_test/ -manifest test_manifest.yaml
+    
+#### Refresh
+
+The `refresh` command updates Terraform's state to reflect real-world infrastructure. This is useful to detect drift from last-known state, such as in the event of an `apply` or `destroy` interruption.
+
+    python deployer/deploy.py -c destroy -module provider/aws/cni_test/ -manifest test_manifest.yaml
 
 ## Deploy to EKS clusters
 

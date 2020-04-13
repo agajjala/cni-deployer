@@ -3,6 +3,8 @@ import json
 import os
 from .common import run_command
 
+BACKEND_CONFIG_FILENAME = 'backend_config.json'
+
 
 def clear_local_state_cache():
     """
@@ -27,15 +29,16 @@ def load_config(json_filename):
 
 def build_backend_config_args(manifest):
     args = []
-    backend_config = load_config('backend_config.json')
-    for key, value in backend_config.items():
-        args.append('-backend-config')
-        arg = key + '=' + value.format(**manifest)
-        args.append(arg)
+    if os.path.isfile(BACKEND_CONFIG_FILENAME):
+        backend_config = load_config(BACKEND_CONFIG_FILENAME)
+        for key, value in backend_config.items():
+            args.append('-backend-config')
+            arg = key + '=' + value.format(**manifest)
+            args.append(arg)
     return args
 
 
-def init(manifest):
+def init(manifest, args):
     """
     Initializes Terraform using a dynamic state backend. This dynamism allows Terraform to read and write to a different
     state file based on the provided manifest.

@@ -1,7 +1,7 @@
 module dynamodb_stream_fanout_key {
   source             = "../../kms_key"
   tags               = var.tags
-  admin_role_arn     = var.admin_role_arn
+  admin_role_arns     = var.admin_role_arns
   source_json_policy = data.aws_iam_policy_document.dynamodb_stream_fanout_key_lambda_access.json
 }
 
@@ -15,7 +15,7 @@ data aws_iam_policy_document dynamodb_stream_fanout_key_lambda_access {
 
     effect = "Allow"
     principals {
-      type = "AWS"
+      type = "Service"
       identifiers = [
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.resource_prefix}-ddb-stream-fanout",
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.resource_prefix}-in-pl-stream",

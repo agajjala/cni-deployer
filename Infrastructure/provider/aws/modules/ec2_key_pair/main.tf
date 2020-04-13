@@ -8,12 +8,15 @@ resource tls_private_key private_key {
 }
 
 resource aws_key_pair generated_key {
+  tags = var.tags
   key_name   = var.key_name
   public_key = tls_private_key.private_key.public_key_openssh
 }
 
 resource aws_secretsmanager_secret secret {
+  tags = var.tags
   name_prefix = var.key_name
+  recovery_window_in_days = 0
 }
 
 resource aws_secretsmanager_secret_version secret_value {

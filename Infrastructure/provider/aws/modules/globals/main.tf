@@ -14,7 +14,7 @@ module sns {
   region          = var.region
   resource_prefix = var.resource_prefix
   tags            = var.tags
-  admin_role_arn  = var.admin_role_arn
+  admin_role_arns  = var.admin_role_arns
 }
 
 # TODO: use global tables

@@ -1,5 +1,6 @@
 import os
 import subprocess
+from subprocess import CompletedProcess, CalledProcessError
 
 
 def build_tf_env_vars(manifest):
@@ -54,4 +55,10 @@ def run_command(command, manifest, base_env=os.environ):
     Runs a Terraform command. The manifest is used to populate environment variables which are consumed by Terraform.
     """
     tf_env_vars = build_tf_env_vars(manifest)
-    return subprocess.run(command, env=dict(base_env, **tf_env_vars))
+    try:
+        process: CompletedProcess = subprocess.run(command, env=dict(base_env, **tf_env_vars))
+        process.check_returncode()
+    except CalledProcessError as e:
+        # Terraform returns an exit code of 1 if an error occurs
+        if e.returncode == 1:
+            exit(e.returncode)

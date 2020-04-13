@@ -7,9 +7,7 @@ data aws_iam_policy_document default {
     effect = "Allow"
     principals {
       type = "AWS"
-      identifiers = [
-        var.admin_role_arn
-      ]
+      identifiers = var.admin_role_arns
     }
     resources = [
       "*"

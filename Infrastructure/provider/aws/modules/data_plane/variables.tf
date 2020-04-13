@@ -1,46 +1,68 @@
+variable region {}
+variable resource_prefix {}
 variable tags {
   type = map(string)
 }
-variable admin_role_arn {}
-variable cluster_name {}
-variable cluster_role_arn {}
-variable cluster_role_name {}
-variable node_group_role_arn {}
-variable node_group_role_name {}
-variable retention_in_days {}
-variable private_subnet_ids {
+variable vpc_cidr {}
+variable private_subnet_cidrs {
+  type    = list(string)
+  default = []
+}
+variable public_subnet_cidrs {
+  type    = list(string)
+  default = []
+}
+variable sfdc_cidr_blocks {
   type = list(string)
 }
-variable public_subnet_ids {
+variable az_count {
+  type = number
+}
+variable az_names {
   type = list(string)
 }
-variable cluster_security_group_ids {
+variable enable_nat_gateway {
+  type    = bool
+  default = false
+}
+variable enable_private_nat_routes {
+  type    = bool
+  default = false
+}
+variable zone_name {}
+variable admin_role_arns {
   type = list(string)
 }
-variable public_access_cidrs {
-  type = list(string)
-}
-variable enabled_cluster_log_types {
-  type = list(string)
-  default = [
-    "api",
-    "audit",
-    "authenticator",
-    "controllerManager",
-    "scheduler"
-  ]
-}
+variable flow_log_retention_in_days {}
+variable flow_log_iam_role_arn {}
+variable data_plane_cluster_name {}
+variable data_plane_cluster_role_arn {}
+variable data_plane_cluster_role_name {}
+variable data_plane_node_role_arn {}
+variable data_plane_node_role_name {}
+variable transit_gateway_id {}
+variable bastion_autoscaling_group_role_arn {}
+variable bastion_image_id {}
+variable bastion_instance_profile_arn {}
+variable bastion_key_name {}
 variable node_group_key_name {}
-variable node_group_instance_types {
+variable data_plane_node_group_instance_types {
   type = list(string)
 }
-variable bastion_security_group_id {}
-variable node_group_desired_size {
+variable data_plane_node_group_desired_size {
   type = number
 }
-variable node_group_max_size {
+variable data_plane_node_group_max_size {
   type = number
 }
-variable node_group_min_size {
+variable data_plane_node_group_min_size {
   type = number
+}
+variable endpoint_ingress_port_from {
+  description = "The starting port to allow ingress traffic for private endpoints"
+  type        = number
+}
+variable endpoint_ingress_port_to {
+  description = "The ending port to allow ingress traffic for private endpoints"
+  type        = number
 }

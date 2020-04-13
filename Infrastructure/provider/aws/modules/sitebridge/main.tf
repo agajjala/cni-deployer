@@ -1,4 +1,3 @@
 locals {
-  data_plane_cidr_template    = "%s/16"
-  control_plane_cidr_template = "%s/32"
+  gateway_ips_without_suffix = [for str in var.gateway_ips: trimsuffix(str, "/32")]
 }

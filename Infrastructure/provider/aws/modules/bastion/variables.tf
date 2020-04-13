@@ -6,18 +6,15 @@ variable tags {
   type        = map(string)
   default     = {}
 }
-variable admin_role_arn {
-  description = "ARN of IAM role with AWS admin privileges on created resources"
+variable admin_role_arns {
+  description = "List of IAM role ARNs with AWS admin privileges on created resources"
+  type = list(string)
 }
 variable autoscaling_group_arn {
   description = "ARN of the service-linked IAM role used for autoscaling"
 }
 variable subnet_ids {
   description = "List of IDs corresponding to the subnets where a bastion host should be placed"
-  type        = list(string)
-}
-variable az_names {
-  description = "List of names corresponding to the availability zones where a bastion host should be placed"
   type        = list(string)
 }
 variable use_latest_launch_template_version {

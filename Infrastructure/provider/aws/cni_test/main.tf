@@ -8,7 +8,7 @@ provider aws {
 
 locals {
   resource_prefix                  = "${var.env_name}-${var.region}-${var.deployment_id}"
-  admin_role_arn                   = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.admin_role_name}"
+  admin_role_arns                   = formatlist("arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/%s", var.admin_role_names)
   az_names                         = slice(sort(data.aws_availability_zones.available.names), 0, var.az_count)
   inbound_vpc_resource_prefix      = "${local.resource_prefix}-inbound"
   inbound_hosted_zone_name         = "cni-inbound.salesforce.com"
@@ -27,7 +27,7 @@ module globals {
   region                            = var.region
   resource_prefix                   = local.resource_prefix
   tags                              = var.tags
-  admin_role_arn                    = local.admin_role_arn
+  admin_role_arns                    = local.admin_role_arns
   flow_logs_retention_in_days       = var.flow_logs_retention_in_days
   bucket_name                       = local.artifact_bucket_name
   authorizer_id                     = var.authorizer_id
@@ -45,18 +45,21 @@ module transit_gateway {
 }
 
 module monitoring_ec2_key_pair {
+  tags = var.tags
   source               = "../modules/ec2_key_pair"
   key_name             = "${local.resource_prefix}-ec2"
   write_local_pem_file = var.write_local_pem_files
 }
 
 module bastion_key_pair {
+  tags = var.tags
   source                = "../modules/ec2_key_pair"
   key_name              = "${local.resource_prefix}-bastion"
   write_local_pem_file  = var.write_local_pem_files
 }
 
 module node_group_key_pair {
+  tags = var.tags
   source                = "../modules/ec2_key_pair"
   key_name              = "${local.resource_prefix}-node-group"
   write_local_pem_file  = var.write_local_pem_files
@@ -77,7 +80,7 @@ module inbound_vpc {
   enable_nat_gateway                   = var.enable_inbound_nat_gateway
   enable_private_nat_routes            = var.enable_inbound_private_nat_routes
   zone_name                            = local.inbound_hosted_zone_name
-  admin_role_arn                       = local.admin_role_arn
+  admin_role_arns                       = local.admin_role_arns
   flow_log_iam_role_arn                = module.globals.iam_role_flow_logs_arn
   flow_log_retention_in_days           = var.flow_logs_retention_in_days
   data_plane_cluster_name              = local.inbound_data_plane_cluster_name
@@ -114,7 +117,7 @@ module outbound_vpc {
   enable_nat_gateway                   = var.enable_outbound_nat_gateway
   enable_private_nat_routes            = var.enable_outbound_private_nat_routes
   zone_name                            = local.outbound_hosted_zone_name
-  admin_role_arn                       = local.admin_role_arn
+  admin_role_arns                       = local.admin_role_arns
   flow_log_iam_role_arn                = module.globals.iam_role_flow_logs_arn
   flow_log_retention_in_days           = var.flow_logs_retention_in_days
   data_plane_cluster_name              = local.outbound_data_plane_cluster_name
@@ -151,12 +154,12 @@ module monitoring_vpc {
   image_id                             = data.aws_ami.bastion_image_id.id
   instance_type                        = var.monitoring_instance_type
   key_name                             = module.monitoring_ec2_key_pair.key_name
-  iam_instance_profile                 = module.globals.monitoring_ec2_instance_profile_name
+  iam_instance_profile_name                 = module.globals.monitoring_ec2_instance_profile_name
   docker_image_id                      = join(":",[var.monitoring.image, var.monitoring.version])
   enable_nat_gateway                   = var.enable_monitoring_nat_gateway
   enable_private_nat_routes            = var.enable_monitoring_private_nat_routes
   zone_name                            = local.monitoring_hosted_zone_name
-  admin_role_arn                       = local.admin_role_arn
+  admin_role_arns                       = local.admin_role_arns
   flow_log_iam_role_arn                = module.globals.iam_role_flow_logs_arn
   flow_log_retention_in_days           = var.flow_logs_retention_in_days
   transit_gateway_id                   = module.transit_gateway.tgw_id

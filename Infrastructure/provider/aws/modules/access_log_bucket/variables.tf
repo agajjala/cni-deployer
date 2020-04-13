@@ -25,3 +25,8 @@ variable logging_bucket_object_expiration {
   type        = number
   default     = 90
 }
+variable force_destroy {
+  description = "If true, deletion of the bucket will result in deletion of all bucket objects"
+  type        = bool
+  default     = false
+}

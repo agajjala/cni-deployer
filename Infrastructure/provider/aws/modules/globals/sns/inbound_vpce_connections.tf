@@ -1,7 +1,7 @@
 module inbound_vpce_connections_key {
   source             = "../../kms_key"
   tags               = var.tags
-  admin_role_arn     = var.admin_role_arn
+  admin_role_arns     = var.admin_role_arns
   source_json_policy = data.aws_iam_policy_document.inbound_vpce_connections_key_lambda_access.json
 }
 

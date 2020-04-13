@@ -6,6 +6,10 @@ output nginx_sg_id {
   value = aws_security_group.nginx.id
 }
 
+output nginx {
+  value = aws_security_group.nginx
+}
+
 output sitebridge_sg_id {
   value = aws_security_group.sitebridge.id
 }

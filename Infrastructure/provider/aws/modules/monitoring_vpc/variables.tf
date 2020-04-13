@@ -35,7 +35,9 @@ variable enable_private_nat_routes {
   default = false
 }
 variable zone_name {}
-variable admin_role_arn {}
+variable admin_role_arns {
+  type = list(string)
+}
 variable flow_log_retention_in_days {}
 variable flow_log_iam_role_arn {}
 variable transit_gateway_id {}
@@ -48,5 +50,5 @@ variable endpoint_ingress_port_to {
   type        = number
 }
 variable key_name {}
-variable iam_instance_profile {}
+variable iam_instance_profile_name {}
 variable docker_image_id {}

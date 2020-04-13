@@ -1,9 +1,10 @@
 resource aws_s3_bucket bucket {
+  tags          = var.tags
   bucket        = var.bucket_name
   acl           = "log-delivery-write"
   policy        = data.aws_iam_policy_document.bucket_policy.json
   region        = var.region
-  tags          = var.tags
+  force_destroy = var.force_destroy
 
   server_side_encryption_configuration {
     rule {

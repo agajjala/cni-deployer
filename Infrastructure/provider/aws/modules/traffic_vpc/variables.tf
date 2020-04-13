@@ -33,7 +33,9 @@ variable enable_private_nat_routes {
   default = false
 }
 variable zone_name {}
-variable admin_role_arn {}
+variable admin_role_arns {
+  type = list(string)
+}
 variable flow_log_retention_in_days {}
 variable flow_log_iam_role_arn {}
 variable data_plane_cluster_name {}

@@ -1,5 +1,4 @@
 import argparse
-import glob
 import os
 from common import common
 from terraform.init import init
@@ -7,6 +6,8 @@ from terraform.validate import validate
 from terraform.plan import plan
 from terraform.apply import apply
 from terraform.destroy import destroy
+from terraform.refresh import refresh
+from terraform.common import build_tf_env_vars
 
 
 def parse_var(s):
@@ -56,13 +57,18 @@ def get_fixed_arguments(args):
     return vars(args)
 
 
+def export_tf_env_vars(manifest):
+    for key, value in build_tf_env_vars(manifest):
+        print(f'export {key}={value}')
+
+
 def run_tf_command(manifest, args, tf_command):
     module_path = args['module']
     os.chdir(module_path)
     print('Changed directory to: {}'.format(module_path))
 
-    init(manifest)
-    tf_command(manifest)
+    init(manifest, args)
+    tf_command(manifest, args)
 
 
 def run(args):
@@ -82,30 +88,23 @@ def run(args):
         run_tf_command(manifest, args, apply)
     elif args['c'] == 'destroy':
         run_tf_command(manifest, args, destroy)
+    elif args['c'] == 'refresh':
+        run_tf_command(manifest, args, refresh)
+    elif args['c'] == 'export':
+        export_tf_env_vars(manifest)
 
 
 def main():
     parser = argparse.ArgumentParser(description="This program wraps terraform to provide some additional flexibility")
-    parser.add_argument("-c", help='the terraform command you want to run [validate, plan, apply, destroy]')
+    parser.add_argument("-c", help='the terraform command you want to run [validate, plan, apply, destroy, refresh]')
     parser.add_argument("-module", help="path to the target module")
     parser.add_argument("-manifest", help="path to the manifest to pass to the module")
-    parser.add_argument("--set",
-                        metavar="KEY=VALUE",
-                        nargs='+',
-                        help="Set a number of key-value pairs "
-                             "(do not put spaces before or after the = sign). "
-                             "If a value contains spaces, you should define "
-                             "it with double quotes: "
-                             'foo="this is a sentence". Note that '
-                             "values are always treated as strings.")
+    parser.add_argument("-automation", help="enables automatic approval of commands that require approval", default=False, action='store_true')
 
     args = parser.parse_args()
     deploy_args = get_fixed_arguments(args)
 
-    if args.set:
-        deploy_args = parse_vars(args.set)
-
-    print("values:{}".format(deploy_args))
+    print("Arguments: {}".format(deploy_args))
     validate_arguments(deploy_args)
 
     run(deploy_args)

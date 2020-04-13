@@ -1,3 +1,6 @@
+variable tags {
+  type = map(string)
+}
 variable key_name {
   description = "Name to assign the key pair in EC2"
 }

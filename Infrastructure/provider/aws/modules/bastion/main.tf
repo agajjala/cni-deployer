@@ -53,7 +53,7 @@ data aws_iam_policy_document resource_attachment {
 module ebs_volume_key {
   source             = "../kms_key"
   tags               = var.tags
-  admin_role_arn     = var.admin_role_arn
+  admin_role_arns     = var.admin_role_arns
   source_json_policy = data.aws_iam_policy_document.resource_attachment.json
 }
 
@@ -65,8 +65,7 @@ resource aws_autoscaling_group bastion {
   name_prefix               = "${var.resource_prefix}-bastion"
   service_linked_role_arn   = var.autoscaling_group_arn
   vpc_zone_identifier       = var.subnet_ids
-  availability_zones        = var.az_names
-  max_size                  = length(var.az_names)
+  max_size                  = length(var.subnet_ids)
   min_size                  = 1
   wait_for_capacity_timeout = "0"
 

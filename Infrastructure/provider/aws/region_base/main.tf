@@ -1,13 +1,16 @@
+terraform {
+  backend s3 {}
+}
+
 provider aws {
   region = var.region
 }
 
 locals {
-  admin_role_arn         = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.admin_role_name}"
-  artifact_bucket_name   = "sfdc-cni-artifacts-${var.env_name}-${var.region}"
-  state_bucket_name      = "sfdc-cni-tf-state-${var.env_name}-${var.region}"
-  access_log_bucket_name = "sfdc-cni-access-logs-${var.env_name}-${var.region}"
-  state_lock_table_name  = "tf-state-lock"
+  resource_prefix        = "${var.env_name}-${var.region}"
+  admin_role_arns        = formatlist("arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/%s", var.admin_role_names)
+  artifact_bucket_name   = "sfdc-cni-artifacts-${local.resource_prefix}"
+  access_log_bucket_name = "sfdc-cni-access-logs-${local.resource_prefix}"
 }
 
 module artifact_bucket {
@@ -15,30 +18,16 @@ module artifact_bucket {
   tags                   = var.tags
   bucket_name            = local.artifact_bucket_name
   region                 = var.region
-  admin_role_arn         = local.admin_role_arn
+  admin_role_arns        = local.admin_role_arns
   enable_mfa_delete      = false
   access_log_bucket_name = module.access_log_bucket.bucket_name
-}
-
-module state_bucket {
-  source                 = "../modules/s3_bucket"
-  tags                   = var.tags
-  bucket_name            = local.state_bucket_name
-  region                 = var.region
-  admin_role_arn         = local.admin_role_arn
-  enable_mfa_delete      = false
-  access_log_bucket_name = module.access_log_bucket.bucket_name
+  force_destroy          = var.force_destroy_artifact_bucket
 }
 
 module access_log_bucket {
-  source      = "../modules/access_log_bucket"
-  tags        = var.tags
-  region      = var.region
-  bucket_name = local.access_log_bucket_name
-}
-
-module state_lock_table {
-  source     = "../modules/state_lock_table"
-  tags       = var.tags
-  table_name = local.state_lock_table_name
+  source        = "../modules/access_log_bucket"
+  tags          = var.tags
+  region        = var.region
+  bucket_name   = local.access_log_bucket_name
+  force_destroy = var.force_destroy_access_log_bucket
 }

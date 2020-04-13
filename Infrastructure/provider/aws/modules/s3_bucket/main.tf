@@ -1,3 +1,7 @@
+locals {
+  has_access_log_bucket = var.access_log_bucket_name == ""
+}
+
 ###############################
 #  KMS Key
 ###############################
@@ -5,7 +9,7 @@
 module bucket_key {
   source          = "../kms_key"
   tags            = var.tags
-  admin_role_arn  = var.admin_role_arn
+  admin_role_arns  = var.admin_role_arns
   enable_alias    = true
   alias_name      = var.bucket_name
 }
@@ -15,14 +19,15 @@ module bucket_key {
 ###############################
 
 resource aws_s3_bucket bucket {
-  bucket = var.bucket_name
-  acl    = "private"
-  policy = data.aws_iam_policy_document.bucket_policy.json
-  region = var.region
-  tags   = var.tags
+  tags          = var.tags
+  bucket        = var.bucket_name
+  acl           = "private"
+  policy        = data.aws_iam_policy_document.bucket_policy.json
+  region        = var.region
+  force_destroy = var.force_destroy
 
   versioning {
-    enabled    = true
+    enabled    = var.enable_versioning
     mfa_delete = var.enable_mfa_delete
   }
 
@@ -35,9 +40,12 @@ resource aws_s3_bucket bucket {
     }
   }
 
-  logging {
-    target_bucket = var.access_log_bucket_name
-    target_prefix = "${var.bucket_name}/"
+  dynamic logging {
+    for_each = compact([var.access_log_bucket_name])
+    content {
+      target_bucket = var.access_log_bucket_name
+      target_prefix = "${var.bucket_name}/"
+    }
   }
 }
 

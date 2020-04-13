@@ -49,7 +49,7 @@ module vpc_flow_log {
   resource_prefix        = var.resource_prefix
   tags                   = var.tags
   vpc_id                 = module.vpc.vpc_id
-  admin_role_arn         = var.admin_role_arn
+  admin_role_arns         = var.admin_role_arns
   flow_logs_iam_role_arn = var.flow_log_iam_role_arn
   retention_in_days      = var.flow_log_retention_in_days
 }
@@ -59,10 +59,10 @@ module ec2 {
   image_id                = var.image_id
   instance_type           = var.instance_type
   vpc_id                  = module.vpc.vpc_id
-  subnet_id               = element(module.vpc.public_subnet_ids, 0)
+  subnet_ids              = length(module.vpc.public_subnet_ids) > 0 ? [module.vpc.public_subnet_ids[0]] : []
   vpc_security_group_ids  = [module.security_groups.monitoring_ec2_sg_id]
   key_name                = var.key_name
-  iam_instance_profile    = var.iam_instance_profile
+  iam_instance_profile    = var.iam_instance_profile_name
   region                  = var.region
   docker_image_id         = var.docker_image_id
   tags                    = var.tags

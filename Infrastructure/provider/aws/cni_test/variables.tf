@@ -15,10 +15,12 @@ variable tags {
   description = "Map of tags used to annotate each resource supporting tags"
   type        = map(string)
 }
-variable admin_role_name {
-  description = "Name of IAM role with AWS admin privileges on created resources"
-  type        = string
-  default     = "PCSKAdministratorAccessRole"
+variable admin_role_names {
+  description = "List of IAM role names with AWS admin privileges on created resources"
+  type        = list(string)
+  default     = [
+    "PCSKAdministratorAccessRole"
+  ]
 }
 variable flow_logs_retention_in_days {
   description = "Retention period in days for VPC flow logs"

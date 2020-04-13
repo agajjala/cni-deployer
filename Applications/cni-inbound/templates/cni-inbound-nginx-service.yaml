@@ -9,6 +9,7 @@ metadata:
     service.beta.kubernetes.io/aws-load-balancer-type: {{ .Values.loadbalancer.type }}
     service.beta.kubernetes.io/aws-load-balancer-additional-resource-tags: "{{ $tags }}"
     service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+    service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
   labels:
     name: {{ include "cni-inbound.fullname" . }}
 spec:

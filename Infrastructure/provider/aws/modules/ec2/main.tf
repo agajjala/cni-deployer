@@ -2,7 +2,7 @@ resource aws_instance instance {
   ami                     = var.image_id
   instance_type           = var.instance_type
   # VPC
-  subnet_id               = var.subnet_id
+  subnet_id               = var.subnet_ids[count.index]
   # Security Group
   vpc_security_group_ids  = var.vpc_security_group_ids
   # the Public SSH key
@@ -21,9 +21,13 @@ sudo docker pull ${var.docker_image_id}
 sudo docker run -d -p 80:80 -it ${var.docker_image_id} /bin/bash
 EOF
   tags                    = var.tags
+
+  count = length(var.subnet_ids)
 }
 
 resource aws_eip ip {
   vpc      = true
-  instance = aws_instance.instance.id
+  instance = aws_instance.instance[count.index].id
+
+  count = length(var.subnet_ids)
 }

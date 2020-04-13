@@ -6,13 +6,18 @@ variable region {
   description = "Region the bucket should be created in"
   type        = string
 }
-variable admin_role_arn {
+variable admin_role_arns {
   description = ""
-  type        = string
+  type        = list(string)
 }
 variable bucket_name {
   description = "Name of this S3 bucket"
   type        = string
+}
+variable enable_versioning {
+  description = "If true, enables versioning on bucket objects"
+  type        = bool
+  default     = true
 }
 variable enable_mfa_delete {
   description = "If true, enables MFA delete on bucket object versions"
@@ -22,4 +27,10 @@ variable enable_mfa_delete {
 variable access_log_bucket_name {
   description = "Name of the S3 bucket used for logging access requests to this bucket"
   type        = string
+  default     = ""
+}
+variable force_destroy {
+  description = "If true, deletion of the bucket will result in deletion of all bucket objects"
+  type        = bool
+  default     = false
 }
