@@ -51,7 +51,9 @@ module security_groups {
   resource_prefix            = local.resource_prefix
   tags                       = var.tags
   vpc_id                     = module.vpc.vpc_id
+  vpc_cidr                   = module.vpc.vpc_cidr
   sfdc_cidr_blocks           = var.sfdc_vpn_cidrs
+  kaiju_agent_cidrs          = []
   endpoint_ingress_port_from = 0
   endpoint_ingress_port_to   = 65535
 }
