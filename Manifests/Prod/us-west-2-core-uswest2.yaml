@@ -35,6 +35,16 @@ lambda_layer_s3_key: zip/cni_common_v269.zip
 lambda_function_s3_key: zip/api_v4.zip
 lambda_memory_size: 2048
 
+inbound_vpc_cidr: 10.0.0.0/22
+inbound_data_plane_node_group_instance_types:
+  - m5.4xlarge
+inbound_data_plane_node_group_max_size: 6
+
+outbound_vpc_cidr: 10.0.4.0/22
+outbound_data_plane_node_group_instance_types:
+  - m5.4xlarge
+outbound_data_plane_node_group_max_size: 6
+
 monitoring:
   image: 325178561262.dkr.ecr.us-west-2.amazonaws.com/cni-monitoring
   version: '1'
