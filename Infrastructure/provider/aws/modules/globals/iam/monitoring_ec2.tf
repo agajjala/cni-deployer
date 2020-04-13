@@ -25,6 +25,26 @@ EOF
   tags = var.tags
 }
 
+resource aws_iam_policy monitoring_s3_read_write_access {
+  name = "${var.resource_prefix}-s3-manage"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Resource": "${var.monitoring_s3_bucket_arn}",
+      "Effect": "Allow",
+      "Action": [
+        "s3:Get*",
+        "s3:List*"
+      ]
+    }
+  ]
+}
+EOF
+}
+
 ###############################
 #  Instance Profile
 ###############################
@@ -53,7 +73,6 @@ resource aws_iam_role_policy_attachment monitoring_ec2_dynamodb_read_access {
 }
 
 resource aws_iam_role_policy_attachment monitoring_ec2_s3_manage_access {
-  policy_arn = aws_iam_policy.s3_read_write_access.arn
+  policy_arn = aws_iam_policy.monitoring_s3_read_write_access.arn
   role       = aws_iam_role.monitoring_ec2.name
 }
-

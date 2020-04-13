@@ -19,6 +19,9 @@ variable outbound_nginx_ecr_repo_arn {
 variable outbound_nginx_s3_bucket_arn {
   default = "*"
 }
+variable monitoring_s3_bucket_arn {
+  default = "*"
+}
 variable bucket_name {}
 variable lambda_layer_s3_key {}
 variable lambda_layer_s3_object_version {

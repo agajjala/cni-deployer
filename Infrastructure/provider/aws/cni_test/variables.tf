@@ -32,6 +32,7 @@ variable authorizer_id {
   type        = string
   default     = ""
 }
+variable monitoring_s3_bucket_arn {}
 variable bucket_name {
   description = "Name of the S3 bucket in which objects are stored. Omitting this field defaults to a value of \"sfdc-cni-artifacts-{env_name}-{region}\"."
   type        = string

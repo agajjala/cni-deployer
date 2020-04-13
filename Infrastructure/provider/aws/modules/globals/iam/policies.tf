@@ -231,24 +231,3 @@ resource aws_iam_policy ecr_manage {
 }
 EOF
 }
-
-resource aws_iam_policy s3_read_write_access {
-  name = "${var.resource_prefix}-s3-manage"
-
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Resource": "*",
-      "Effect": "Allow",
-      "Action": [
-        "s3:Get*",
-        "s3:List*",
-        "s3:Put*"
-      ]
-    }
-  ]
-}
-EOF
-}

@@ -36,6 +36,7 @@ module globals {
   lambda_function_s3_key            = var.lambda_function_s3_key
   lambda_function_s3_object_version = var.lambda_function_s3_object_version
   lambda_memory_size                = var.lambda_memory_size
+  monitoring_s3_bucket_arn          = "arn:aws:s3:::${local.resource_prefix}-monitoring"
 }
 
 module transit_gateway {

@@ -7,3 +7,4 @@ variable inbound_nginx_s3_bucket_arn {}
 variable inbound_nginx_ecr_repo_arn {}
 variable outbound_nginx_s3_bucket_arn {}
 variable outbound_nginx_ecr_repo_arn {}
+variable monitoring_s3_bucket_arn {}

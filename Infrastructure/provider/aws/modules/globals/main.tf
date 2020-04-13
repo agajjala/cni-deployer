@@ -7,6 +7,7 @@ module iam {
   inbound_nginx_s3_bucket_arn  = var.inbound_nginx_s3_bucket_arn
   outbound_nginx_ecr_repo_arn  = var.outbound_nginx_ecr_repo_arn
   outbound_nginx_s3_bucket_arn = var.outbound_nginx_s3_bucket_arn
+  monitoring_s3_bucket_arn     = var.monitoring_s3_bucket_arn
 }
 
 module sns {
