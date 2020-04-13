@@ -25,7 +25,7 @@ EOF
   tags = var.tags
 }
 
-resource aws_iam_policy monitoring_s3_read_write_access {
+resource aws_iam_policy monitoring_s3_read_access {
   name = "${var.resource_prefix}-s3-manage"
 
   policy = <<EOF
@@ -72,7 +72,7 @@ resource aws_iam_role_policy_attachment monitoring_ec2_dynamodb_read_access {
   role       = aws_iam_role.monitoring_ec2.name
 }
 
-resource aws_iam_role_policy_attachment monitoring_ec2_s3_manage_access {
-  policy_arn = aws_iam_policy.monitoring_s3_read_write_access.arn
+resource aws_iam_role_policy_attachment monitoring_ec2_s3_read_access {
+  policy_arn = aws_iam_policy.monitoring_s3_read_access.arn
   role       = aws_iam_role.monitoring_ec2.name
 }

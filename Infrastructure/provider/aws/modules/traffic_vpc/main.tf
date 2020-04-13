@@ -62,7 +62,6 @@ module bastion {
   tags                  = var.tags
   admin_role_arns        = var.admin_role_arns
   autoscaling_group_arn = var.bastion_autoscaling_group_role_arn
-  az_names              = var.az_names
   subnet_ids            = module.vpc.public_subnet_ids
   security_group_ids    = [
     module.security_groups.bastion_sg_id
