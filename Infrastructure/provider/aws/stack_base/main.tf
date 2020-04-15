@@ -31,6 +31,32 @@ resource aws_ec2_transit_gateway default {
 }
 
 ###############################
+#  Customer Gateways
+###############################
+
+resource aws_customer_gateway default {
+  tags       = merge(var.tags, {Name: "${local.resource_prefix}-${count.index}"})
+  bgp_asn    = var.sitebridge_config.bgp_asn
+  ip_address = trimsuffix(var.sitebridge_config.gateway_ips[count.index], "/32")
+  type       = "ipsec.1"
+
+  count      = length(var.sitebridge_config.gateway_ips)
+}
+
+###############################
+#  VPN Connections
+###############################
+
+resource aws_vpn_connection default {
+  tags                = merge(var.tags, {Name: "${local.resource_prefix}-${count.index}"})
+  customer_gateway_id = aws_customer_gateway.default[count.index].id
+  transit_gateway_id  = aws_ec2_transit_gateway.default.id
+  type                = aws_customer_gateway.default[count.index].type
+
+  count               = length(var.sitebridge_config.gateway_ips)
+}
+
+###############################
 #  Outbound DNS Zone
 ###############################
 

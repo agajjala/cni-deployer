@@ -97,14 +97,11 @@ variable inbound_data_plane_node_group_min_size {
 }
 variable sitebridge_config {
   description = <<EOT
-    gateway_ips - List of Sitebridge Openswan VPN connection IPs
     control_plane_ips - List of Sitebridge control plane IPs
-    data_plane_cidrs - List of Sitebridge NAT pool CIDRs
+    data_plane_cidrs  - List of Sitebridge NAT pool CIDRs
     forwarded_domains - List of domains to route using a Sitebridge VPN connection
   EOT
   type = object({
-    bgp_asn           = string
-    gateway_ips       = list(string)
     control_plane_ips = list(string)
     data_plane_cidrs  = list(string)
     forwarded_domains = list(string)

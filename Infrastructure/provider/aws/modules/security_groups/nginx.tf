@@ -1,24 +1,14 @@
-resource "aws_security_group" "nginx" {
-  name        = "${var.resource_prefix}-nginx"
-  vpc_id      = var.vpc_id
-
-  tags        = var.tags
+resource aws_security_group nginx {
+  tags   = merge(var.tags, { Name : "${var.resource_prefix}-nginx" })
+  name   = "${var.resource_prefix}-nginx"
+  vpc_id = var.vpc_id
 }
 
 ###############################
 #  Ingress
 ###############################
 
-resource aws_security_group_rule nginx_in_allow_bastion_ssh {
-  type                      = "ingress"
-  from_port                 = 22
-  to_port                   = 22
-  protocol                  = "tcp"
-  source_security_group_id  = aws_security_group.bastion.id
-  security_group_id         = aws_security_group.nginx.id
-}
-
-resource aws_security_group_rule nginx_in_allow_private_internet_443 {
+resource aws_security_group_rule nginx_in_allow_private_internet_dynamic_port_range {
   type              = "ingress"
   from_port         = var.endpoint_ingress_port_from
   to_port           = var.endpoint_ingress_port_to

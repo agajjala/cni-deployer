@@ -26,3 +26,12 @@ variable write_local_pem_files {
   type        = bool
   default     = true
 }
+variable sitebridge_config {
+  description = <<EOT
+    gateway_ips - List of Sitebridge Openswan VPN connection IPs
+  EOT
+  type = object({
+    bgp_asn           = string
+    gateway_ips       = list(string)
+  })
+}

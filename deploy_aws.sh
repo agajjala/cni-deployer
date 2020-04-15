@@ -46,14 +46,6 @@ eval "$(python "$DEPLOYER_PATH/export_to_env.py" -manifest "${MANIFEST}")"
 AWS_REGION="$TF_VAR_region"
 export TF_IN_AUTOMATION=true
 
-python "$DEPLOYER_PATH/deploy.py" -c plan -module $MODULE_PATH/state_bucket -manifest "${MANIFEST}" -automation
-python "$DEPLOYER_PATH/deploy.py" -c apply -module $MODULE_PATH/state_bucket -manifest "${MANIFEST}" -automation
-
-python "$DEPLOYER_PATH/deploy.py" -c plan -module $MODULE_PATH/region_base -manifest "${MANIFEST}" -automation
-python "$DEPLOYER_PATH/deploy.py" -c apply -module $MODULE_PATH/region_base -manifest "${MANIFEST}" -automation
-
-#aws s3 sync "$2" s3://sfdc-cni-artifacts-"$TF_VAR_env_name-$TF_VAR_region"
-
 python "$DEPLOYER_PATH/deploy.py" -c plan -module $MODULE_PATH/stack_base -manifest "${MANIFEST}" -automation
 python "$DEPLOYER_PATH/deploy.py" -c apply -module $MODULE_PATH/stack_base -manifest "${MANIFEST}" -automation
 

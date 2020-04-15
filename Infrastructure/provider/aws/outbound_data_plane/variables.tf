@@ -75,6 +75,18 @@ variable outbound_data_plane_node_group_min_size {
   type        = number
   default     = 3
 }
+variable sitebridge_config {
+  description = <<EOT
+    control_plane_ips - List of Sitebridge control plane IPs
+    data_plane_cidrs  - List of Sitebridge NAT pool CIDRs
+    forwarded_domains - List of domains to route using a Sitebridge VPN connection
+  EOT
+  type = object({
+    control_plane_ips = list(string)
+    data_plane_cidrs  = list(string)
+    forwarded_domains = list(string)
+  })
+}
 variable vpc_suffix {
   type = string
 }

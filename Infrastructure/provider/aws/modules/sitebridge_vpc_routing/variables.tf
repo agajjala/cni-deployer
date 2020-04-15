@@ -9,21 +9,24 @@ variable private_subnet_ids {
 variable private_route_table_ids {
   type = list(string)
 }
-variable bgp_asn {}
-variable gateway_ips {
-  description = "List of Sitebridge Openswan VPN connection IPs"
-  type = list(string)
-}
 variable data_plane_cidrs {
   description = "List of Sitebridge NAT pool CIDRs"
-  type = list(string)
+  type        = list(string)
 }
 variable control_plane_ips {
   description = "List of Sitebridge control plane IPs"
-  type = list(string)
+  type        = list(string)
 }
-variable transit_gateway_id {}
-variable sitebridge_security_group_id {}
+variable transit_gateway {
+  type = object({
+    id = string
+  })
+}
+variable sitebridge_sg {
+  type = object({
+    id = string
+  })
+}
 variable forwarded_domains {
   type = list(string)
 }

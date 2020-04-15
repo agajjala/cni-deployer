@@ -26,3 +26,12 @@ variable force_destroy_access_log_bucket {
   type        = bool
   default     = false
 }
+variable sitebridge_config {
+  description = <<EOT
+    gateway_ips - List of Sitebridge Openswan VPN connection IPs
+  EOT
+  type = object({
+    bgp_asn           = string
+    gateway_ips       = list(string)
+  })
+}

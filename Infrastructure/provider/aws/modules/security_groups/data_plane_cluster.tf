@@ -1,8 +1,7 @@
 resource aws_security_group data_plane_cluster {
-  name        = "${var.resource_prefix}-dp-cluster"
-  vpc_id      = var.vpc_id
-
-  tags        = var.tags
+  tags   = merge(var.tags, { Name : "${var.resource_prefix}-dp-cluster" })
+  name   = "${var.resource_prefix}-dp-cluster"
+  vpc_id = var.vpc_id
 }
 
 ###############################

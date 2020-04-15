@@ -1,8 +1,7 @@
-resource "aws_security_group" "bastion" {
-  name        = "${var.resource_prefix}-bastion"
-  vpc_id      = var.vpc_id
-
-  tags        = var.tags
+resource aws_security_group bastion {
+  tags   = merge(var.tags, { Name : "${var.resource_prefix}-bastion" })
+  name   = "${var.resource_prefix}-bastion"
+  vpc_id = var.vpc_id
 }
 
 ###############################

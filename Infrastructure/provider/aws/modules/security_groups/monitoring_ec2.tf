@@ -1,7 +1,7 @@
 resource aws_security_group monitoring_ec2 {
-  name              = "${var.resource_prefix}-ec2"
-  vpc_id            = var.vpc_id
-  tags              = var.tags
+  tags   = merge(var.tags, { Name : "${var.resource_prefix}-ec2" })
+  name   = "${var.resource_prefix}-ec2"
+  vpc_id = var.vpc_id
 }
 
 resource aws_security_group_rule monitoring_ec2_in_allow_sfdc_ssh {

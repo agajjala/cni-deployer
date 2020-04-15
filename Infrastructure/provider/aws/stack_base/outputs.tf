@@ -6,6 +6,14 @@ output transit_gateway {
   value = aws_ec2_transit_gateway.default
 }
 
+output customer_gateways {
+  value = aws_customer_gateway.default.*
+}
+
+output vpn_connections {
+  value = aws_vpn_connection.default.*
+}
+
 output outbound_dns_zone {
   value = module.outbound_dns_zone
 }
