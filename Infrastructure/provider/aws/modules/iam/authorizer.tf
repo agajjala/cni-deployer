@@ -80,7 +80,7 @@ resource aws_iam_policy authorizer_secret_read {
           "secretsmanager:DescribeSecret",
           "secretsmanager:ListSecretVersionIds"
         ]
-        Resource = formatlist("arn:aws:secretsmanager:%s:${data.aws_caller_identity.current.account_id}:secret:${var.resource_prefix}*-c2c-ec-key", [var.region])
+        Resource = formatlist("arn:aws:secretsmanager:%s:${data.aws_caller_identity.current.account_id}:secret:${var.api_authorizer_c2c_key_secret_name}", [var.region])
       }
     ]
   })
