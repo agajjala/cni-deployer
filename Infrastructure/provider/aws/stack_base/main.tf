@@ -20,6 +20,7 @@ module iam {
   region                    = var.region
   resource_prefix           = local.resource_prefix
   private_connect_role_name = var.private_connect_role_name
+  monitoring_s3_bucket      = var.monitoring_s3_bucket
 }
 
 ###############################

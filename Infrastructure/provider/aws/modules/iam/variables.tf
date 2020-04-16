@@ -12,3 +12,8 @@ variable private_connect_role_name {
   type = string
   default = ""
 }
+variable monitoring_s3_bucket {
+  type = object({
+    arn = string
+  })
+}

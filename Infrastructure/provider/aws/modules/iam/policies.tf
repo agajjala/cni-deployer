@@ -124,6 +124,30 @@ resource aws_iam_policy dynamodb_read_write {
   })
 }
 
+resource aws_iam_policy dynamodb_read {
+  name = "${var.resource_prefix}-ddb-rw"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "dynamodb:GetItem",
+          "dynamodb:Scan",
+          "dynamodb:Query",
+          "dynamodb:BatchGetItem",
+          "dynamodb:DescribeTable",
+          "dynamodb:ConditionCheckItem"
+        ]
+        Effect = "Allow"
+        Resource = flatten([
+          formatlist("arn:aws:dynamodb:%s:${data.aws_caller_identity.current.account_id}:table/*", [var.region])
+        ])
+      }
+    ]
+  })
+}
+
 resource aws_iam_policy sns_write {
   name = "${var.resource_prefix}-sns-w"
   policy = jsonencode({

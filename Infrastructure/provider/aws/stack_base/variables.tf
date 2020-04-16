@@ -21,6 +21,15 @@ variable private_connect_role_name {
   type        = string
   default     = ""
 }
+variable monitoring_s3_bucket {
+  description = "ARN of the bucket which stores the input json files for cni-monitoring."
+  type = object({
+    arn = string
+  })
+  default = {
+    arn = "*"
+  }
+}
 variable write_local_pem_files {
   description = "If true, writes generated private keys as local pem files in the directory of the root module"
   type        = bool
@@ -31,7 +40,7 @@ variable sitebridge_config {
     gateway_ips - List of Sitebridge Openswan VPN connection IPs
   EOT
   type = object({
-    bgp_asn           = string
-    gateway_ips       = list(string)
+    bgp_asn     = string
+    gateway_ips = list(string)
   })
 }
