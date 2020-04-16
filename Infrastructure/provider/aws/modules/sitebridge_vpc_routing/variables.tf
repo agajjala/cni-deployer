@@ -22,10 +22,8 @@ variable transit_gateway {
     id = string
   })
 }
-variable sitebridge_sg {
-  type = object({
-    id = string
-  })
+variable sitebridge_sg_id {
+  type = string
 }
 variable forwarded_domains {
   type = list(string)

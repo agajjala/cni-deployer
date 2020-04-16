@@ -28,7 +28,7 @@ resource aws_security_group_rule sitebridge_inbound_mtu_discovery {
   to_port           = 0
   protocol          = "icmp"
   cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = var.sitebridge_sg.id
+  security_group_id = var.sitebridge_sg_id
 }
 
 resource aws_security_group_rule sitebridge_inbound_data_plane_all_ports {
@@ -37,38 +37,7 @@ resource aws_security_group_rule sitebridge_inbound_data_plane_all_ports {
   to_port           = 0
   protocol          = -1
   cidr_blocks       = toset(var.data_plane_cidrs)
-  security_group_id = var.sitebridge_sg.id
-}
-
-resource aws_security_group_rule sitebridge_inbound_control_plane_all_ports {
-  type              = "ingress"
-  from_port         = 0
-  to_port           = 0
-  protocol          = -1
-  cidr_blocks       = var.control_plane_ips
-  security_group_id = var.sitebridge_sg.id
-}
-
-###############################
-#  Egress Rules
-###############################
-
-resource aws_security_group_rule sitebridge_outbound_data_plane_all_ports {
-  type              = "egress"
-  from_port         = 0
-  to_port           = 0
-  protocol          = -1
-  cidr_blocks       = toset(var.data_plane_cidrs)
-  security_group_id = var.sitebridge_sg.id
-}
-
-resource aws_security_group_rule sitebridge_outbound_control_plane_all_ports {
-  type              = "egress"
-  from_port         = 0
-  to_port           = 0
-  protocol          = -1
-  cidr_blocks       = var.control_plane_ips
-  security_group_id = var.sitebridge_sg.id
+  security_group_id = var.sitebridge_sg_id
 }
 
 ###############################
@@ -78,7 +47,7 @@ resource aws_security_group_rule sitebridge_outbound_control_plane_all_ports {
 resource aws_route53_resolver_endpoint outbound {
   name               = var.resource_prefix
   direction          = "OUTBOUND"
-  security_group_ids = [var.sitebridge_sg.id]
+  security_group_ids = [var.sitebridge_sg_id]
 
   dynamic ip_address {
     for_each = var.private_subnet_ids

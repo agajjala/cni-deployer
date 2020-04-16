@@ -29,7 +29,7 @@ module iam {
 ###############################
 
 resource aws_ec2_transit_gateway default {
-  tags = merge(var.tags, {Name: local.resource_prefix})
+  tags = merge(var.tags, { Name : local.resource_prefix })
 }
 
 ###############################
@@ -37,12 +37,12 @@ resource aws_ec2_transit_gateway default {
 ###############################
 
 resource aws_customer_gateway default {
-  tags       = merge(var.tags, {Name: "${local.resource_prefix}-${count.index}"})
+  tags       = merge(var.tags, { Name : "${local.resource_prefix}-${count.index}" })
   bgp_asn    = var.sitebridge_config.bgp_asn
   ip_address = trimsuffix(var.sitebridge_config.gateway_ips[count.index], "/32")
   type       = "ipsec.1"
 
-  count      = length(var.sitebridge_config.gateway_ips)
+  count = length(var.sitebridge_config.gateway_ips)
 }
 
 ###############################
@@ -50,24 +50,51 @@ resource aws_customer_gateway default {
 ###############################
 
 resource aws_vpn_connection default {
-  tags                = merge(var.tags, {Name: "${local.resource_prefix}-${count.index}"})
+  tags                = merge(var.tags, { Name : "${local.resource_prefix}-${count.index}" })
   customer_gateway_id = aws_customer_gateway.default[count.index].id
   transit_gateway_id  = aws_ec2_transit_gateway.default.id
   type                = aws_customer_gateway.default[count.index].type
 
-  count               = length(var.sitebridge_config.gateway_ips)
+  count = length(var.sitebridge_config.gateway_ips)
 }
 
 ###############################
-#  Outbound DNS Zone
+#  Shared DNS Zones
 ###############################
 
-module outbound_dns_zone {
-  source          = "../modules/outbound_dns_zone"
-  tags            = var.tags
-  region          = var.region
-  resource_prefix = "${local.resource_prefix}-outbound"
-  zone_name       = "cni-outbound.salesforce.com"
+resource aws_vpc shared_dns_zone {
+  tags                 = merge(var.tags, { Name : "${local.resource_prefix}-shared-dns-zone" })
+  cidr_block           = "10.0.0.0/24"
+  enable_dns_support   = true
+  enable_dns_hostnames = true
+}
+
+resource aws_route53_zone outbound_dns_zone {
+  tags    = var.tags
+  name    = "cni-outbound.salesforce.com"
+  comment = "${local.resource_prefix}-outbound-dns-zone"
+
+  lifecycle {
+    ignore_changes = [vpc]
+  }
+
+  vpc {
+    vpc_id = aws_vpc.shared_dns_zone.id
+  }
+}
+
+resource aws_route53_zone sitebridge_dns_zone {
+  tags    = var.tags
+  name    = "sfdcsb.net"
+  comment = "${local.resource_prefix}-sitebridge-dns-zone"
+
+  lifecycle {
+    ignore_changes = [vpc]
+  }
+
+  vpc {
+    vpc_id = aws_vpc.shared_dns_zone.id
+  }
 }
 
 ###############################

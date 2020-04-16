@@ -124,9 +124,8 @@ module eks_cluster {
   public_subnet_ids    = module.vpc.public_subnet_ids
   public_access_cidrs  = var.sfdc_vpn_cidrs
   cluster_security_group_ids = [
-    module.security_groups.data_plane_cluster_sg_id,
-    module.security_groups.nginx.id,
-    module.security_groups.sitebridge_sg.id
+    module.security_groups.data_plane_cluster.id,
+    module.security_groups.nginx.id
   ]
   node_group_instance_types = var.inbound_data_plane_node_group_instance_types
   bastion_security_group_id = module.security_groups.bastion_sg_id
@@ -155,14 +154,14 @@ module tgw_attachment {
   private_subnet_ids = module.vpc.private_subnet_ids
 }
 
-module sitebridge_routing {
+module sitebridge_vpc_routing {
   source                       = "../modules/sitebridge_vpc_routing"
   tags                         = var.tags
   resource_prefix              = local.resource_prefix
   vpc_id                       = module.vpc.vpc_id
   private_subnet_ids           = module.vpc.private_subnet_ids
   transit_gateway              = data.terraform_remote_state.stack_base.outputs.transit_gateway
-  sitebridge_sg                = module.security_groups.sitebridge_sg
+  sitebridge_sg_id             = module.eks_cluster.cluster_security_group_id
   control_plane_ips            = var.sitebridge_config.control_plane_ips
   data_plane_cidrs             = var.sitebridge_config.data_plane_cidrs
   private_route_table_ids      = module.vpc.private_route_table_ids

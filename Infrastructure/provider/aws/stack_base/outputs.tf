@@ -15,7 +15,11 @@ output vpn_connections {
 }
 
 output outbound_dns_zone {
-  value = module.outbound_dns_zone
+  value = aws_route53_zone.outbound_dns_zone
+}
+
+output sitebridge_dns_zone {
+  value = aws_route53_zone.sitebridge_dns_zone
 }
 
 output outbound_bastion_key_pair {

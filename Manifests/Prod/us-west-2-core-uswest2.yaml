@@ -31,7 +31,7 @@ api_access_whitelist:
   - 204.14.239.82/32
   # AmerWest1
   - 13.110.54.0/26
-lambda_layer_s3_key: zip/cni_common_v269.zip
+lambda_layer_s3_key: zip/cni_common_v274.zip
 lambda_function_s3_key: zip/api_v4.zip
 lambda_memory_size: 2048
 
@@ -69,7 +69,7 @@ sitebridge_config:
     - 44.233.119.1/32
     - 44.233.119.10/32
   forwarded_domains:
-    - salesforce.com
+    - my.salesforce.com
     - sfdc.net
     - force.com
 

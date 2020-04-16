@@ -72,7 +72,7 @@ module config_settings_tables {
   inbound_zone                    = data.terraform_remote_state.inbound_data_plane.outputs.zone
   inbound_vpc_endpoint_service    = module.inbound_vpc_endpoint_service.service
   private_link_access_role        = data.terraform_remote_state.stack_base.outputs.iam.private_connect_role
-  outbound_zone                   = data.terraform_remote_state.stack_base.outputs.outbound_dns_zone.zone
+  outbound_zone                   = data.terraform_remote_state.stack_base.outputs.outbound_dns_zone
   outbound_vpc                    = data.terraform_remote_state.outbound_data_plane.outputs.vpc
   outbound_vpce_connections_topic = module.sns_topics.outbound_vpce_connections_topic
   outbound_private_subnets        = data.terraform_remote_state.outbound_data_plane.outputs.private_subnets

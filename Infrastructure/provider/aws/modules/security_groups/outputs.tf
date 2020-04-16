@@ -10,8 +10,8 @@ output nginx {
   value = aws_security_group.nginx
 }
 
-output sitebridge_sg {
-  value = aws_security_group.sitebridge
+output data_plane_cluster {
+  value = aws_security_group.data_plane_cluster
 }
 
 output data_plane_cluster_sg_id {
