@@ -125,7 +125,7 @@ resource aws_iam_policy dynamodb_read_write {
 }
 
 resource aws_iam_policy dynamodb_read {
-  name = "${var.resource_prefix}-ddb-rw"
+  name = "${var.resource_prefix}-ddb-r"
 
   policy = jsonencode({
     Version = "2012-10-17"

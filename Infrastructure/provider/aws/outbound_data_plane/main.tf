@@ -157,7 +157,12 @@ module sitebridge_vpc_routing {
 #  DNS Zone Association
 ###############################
 
-resource aws_route53_zone_association zone {
+resource aws_route53_zone_association outbound {
   zone_id = data.terraform_remote_state.stack_base.outputs.outbound_dns_zone.id
+  vpc_id  = module.vpc.vpc_id
+}
+
+resource aws_route53_zone_association sitebridge {
+  zone_id = data.terraform_remote_state.stack_base.outputs.sitebridge_dns_zone.id
   vpc_id  = module.vpc.vpc_id
 }
