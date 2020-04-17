@@ -25,9 +25,14 @@ resource aws_api_gateway_authorizer authorizer {
   name                   = "${var.resource_prefix}-authorizer"
   rest_api_id            = var.rest_api.id
   type                   = "REQUEST"
-  identity_source        = ""
+  identity_source        = "method.request.header.Authorization"
   authorizer_uri         = module.authorizer_function.lambda_function.invoke_arn
   authorizer_result_ttl_in_seconds = 0
+
+  lifecycle {
+    # Manual changes to identity source via UI or CLI will be ignored
+    ignore_changes = ["identity_source"]
+  }
 }
 
 resource aws_lambda_permission authorizer {
