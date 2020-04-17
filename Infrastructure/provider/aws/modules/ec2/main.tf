@@ -18,7 +18,7 @@ aws configure set default.region ${var.region}
 aws configure set default.output json
 sudo $(aws ecr get-login --region ${var.region} --no-include-email)
 sudo docker pull ${var.docker_image_id}
-sudo docker run -d -p 80:80 -it ${var.docker_image_id} /bin/bash
+sudo docker run -d -p 80:80 -e region=${var.region} -it ${var.docker_image_id} /bin/bash
 EOF
   tags                    = var.tags
 

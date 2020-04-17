@@ -33,7 +33,7 @@ resource aws_iam_policy monitoring_s3_read_access {
   "Version": "2012-10-17",
   "Statement": [
     {
-      "Resource": "${var.monitoring_s3_bucket_arn}",
+      "Resource": "${var.monitoring_s3_bucket_arn}/*",
       "Effect": "Allow",
       "Action": [
         "s3:Get*",

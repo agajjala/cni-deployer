@@ -47,7 +47,7 @@ outbound_data_plane_node_group_max_size: 6
 
 monitoring:
   image: 325178561262.dkr.ecr.us-west-2.amazonaws.com/cni-monitoring
-  version: '1'
+  version: '2'
 dataplane_inbound:
   image: 325178561262.dkr.ecr.us-west-2.amazonaws.com/cni-nginx-proxy-inbound
   version: '20'

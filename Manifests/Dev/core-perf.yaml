@@ -9,7 +9,7 @@ lambda_layer_s3_key: zip/cni_common-udmalpe-b062e5d7-f07f-4097-93ba-d6e5d91c55cb
 lambda_function_s3_key: zip/api_v1.zip
 monitoring:
   image: 985884022631.dkr.ecr.us-west-2.amazonaws.com/cni-monitoring
-  version: '1'
+  version: '2'
 lambda_memory_size: 2048
 inbound_data_plane_node_group_instance_types:
   - m5.4xlarge
