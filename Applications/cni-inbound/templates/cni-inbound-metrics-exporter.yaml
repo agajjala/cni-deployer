@@ -7,7 +7,9 @@ metadata:
     name: cni-inbound-metrics-exporter
 data:
   {{- $clustername := (printf "%v-%v-%v-%v-data-plane" .Values.env_name .Values.region .Values.deployment_id .Values.direction) }}
-  {{- $apigwname := (printf "%v-%v-%v-controller" .Values.env_name .Values.region .Values.deployment_id) }}
+  {{- $apigwname := (printf "%v-%v-%v" .Values.env_name .Values.region .Values.deployment_id) }}
+  {{- $inboundconfigsettingstablename := (printf "%v-%v-%v_InboundConfigSettings" .Values.env_name .Values.region .Values.deployment_id) }}
+  {{- $inboundprivatelinkstablename := (printf "%v-%v-%v_InboundPrivateLinks" .Values.env_name .Values.region .Values.deployment_id) }}
   metrics_export_cfg: |
     region: {{ .Values.region }}
     metrics_query_configs:
@@ -55,6 +57,48 @@ data:
           - pod_network_tx_bytes
           - pod_number_of_container_restarts
           - service_number_of_running_pods
+      - namespace: "AWS/DynamoDB"
+        period: 60
+        dimension_filters:
+          - config:
+              keys: ["TableName"]
+              values: ["DynamoDBLockTable"]
+        metrics_list:
+          - ReturnedItemCount
+          - SuccessfulRequestLatency
+          - ConsumedWriteCapacityUnits
+          - ConsumedReadCapacityUnits
+          - ProvisionedWriteCapacityUnits
+          - ProvisionedReadCapacityUnits
+          - ConditionalCheckFailedRequests
+      - namespace: "AWS/DynamoDB"
+        period: 60
+        dimension_filters:
+          - config:
+              keys: ["TableName"]
+              values: ["{{ $inboundconfigsettingstablename }}"]
+        metrics_list:
+          - ReturnedItemCount
+          - SuccessfulRequestLatency
+          - ConsumedWriteCapacityUnits
+          - ConsumedReadCapacityUnits
+          - ProvisionedWriteCapacityUnits
+          - ProvisionedReadCapacityUnits
+          - ConditionalCheckFailedRequests
+      - namespace: "AWS/DynamoDB"
+        period: 60
+        dimension_filters:
+          - config:
+              keys: ["TableName"]
+              values: ["{{ $inboundprivatelinkstablename }}"]
+        metrics_list:
+          - ReturnedItemCount
+          - SuccessfulRequestLatency
+          - ConsumedWriteCapacityUnits
+          - ConsumedReadCapacityUnits
+          - ProvisionedWriteCapacityUnits
+          - ProvisionedReadCapacityUnits
+          - ConditionalCheckFailedRequests
 
 ---
 apiVersion: apps/v1
