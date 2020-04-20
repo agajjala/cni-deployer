@@ -8,7 +8,9 @@ metadata:
     {{- $tags := (printf "env_name=%v,deployment_id=%v" $env $deploymentID) }}
     service.beta.kubernetes.io/aws-load-balancer-type: {{ .Values.loadbalancer.type }}
     service.beta.kubernetes.io/aws-load-balancer-additional-resource-tags: "{{ $tags }}"
+    {{- if eq .Values.loadbalancer.internalLoadBalancer "yes" }}
     service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+    {{- end }}
     service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
   labels:
     name: {{ include "cni-inbound.fullname" . }}
