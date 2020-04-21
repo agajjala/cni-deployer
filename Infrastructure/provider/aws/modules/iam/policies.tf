@@ -69,6 +69,7 @@ resource aws_iam_policy private_link_admin {
           "ec2:DescribeVpcEndpointServices",
           "ec2:DescribeVpcEndpoints",
           "ec2:DescribeSubnets",
+          "ec2:DescribeSecurityGroups",
           "ec2:DescribeNetworkInterfaces",
           "ec2:RejectVpcEndpointConnections"
         ],

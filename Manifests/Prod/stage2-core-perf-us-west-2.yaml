@@ -30,16 +30,18 @@ api_access_whitelist:
   - 204.14.236.219/32
   - 204.14.236.218/32
   - 204.14.236.212/32
+  # Monitoring VM
+  - 35.155.30.238/32
 lambda_layer_s3_key: zip/cni_common_v274.zip
 lambda_function_s3_key: zip/api_v4.zip
 lambda_memory_size: 2048
 
-inbound_vpc_cidr: 10.0.0.0/22
+inbound_vpc_cidr: 10.20.8.0/22
 inbound_data_plane_node_group_instance_types:
   - m5.4xlarge
 inbound_data_plane_node_group_max_size: 6
 
-outbound_vpc_cidr: 10.0.4.0/22
+outbound_vpc_cidr: 10.200.0.0/16
 outbound_data_plane_node_group_instance_types:
   - m5.4xlarge
 outbound_data_plane_node_group_max_size: 6
