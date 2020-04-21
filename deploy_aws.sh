@@ -35,6 +35,10 @@ enable_ppv2_header () {
   aws --region "$AWS_REGION" elbv2 modify-target-group-attributes --target-group-arn "$target_group_arn" --attributes Key=proxy_protocol_v2.enabled,Value=true
 }
 
+enable_cross_zone_lb () {
+  aws --region "$AWS_REGION" elbv2 modify-load-balancer-attributes --load-balancer-arn "$LB_ARN" --attributes Key=load_balancing.cross_zone.enabled,Value=true
+}
+
 MANIFEST=${1}
 DEPLOYER_PATH=Infrastructure/deployer
 MODULE_PATH=Infrastructure/provider/aws
@@ -64,6 +68,7 @@ aws eks --region "$TF_VAR_region" update-kubeconfig --name "$INBOUND_CLUSTER_NAM
 kubectl apply -f "Manifests/Output/$INBOUND_CLUSTER_NAME/$INBOUND_NAMESPACE/templates/"
 wait_for_lb_dns_name "$INBOUND_NAMESPACE"
 get_lb_arn "$LB_DNS_NAME"
+enable_cross_zone_lb
 enable_ppv2_header
 
 # deploy k8s services for outbound
@@ -72,6 +77,7 @@ aws eks --region "$TF_VAR_region" update-kubeconfig --name "$OUTBOUND_CLUSTER_NA
 kubectl apply -f "Manifests/Output/$TF_VAR_env_name-$TF_VAR_region-$TF_VAR_deployment_id-outbound-data-plane/$OUTBOUND_NAMESPACE/templates/"
 wait_for_lb_dns_name "$OUTBOUND_NAMESPACE"
 get_lb_arn "$LB_DNS_NAME"
+enable_cross_zone_lb
 
 python "${DEPLOYER_PATH}/deploy.py" -c plan -module $MODULE_PATH/control_plane -manifest "${MANIFEST}" -automation
 python "${DEPLOYER_PATH}/deploy.py" -c apply -module $MODULE_PATH/control_plane -manifest "${MANIFEST}" -automation
