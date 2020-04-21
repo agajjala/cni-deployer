@@ -10,6 +10,7 @@ data:
   {{- $apigwname := (printf "%v-%v-%v" .Values.env_name .Values.region .Values.deployment_id) }}
   {{- $inboundconfigsettingstablename := (printf "%v-%v-%v_InboundConfigSettings" .Values.env_name .Values.region .Values.deployment_id) }}
   {{- $inboundprivatelinkstablename := (printf "%v-%v-%v_InboundPrivateLinks" .Values.env_name .Values.region .Values.deployment_id) }}
+  {{- $authorizerfunctionname := (printf "%v-%v-%v-authorizer" .Values.env_name .Values.region .Values.deployment_id) }}
   metrics_export_cfg: |
     region: {{ .Values.region }}
     metrics_query_configs:
@@ -99,6 +100,14 @@ data:
           - ProvisionedWriteCapacityUnits
           - ProvisionedReadCapacityUnits
           - ConditionalCheckFailedRequests
+      - namespace: "CNI"
+        period: 60
+        dimension_filters:
+          - config:
+              keys: ["Function Name"]
+              values: ["{{ $authorizerfunctionname }}"]
+        metrics_list:
+          - Latency
 
 ---
 apiVersion: apps/v1
