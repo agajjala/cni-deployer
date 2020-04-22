@@ -14,3 +14,8 @@ variable tags {
 variable vpc_security_group_ids {
   type = list(string)
 }
+variable admin_role_arns {
+  type = list(string)
+}
+variable resource_prefix {}
+variable retention_in_days {}

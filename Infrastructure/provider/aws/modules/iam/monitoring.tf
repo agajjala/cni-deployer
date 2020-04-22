@@ -69,3 +69,8 @@ resource aws_iam_role_policy_attachment monitoring_ec2_s3_read_access {
   policy_arn = aws_iam_policy.monitoring_s3_read_access.arn
   role       = aws_iam_role.monitoring_ec2.name
 }
+
+resource aws_iam_role_policy_attachment monitoring_ec2_cloudwatch_logs_write {
+  policy_arn = aws_iam_policy.cloudwatch_logs_write.arn
+  role       = aws_iam_role.monitoring_ec2.name
+}

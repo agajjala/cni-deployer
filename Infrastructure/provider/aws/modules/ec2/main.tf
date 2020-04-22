@@ -18,7 +18,8 @@ aws configure set default.region ${var.region}
 aws configure set default.output json
 sudo $(aws ecr get-login --region ${var.region} --no-include-email)
 sudo docker pull ${var.docker_image_id}
-sudo docker run -d -p 80:80 -e region=${var.region} -it ${var.docker_image_id} /bin/bash
+sudo docker run --log-driver=awslogs --log-opt awslogs-group=${module.monitoring_ec2_log.log_group_name} \
+                -d -p 80:80 -e region=${var.region} -it ${var.docker_image_id} /bin/bash
 EOF
   tags                    = var.tags
 
@@ -30,4 +31,17 @@ resource aws_eip ip {
   instance = aws_instance.instance[count.index].id
 
   count = length(var.subnet_ids)
+}
+
+module shared_policy_documents {
+  source = "../shared_policy_documents"
+}
+
+module monitoring_ec2_log {
+  source              = "../log_group"
+  admin_role_arns     = var.admin_role_arns
+  kms_key_source_json = module.shared_policy_documents.kms_key_cloudwatch_access_json
+  log_group_name      = "${var.resource_prefix}-ec2"
+  retention_in_days   = var.retention_in_days
+  tags                = var.tags
 }
