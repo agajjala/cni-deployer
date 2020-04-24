@@ -1,11 +1,11 @@
 region: us-west-2
 env_name: prod
-deployment_id: core-stage1
+deployment_id: core-stage2
 tags:
   region: us-west-2
   env_name: prod
-  deployment_id: core-stage1
-private_connect_role_name: prod-core-stage1-us-west-2-private-connect
+  deployment_id: core-stage2
+private_connect_role_name: prod-core-stage2-us-west-2-private-connect
 
 api_authorization: CUSTOM
 api_authorizer_gdot_url: https://cloudatlas.salesforce.com/services/c2c/api/v1/validateJwt
@@ -30,20 +30,25 @@ api_access_whitelist:
   - 204.14.236.219/32
   - 204.14.236.218/32
   - 204.14.236.212/32
+  # Monitoring VM
+  - 35.155.30.238/32
 lambda_layer_s3_key: zip/cni_common_v274.zip
 lambda_function_s3_key: zip/api_v4.zip
 lambda_memory_size: 2048
 
-inbound_vpc_cidr: 10.0.0.0/22
+inbound_vpc_cidr: 10.20.8.0/22
 inbound_data_plane_node_group_instance_types:
-  - m5.xlarge
+  - m5.4xlarge
 inbound_data_plane_node_group_max_size: 6
 
-outbound_vpc_cidr: 10.0.4.0/22
+outbound_vpc_cidr: 10.200.0.0/16
 outbound_data_plane_node_group_instance_types:
-  - m5.xlarge
+  - m5.4xlarge
 outbound_data_plane_node_group_max_size: 6
 
+metrics_exporter:
+  image: 325178561262.dkr.ecr.us-west-2.amazonaws.com/cni-metrics-exporter
+  version: 'latest'
 monitoring:
   image: 325178561262.dkr.ecr.us-west-2.amazonaws.com/cni-monitoring
   version: '2'
@@ -53,10 +58,27 @@ dataplane_inbound:
 dataplane_outbound:
   image: 325178561262.dkr.ecr.us-west-2.amazonaws.com/cni-nginx-proxy-outbound
   version: '20'
+sitebridge_config:
+  bgp_asn: 64902
+  control_plane_ips:
+    - 192.168.100.179/32
+    - 192.168.100.191/32
+    - 192.168.100.193/32
+  data_plane_cidrs:
+    - 100.112.0.0/16
+    - 100.112.0.0/16
+    - 100.112.0.0/16
+  gateway_ips:
+    - 34.222.66.157/32
+    - 34.222.66.158/32
+    - 34.222.66.159/32
+  forwarded_domains:
+    - my.salesforce.com
+    - sfdc.net
+    - force.com
 
 vpc_suffix: 1
 
-inbound_service_name: stage1-uswest2-cni-nginx-inbound
-outbound_service_name: stage1-uswest2-cni-nginx-outbound
-loadbalancer:
-  internalLoadBalancer: "no"
+inbound_service_name: stage2-uswest2-cni-nginx-inbound
+outbound_service_name: stage2-uswest2-cni-nginx-outbound
+
