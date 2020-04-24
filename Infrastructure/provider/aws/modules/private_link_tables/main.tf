@@ -111,3 +111,30 @@ resource aws_dynamodb_table outbound {
     }
   }
 }
+
+resource aws_dynamodb_table dynamodb_lock_table {
+  name             = "${var.resource_prefix}_DynamoDBLockTable"
+  billing_mode     = "PAY_PER_REQUEST"
+  hash_key         = "lock_key"
+  range_key        = "sort_key"
+  stream_enabled   = true
+  stream_view_type = "NEW_AND_OLD_IMAGES"
+
+  server_side_encryption {
+    enabled = true
+  }
+
+  point_in_time_recovery {
+    enabled = var.enable_point_in_time_recovery
+  }
+
+  attribute {
+    name = "lock_key"
+    type = "S"
+  }
+  attribute {
+    name = "sort_key"
+    type = "S"
+  }
+  tags = var.tags
+}
