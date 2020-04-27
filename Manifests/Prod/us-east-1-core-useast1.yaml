@@ -40,6 +40,8 @@ api_access_whitelist:
   - 204.14.236.219/32
   - 204.14.236.218/32
   - 204.14.236.212/32
+  # Monitoring VM
+  - 18.211.125.23/32
 lambda_layer_s3_key: zip/cni_common_v274.zip
 lambda_function_s3_key: zip/api_v4.zip
 lambda_memory_size: 2048
