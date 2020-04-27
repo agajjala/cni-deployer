@@ -110,4 +110,7 @@ module ec2 {
   region                 = var.region
   docker_image_id        = join(":", [var.monitoring.image, var.monitoring.version])
   tags                   = var.tags
+  admin_role_arns        = data.terraform_remote_state.region_base.outputs.admin_role_arns
+  resource_prefix        = local.resource_prefix
+  retention_in_days      = var.flow_logs_retention_in_days
 }

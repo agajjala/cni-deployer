@@ -65,5 +65,8 @@ module ec2 {
   iam_instance_profile    = var.iam_instance_profile_name
   region                  = var.region
   docker_image_id         = var.docker_image_id
+  admin_role_arns         = var.admin_role_arns
+  resource_prefix         = var.resource_prefix
+  retention_in_days       = var.flow_log_retention_in_days
   tags                    = var.tags
 }
