@@ -30,6 +30,10 @@ output private_link_stream_role {
   value = aws_iam_role.private_link_stream
 }
 
+output api_gateway_logs_role {
+  value = aws_iam_role.api_gateway_logs
+}
+
 ###############################
 #  Data Plane
 ###############################
