@@ -59,7 +59,7 @@ class ManifestProcessor:
             outbound_vpcs_count = len(outbound_vpc_cfg['vpc_cidrs'])
             for vpc_count in range(outbound_vpcs_count):
                 self.generate_outbound_helm_template(
-                    manifest_data, manifest_file, "outbound_" + str(vpc_count + 1))
+                    manifest_data, manifest_file, "outbound-" + str(vpc_count + 1))
         else:
             self.generate_outbound_helm_template(
                 manifest_data, manifest_file, "outbound")

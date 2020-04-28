@@ -74,7 +74,8 @@ enable_ppv2_header
 # deploy k8s services for outbound
 OUTBOUND_CLUSTER_NAME=$(aws ssm --region "$TF_VAR_region" get-parameter --with-decryption --name="/$TF_VAR_env_name-$TF_VAR_region/$TF_VAR_deployment_id/outbound-data-plane/$TF_VAR_vpc_suffix/cluster-name" | jq -r .Parameter.Value)
 aws eks --region "$TF_VAR_region" update-kubeconfig --name "$OUTBOUND_CLUSTER_NAME"
-kubectl apply -f "Manifests/Output/$TF_VAR_env_name-$TF_VAR_region-$TF_VAR_deployment_id-outbound-data-plane/$OUTBOUND_NAMESPACE/templates/"
+# TODO: Need to Loop for multiple Outbound VPCs
+kubectl apply -f "Manifests/Output/$TF_VAR_env_name-$TF_VAR_region-$TF_VAR_deployment_id-outbound-1-data-plane/$OUTBOUND_NAMESPACE/templates/"
 wait_for_lb_dns_name "$OUTBOUND_NAMESPACE"
 get_lb_arn "$LB_DNS_NAME"
 enable_cross_zone_lb

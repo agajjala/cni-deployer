@@ -34,7 +34,7 @@ lambda_layer_s3_key: zip/cni_common_v274.zip
 lambda_function_s3_key: zip/api_v4.zip
 lambda_memory_size: 2048
 
-inbound_vpc_cidr: 10.0.0.0/22
+inbound_vpc_cidr: 10.20.8.0/22
 inbound_data_plane_node_group_instance_types:
   - m5.xlarge
 inbound_data_plane_node_group_max_size: 6
@@ -58,7 +58,9 @@ dataplane_outbound:
   version: '20'
 
 vpc_suffix: 1
-
+outbound_vpcs_config:
+  vpc_cidrs:
+    - 10.20.8.0/22
 inbound_service_name: stage1-uswest2-cni-nginx-inbound
 outbound_service_name: stage1-uswest2-cni-nginx-outbound
 loadbalancer:
