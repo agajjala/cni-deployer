@@ -75,3 +75,9 @@ variable rest_api_endpoint_role {
     arn = string
   })
 }
+variable api_gateway_logs_role {
+  description = "Role assumed by API Gateway to allow logging to CloudWatch"
+  type = object({
+    arn = string
+  })
+}

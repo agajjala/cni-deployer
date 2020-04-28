@@ -125,6 +125,7 @@ module rest_api {
   authorizer_invocation_role = data.terraform_remote_state.stack_base.outputs.iam.authorizer_invocation_role
   authorizer_role            = data.terraform_remote_state.stack_base.outputs.iam.authorizer_role
   rest_api_endpoint_role     = data.terraform_remote_state.stack_base.outputs.iam.rest_api_endpoint_role
+  api_gateway_logs_role      = data.terraform_remote_state.stack_base.outputs.iam.api_gateway_logs_role
 }
 
 ###############################
