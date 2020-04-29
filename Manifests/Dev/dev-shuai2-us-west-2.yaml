@@ -12,7 +12,7 @@ inbound_service_name: shuai2-cni-inbound
 outbound_service_name: shuai2-cni-outbound
 monitoring:
   image: 985884022631.dkr.ecr.us-west-2.amazonaws.com/cni-monitoring
-  version: '3'
+  version: '4'
 sitebridge_config:
   bgp_asn: 64902
   control_plane_ips:
