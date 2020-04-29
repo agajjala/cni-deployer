@@ -11,7 +11,7 @@ lambda_layer_s3_key: zip/cni_common_v265.zip
 lambda_function_s3_key: zip/api_v1.zip
 monitoring:
   image: 985884022631.dkr.ecr.us-west-2.amazonaws.com/cni-monitoring
-  version: '2'
+  version: '3'
 lambda_memory_size: 2048
 authorizer_id: 08alb1
 dataplane_inbound:

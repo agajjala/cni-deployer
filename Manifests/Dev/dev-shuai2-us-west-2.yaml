@@ -1,0 +1,61 @@
+region: us-west-2
+env_name: dev
+deployment_id: shuai2
+tags:
+  region: us-west-2
+  env_name: dev
+  deployment_id: shuai2
+lambda_layer_s3_key: zip/cni_common_v269.zip
+lambda_function_s3_key: zip/api_v4.zip
+lambda_memory_size: 2048
+inbound_service_name: shuai2-cni-inbound
+outbound_service_name: shuai2-cni-outbound
+monitoring:
+  image: 985884022631.dkr.ecr.us-west-2.amazonaws.com/cni-monitoring
+  version: '3'
+sitebridge_config:
+  bgp_asn: 64902
+  control_plane_ips:
+    - 192.168.100.117/32
+    - 192.168.100.118/32
+    - 192.168.100.119/32
+  data_plane_cidrs:
+    - 100.112.0.0/16
+    - 100.112.0.0/16
+    - 100.112.0.0/16
+  gateway_ips:
+    - 34.222.66.117/32
+    - 34.222.66.118/32
+    - 34.222.66.119/32
+  forwarded_domains:
+    - salesforce.com
+    - sfdc.net
+    - force.com
+vpc_suffix: 1
+api_authorizer_c2c_key_secret_name: C2C-EC-Keys-Dev
+api_authorization: CUSTOM
+api_authorizer_gdot_url: https://login.stmpa.stm.salesforce.com/services/c2c/api/v1/validateJwt
+
+api_access_whitelist:
+  # AmerWest
+  - 204.14.239.17/32
+  - 204.14.239.18/32
+  - 204.14.239.13/32
+  - 204.14.239.105/32
+  - 204.14.239.106/32
+  - 204.14.239.107/32
+  - 204.14.239.82/32
+  # AmerWest1
+  - 13.110.54.0/26
+  # AmerEast
+  - 204.14.236.215/32
+  - 204.14.236.150/32
+  - 204.14.236.152/32
+  - 204.14.236.153/32
+  - 204.14.236.154/32
+  - 204.14.236.219/32
+  - 204.14.236.218/32
+  - 204.14.236.212/32
+  # Monitoring VM
+  - 54.185.241.154/32
+
