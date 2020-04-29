@@ -77,6 +77,8 @@ sitebridge_config:
     - force.com
 
 vpc_suffix: 1
-
+outbound_vpcs_config:
+  vpc_cidrs:
+    - 10.0.4.0/22
 inbound_service_name: core-uswest2-cni-inbound
 outbound_service_name: core-uswest2-cni-outbound
