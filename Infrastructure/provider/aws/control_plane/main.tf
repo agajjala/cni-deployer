@@ -172,6 +172,25 @@ module outbound_supervisor {
   schedule     = "rate(1 minute)"
 }
 
+module custom_metrics {
+  source          = "../modules/lambda_function_v2"
+  tags            = var.tags
+  function_name   = "${local.resource_prefix}-custom-metrics"
+  function_role   = data.terraform_remote_state.stack_base.outputs.iam.supervisor_role
+  artifact_bucket = data.terraform_remote_state.region_base.outputs.artifact_bucket.bucket
+  s3_key          = var.lambda_function_s3_key
+  handler         = "app.custom_metrics_update"
+  layers = [
+    aws_lambda_layer_version.common.arn
+  ]
+  memory_size                       = var.lambda_memory_size
+  environment_variables             = local.common_environment_variables
+  timeout                           = var.lambda_timeout
+  provisioned_concurrent_executions = var.lambda_provisioned_concurrent_executions
+
+  has_schedule = true
+  schedule     = "rate(1 minute)"
+}
 ###############################
 #  Private Link Stream
 ###############################

@@ -9,7 +9,7 @@ lambda_layer_s3_key: ''
 lambda_function_s3_key: ''
 monitoring:
   image: 985884022631.dkr.ecr.us-west-2.amazonaws.com/cni-monitoring
-  version: '2'
+  version: '4'
 dataplane_inbound:
   image: 985884022631.dkr.ecr.us-west-2.amazonaws.com/cni-nginx-proxy-inbound
   version: '19'

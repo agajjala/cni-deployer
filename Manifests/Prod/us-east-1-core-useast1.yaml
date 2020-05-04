@@ -61,7 +61,7 @@ metrics_exporter:
   version: 'latest'
 monitoring:
   image: 325178561262.dkr.ecr.us-east-1.amazonaws.com/cni-monitoring
-  version: '2'
+  version: '4'
 dataplane_inbound:
   image: 325178561262.dkr.ecr.us-east-1.amazonaws.com/cni-nginx-proxy-inbound
   version: '20'

@@ -110,7 +110,7 @@ variable az_count {
 variable monitoring_instance_type {
   description = "Type of monitoring instance"
   type        = string
-  default     = "t3.medium"
+  default     = "t2.small"
 }
 variable enable_inbound_nat_gateway {
   description = "If true, enables creation of a NAT gateway for each public subnet in the inbound VPC"
