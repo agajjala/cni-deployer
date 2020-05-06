@@ -42,12 +42,12 @@ resource aws_iam_role data_plane_node_group {
   })
 }
 
-resource aws_iam_role_policy_attachment data_plane_node_group_cloudwatch_read_access {
+resource aws_iam_role_policy_attachment data_plane_node_group_cloudwatch_agent_access {
   role       = aws_iam_role.data_plane_node_group.name
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
 }
 
-resource aws_iam_role_policy_attachment data_plane_node_group_cloudwatch_agent_access {
+resource aws_iam_role_policy_attachment data_plane_node_group_cloudwatch_read_access {
   role       = aws_iam_role.data_plane_node_group.name
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchReadOnlyAccess"
 }
