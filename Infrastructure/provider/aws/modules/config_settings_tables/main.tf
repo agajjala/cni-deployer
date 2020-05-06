@@ -178,7 +178,7 @@ resource aws_dynamodb_table_item outbound_infra_vpcs {
       "S" = "infra_vpcs"
     }
     "Payload" = {
-      "S" : "[{\"vpc_id\": \"${var.outbound_vpc.id}\", \"subnet_ids\": ${jsonencode(var.outbound_private_subnets[*].id)}, \"proxy_url\": \"${format("https://%s:443", var.outbound_nlb.dns_name)}\", \"status\": \"inService\", \"total_capacity\": 100, \"security_group_ids\": [\"${var.nginx_sg.id}\"]}]"
+      "S" : "[{\"vpc_id\": \"${var.outbound_vpc.id}\", \"subnet_ids\": ${jsonencode(var.outbound_private_subnets[*].id)}, \"proxy_url\": \"${format("https://core.%s.aws.%s.cni%s.sfdcsb.net:443", var.env_name, var.region, var.env_name)}\", \"status\": \"inService\", \"total_capacity\": 100, \"security_group_ids\": [\"${var.nginx_sg.id}\"]}]"
     }
   })
 }

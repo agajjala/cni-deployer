@@ -108,7 +108,17 @@ data:
               values: ["{{ $authorizerfunctionname }}"]
         metrics_list:
           - Latency
-
+      {{- range $key, $funcname := .Values.lambdas }}
+      - namespace: "AWS/Lambda"
+        period: 60
+        dimension_filters:
+          - config:
+              keys: ["FunctionName"]
+              values: ["{{ $apigwname }}-{{ $funcname }}"]
+        metrics_list:
+          - Errors
+          - Duration
+      {{- end }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -146,4 +156,3 @@ spec:
           - key: metrics_export_cfg
             path: metrics-config.yaml
             mode: 0755
-

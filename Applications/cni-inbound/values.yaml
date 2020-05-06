@@ -76,3 +76,28 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+lambdas:
+  - authorizer
+  - custom-metrics
+  - ddb-stream-fanout
+  - in-pl-event-handler
+  - in-pl-stream
+  - in-supervisor
+  - info-inbound-GET
+  - info-outbound-GET
+  - out-pl-event-handler
+  - out-pl-stream
+  - out-supervisor
+  - pl-inbound-get
+  - pl-inbound-item-DELETE
+  - pl-inbound-item-GET
+  - pl-inbound-item-PATCH
+  - pl-inbound-item-PUT
+  - pl-outbound-GET
+  - pl-outbound-POST
+  - pl-outbound-item-GET
+  - pl-outbound-item-POST 
+  - pl-outbound-item-DELETE
+  - pl-outbound-item-PATCH
+  
