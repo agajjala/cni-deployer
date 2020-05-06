@@ -48,6 +48,6 @@ resource aws_dynamodb_table_item infra_vpcs {
 
   item = jsonencode({
     "${var.table_hash_key}": {"S": "infra_vpcs"},
-    "Payload": {"S": "[{\"vpc_id\": \"${var.vpc_id}\", \"subnet_ids\": ${jsonencode(var.private_subnet_ids)}, \"proxy_url\": \"${local.formatted_proxy_url}\", \"status\": \"inService\", \"total_capacity\": 100, \"security_group_ids\": [\"${var.nginx_sg_id}\"]}]"}
+    "Payload": {"S": "[{\"vpc_id\": \"${var.vpc_id}\", \"subnet_ids\": ${jsonencode(var.private_subnet_ids)}, \"proxy_url\": \"${local.formatted_proxy_url}\", \"status\": \"inService\", \"total_capacity\": 490, \"security_group_ids\": [\"${var.nginx_sg_id}\"]}]"}
   })
 }
