@@ -57,7 +57,6 @@ resource aws_iam_role_policy_attachment data_plane_node_group_secrets_manager_ac
   policy_arn = "arn:aws:iam::aws:policy/SecretsManagerReadWrite"
 }
 
-
 resource aws_iam_role_policy_attachment data_plane_node_group_autoscaling {
   role       = aws_iam_role.data_plane_node_group.name
   policy_arn = aws_iam_policy.data_plane_node_group_autoscaling.arn
