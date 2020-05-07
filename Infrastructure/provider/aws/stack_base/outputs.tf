@@ -3,7 +3,7 @@ output iam {
 }
 
 output transit_gateway {
-  value = aws_ec2_transit_gateway.default
+  value = coalesce(aws_ec2_transit_gateway.default.*, [])
 }
 
 output customer_gateways {

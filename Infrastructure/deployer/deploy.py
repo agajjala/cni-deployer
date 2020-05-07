@@ -62,15 +62,6 @@ def export_tf_env_vars(manifest):
         print(f'export {key}={value}')
 
 
-def run_tf_command(manifest, args, tf_command):
-    module_path = args['module']
-    os.chdir(module_path)
-    print('Changed directory to: {}'.format(module_path))
-
-    init(manifest, args)
-    tf_command(manifest, args)
-
-
 def run(args):
     """
     run the terraform command specified by the user in the directory
@@ -80,23 +71,30 @@ def run(args):
     """
     manifest = common.load_yaml(args['manifest'])
 
-    if args['c'] == 'validate':
-        run_tf_command(manifest, args, validate)
-    if args['c'] == 'plan':
-        run_tf_command(manifest, args, plan)
+    if args['c'] == 'init':
+        init(manifest, args)
+    elif args['c'] == 'validate':
+        init(manifest, args)
+        validate(manifest, args)
+    elif args['c'] == 'plan':
+        init(manifest, args)
+        plan(manifest, args)
     elif args['c'] == 'apply':
-        run_tf_command(manifest, args, apply)
+        init(manifest, args)
+        apply(manifest, args)
     elif args['c'] == 'destroy':
-        run_tf_command(manifest, args, destroy)
+        init(manifest, args)
+        destroy(manifest, args)
     elif args['c'] == 'refresh':
-        run_tf_command(manifest, args, refresh)
+        init(manifest, args)
+        refresh(manifest, args)
     elif args['c'] == 'export':
         export_tf_env_vars(manifest)
 
 
 def main():
     parser = argparse.ArgumentParser(description="This program wraps terraform to provide some additional flexibility")
-    parser.add_argument("-c", help='the terraform command you want to run [validate, plan, apply, destroy, refresh]')
+    parser.add_argument("-c", help='the terraform command you want to run [init, validate, plan, apply, destroy, refresh]')
     parser.add_argument("-module", help="path to the target module")
     parser.add_argument("-manifest", help="path to the manifest to pass to the module")
     parser.add_argument("-automation", help="enables automatic approval of commands that require approval", default=False, action='store_true')
