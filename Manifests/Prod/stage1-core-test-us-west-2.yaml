@@ -30,7 +30,7 @@ api_access_whitelist:
   - 204.14.236.219/32
   - 204.14.236.218/32
   - 204.14.236.212/32
-lambda_layer_s3_key: zip/cni_common_v274.zip
+lambda_layer_s3_key: zip/cni_common_v277.zip
 lambda_function_s3_key: zip/api_v4.zip
 lambda_memory_size: 2048
 
@@ -46,7 +46,7 @@ outbound_data_plane_node_group_max_size: 6
 
 metrics_exporter:
   image: 325178561262.dkr.ecr.us-west-2.amazonaws.com/cni-metrics-exporter
-  version: 'latest'
+  version: '2'
 monitoring:
   image: 325178561262.dkr.ecr.us-west-2.amazonaws.com/cni-monitoring
   version: '4'
@@ -56,7 +56,8 @@ dataplane_inbound:
 dataplane_outbound:
   image: 325178561262.dkr.ecr.us-west-2.amazonaws.com/cni-nginx-proxy-outbound
   version: '20'
-
+enable_sitebridge: false
+enable_transit_gateway: false
 vpc_suffix: 1
 outbound_vpcs_config:
   vpc_cidrs:
