@@ -18,13 +18,20 @@ variable control_plane_ips {
   type        = list(string)
 }
 variable transit_gateway {
-  type = object({
-    id = string
-  })
+  type = list(
+    object({
+      id = string
+    })
+  )
 }
 variable sitebridge_sg_id {
   type = string
 }
 variable forwarded_domains {
   type = list(string)
+}
+variable enable_sitebridge {
+  description = "If false, skips creating resources related to Sitebridge."
+  type        = bool
+  default     = true
 }

@@ -39,6 +39,16 @@ variable write_local_pem_files {
   type        = bool
   default     = true
 }
+variable enable_transit_gateway {
+  description = "If false, skips creating the transit gateway."
+  type        = bool
+  default     = true
+}
+variable enable_sitebridge {
+  description = "If false, skips creating resources related to Sitebridge."
+  type        = bool
+  default     = true
+}
 variable sitebridge_config {
   description = <<EOT
     gateway_ips - List of Sitebridge Openswan VPN connection IPs
@@ -47,4 +57,8 @@ variable sitebridge_config {
     bgp_asn     = string
     gateway_ips = list(string)
   })
+  default = {
+    bgp_asn     = ""
+    gateway_ips = []
+  }
 }

@@ -146,16 +146,17 @@ resource aws_ssm_parameter cluster_name {
 #  Sitebridge Routing
 ###############################
 
-module tgw_attachment {
-  source             = "../modules/tgw_attachment"
-  tags               = var.tags
+resource aws_ec2_transit_gateway_vpc_attachment tgw_attachment {
+  transit_gateway_id = data.terraform_remote_state.stack_base.outputs.transit_gateway[0].id
   vpc_id             = module.vpc.vpc_id
-  transit_gateway_id = data.terraform_remote_state.stack_base.outputs.transit_gateway.id
-  private_subnet_ids = module.vpc.private_subnet_ids
+  subnet_ids         = module.vpc.private_subnet_ids
+
+  count = var.enable_sitebridge ? 1 : 0
 }
 
 module sitebridge_vpc_routing {
   source                       = "../modules/sitebridge_vpc_routing"
+  enable_sitebridge            = var.enable_sitebridge
   tags                         = var.tags
   resource_prefix              = local.resource_prefix
   vpc_id                       = module.vpc.vpc_id

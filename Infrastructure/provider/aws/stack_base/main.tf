@@ -29,7 +29,9 @@ module iam {
 ###############################
 
 resource aws_ec2_transit_gateway default {
-  tags = merge(var.tags, { Name : local.resource_prefix })
+  tags  = merge(var.tags, { Name : local.resource_prefix })
+
+  count = var.enable_transit_gateway ? 1 : 0
 }
 
 ###############################
@@ -42,7 +44,7 @@ resource aws_customer_gateway default {
   ip_address = trimsuffix(var.sitebridge_config.gateway_ips[count.index], "/32")
   type       = "ipsec.1"
 
-  count = length(var.sitebridge_config.gateway_ips)
+  count = var.enable_sitebridge ? length(var.sitebridge_config.gateway_ips) : 0
 }
 
 ###############################
@@ -52,10 +54,10 @@ resource aws_customer_gateway default {
 resource aws_vpn_connection default {
   tags                = merge(var.tags, { Name : "${local.resource_prefix}-${count.index}" })
   customer_gateway_id = aws_customer_gateway.default[count.index].id
-  transit_gateway_id  = aws_ec2_transit_gateway.default.id
+  transit_gateway_id  = aws_ec2_transit_gateway.default[0].id
   type                = aws_customer_gateway.default[count.index].type
 
-  count = length(var.sitebridge_config.gateway_ips)
+  count = var.enable_sitebridge ? length(var.sitebridge_config.gateway_ips) : 0
 }
 
 ###############################

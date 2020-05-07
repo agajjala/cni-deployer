@@ -102,6 +102,10 @@ If you have Docker installed, follow these additional steps ([this will ensure y
 
 ## deploy.py
 
+#### Init
+
+`init` configures the Terraform state backend for a given module using metadata from the provided manifest. It is needed to be run before running low-level commands such as `terraform import` or `terraform state`.
+
 #### Validate
 
 `validate` is a read-only command that verifies a provided `-module` (along with its nested modules) is syntactically valid. This check is purely static and does not take into account provided variables or existing state.

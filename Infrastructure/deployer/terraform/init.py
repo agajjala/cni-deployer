@@ -43,6 +43,9 @@ def init(manifest, args):
     Initializes Terraform using a dynamic state backend. This dynamism allows Terraform to read and write to a different
     state file based on the provided manifest.
     """
+    module_path = args['module']
+    os.chdir(module_path)
+
     clear_local_state_cache()
 
     backend_config_args = build_backend_config_args(manifest)

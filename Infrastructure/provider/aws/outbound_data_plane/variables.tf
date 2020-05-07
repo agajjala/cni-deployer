@@ -75,6 +75,11 @@ variable outbound_data_plane_node_group_min_size {
   type        = number
   default     = 3
 }
+variable enable_sitebridge {
+  description = "If false, skips creating resources related to Sitebridge."
+  type        = bool
+  default     = true
+}
 variable sitebridge_config {
   description = <<EOT
     control_plane_ips - List of Sitebridge control plane IPs
@@ -86,6 +91,11 @@ variable sitebridge_config {
     data_plane_cidrs  = list(string)
     forwarded_domains = list(string)
   })
+  default = {
+    control_plane_ips = []
+    data_plane_cidrs  = []
+    forwarded_domains = []
+  }
 }
 variable vpc_suffix {
   type = string

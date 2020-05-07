@@ -1,19 +1,64 @@
 region: us-west-2
 env_name: dev
-deployment_id: kevin
+deployment_id: kev-test
 tags:
   region: us-west-2
   env_name: dev
-  deployment_id: kevin
-lambda_layer_s3_key: zip/cni_common-udmalpe-b062e5d7-f07f-4097-93ba-d6e5d91c55cb.zip
-lambda_function_s3_key: zip/api_v1.zip
+  deployment_id: kev-test
+private_connect_role_name: dev-us-west-2-kev-test-private-connect
+api_authorization: CUSTOM
+api_authorizer_gdot_url: https://login.stmpa.stm.salesforce.com/services/c2c/api/v1/validateJwt
+api_authorizer_c2c_key_secret_name: C2C-EC-Keys-Dev
+api_access_whitelist:
+  # PHX
+  - 136.147.46.8/32
+  # DFW
+  - 136.147.62.8/32
+  # PH2
+  - 13.110.6.8/32
+  # IA2
+  - 13.110.14.8/32
+  # ORD
+  - 13.108.254.8
+  # AmerWest
+  - 204.14.239.17/32
+  - 204.14.239.18/32
+  - 204.14.239.13/32
+  - 204.14.239.105/32
+  - 204.14.239.106/32
+  - 204.14.239.107/32
+  - 204.14.239.82/32
+  # AmerWest1
+  - 13.110.54.0/26
+lambda_layer_s3_key: zip/cni_common_v277.zip
+lambda_function_s3_key: zip/api_v4.zip
+lambda_memory_size: 2048
+inbound_vpc_cidr: 10.0.0.0/22
+inbound_data_plane_node_group_instance_types:
+  - m5.4xlarge
+inbound_data_plane_node_group_max_size: 6
+outbound_vpc_cidr: 10.0.4.0/22
+outbound_data_plane_node_group_instance_types:
+  - m5.4xlarge
+outbound_data_plane_node_group_max_size: 6
+metrics_exporter:
+  image: 325178561262.dkr.ecr.us-west-2.amazonaws.com/cni-metrics-exporter
+  version: '279'
 monitoring:
   image: 985884022631.dkr.ecr.us-west-2.amazonaws.com/cni-monitoring
-  version: '4'
-lambda_memory_size: 2048
+  version: '279'
 dataplane_inbound:
   image: 985884022631.dkr.ecr.us-west-2.amazonaws.com/cni-nginx-proxy-inbound
-  version: '18'
+  version: '20'
 dataplane_outbound:
   image: 985884022631.dkr.ecr.us-west-2.amazonaws.com/cni-nginx-proxy-outbound
-  version: '18'
+  version: '20'
+enable_sitebridge: false
+enable_transit_gateway: false
+vpc_suffix: 1
+inbound_service_name: kev-test-cni-inbound
+outbound_service_name: kev-test-cni-outbound
+
+outbound_vpcs_config:
+  vpc_cidrs:
+    - 10.0.4.0/22
