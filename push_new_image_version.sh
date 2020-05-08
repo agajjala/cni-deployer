@@ -6,7 +6,7 @@ set -eou pipefail
 # ./push_new_image_version.sh <STRATA_IMAGE_VERSION> <REGION_1> <REGION_2> ..
 #
 # Example:
-# ./push_new_image_version.sh cni-metrics-exporter 1 us-west-2 us-east-1
+# ./push_new_image_version.sh 280 us-west-2 us-east-1
 
 STRATA_IMAGE_VERSION=$1
 REGIONS=("${@:2}")
