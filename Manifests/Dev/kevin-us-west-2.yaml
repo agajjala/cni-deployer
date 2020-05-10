@@ -37,7 +37,6 @@ inbound_vpc_cidr: 10.0.0.0/22
 inbound_data_plane_node_group_instance_types:
   - m5.4xlarge
 inbound_data_plane_node_group_max_size: 6
-outbound_vpc_cidr: 10.0.4.0/22
 outbound_data_plane_node_group_instance_types:
   - m5.4xlarge
 outbound_data_plane_node_group_max_size: 6
@@ -60,5 +59,6 @@ inbound_service_name: kev-test-cni-inbound
 outbound_service_name: kev-test-cni-outbound
 
 outbound_vpcs_config:
-  vpc_cidrs:
-    - 10.0.4.0/22
+  '1':
+    vpc_cidr:
+      10.0.4.0/22

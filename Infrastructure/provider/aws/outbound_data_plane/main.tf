@@ -14,13 +14,15 @@ locals {
     The VPC requires fewer public addresses to be allocated compared to private addresses, so the last subnet CIDR in the
     prefix is used as a base CIDR for creating public subnets.
   */
-  public_subnet_base_cidr = cidrsubnet(var.outbound_vpc_cidr, 2, var.az_count)
-  private_subnet_cidrs = length(var.outbound_vpc_private_subnet_cidrs) == 0 ? [
-    for i in range(var.az_count) : cidrsubnet(var.outbound_vpc_cidr, 2, i)
-  ] : var.outbound_vpc_private_subnet_cidrs
-  public_subnet_cidrs = length(var.outbound_vpc_public_subnet_cidrs) == 0 ? [
+  vpc_config = var.outbound_vpcs_config[var.vpc_suffix]
+  vpc_cidr  = local.vpc_config["vpc_cidr"]
+  public_subnet_base_cidr = cidrsubnet(local.vpc_cidr, 2, var.az_count)
+  private_subnet_cidrs = lookup(local.vpc_config,"vpc_private_subnet_cidrs", [
+    for i in range(var.az_count) : cidrsubnet(local.vpc_cidr, 2, i)
+  ])
+  public_subnet_cidrs = lookup(local.vpc_config,"vpc_public_subnet_cidrs", [
     for i in range(var.az_count) : cidrsubnet(local.public_subnet_base_cidr, 2, i)
-  ] : var.outbound_vpc_public_subnet_cidrs
+  ])
 }
 
 ###############################
@@ -31,7 +33,7 @@ module vpc {
   source                    = "../modules/vpc"
   tags                      = var.tags
   vpc_name                  = local.resource_prefix
-  vpc_cidr                  = var.outbound_vpc_cidr
+  vpc_cidr                  = local.vpc_cidr
   vpc_tags                  = { "kubernetes.io/cluster/${local.cluster_name}" : "shared" }
   private_subnet_tags       = { "kubernetes.io/cluster/${local.cluster_name}" : "shared", "kubernetes.io/role/internal-elb" : "1" }
   public_subnet_tags        = { "kubernetes.io/cluster/${local.cluster_name}" : "shared", "kubernetes.io/role/elb" : "1" }

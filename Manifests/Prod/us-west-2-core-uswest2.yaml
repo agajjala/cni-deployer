@@ -42,7 +42,6 @@ inbound_data_plane_node_group_instance_types:
   - m5.4xlarge
 inbound_data_plane_node_group_max_size: 6
 
-outbound_vpc_cidr: 10.0.4.0/22
 outbound_data_plane_node_group_instance_types:
   - m5.4xlarge
 outbound_data_plane_node_group_max_size: 6

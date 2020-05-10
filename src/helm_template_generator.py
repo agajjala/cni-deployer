@@ -56,10 +56,10 @@ class ManifestProcessor:
         # Outbound Dataplane Template
         if "outbound_vpcs_config" in manifest_data:
             outbound_vpc_cfg = manifest_data['outbound_vpcs_config']
-            outbound_vpcs_count = len(outbound_vpc_cfg['vpc_cidrs'])
-            for vpc_count in range(outbound_vpcs_count):
+            outbound_vpc_suffixes = outbound_vpc_cfg.keys()
+            for vpc_suffix in outbound_vpc_suffixes:
                 self.generate_outbound_helm_template(
-                    manifest_data, manifest_file, "outbound-" + str(vpc_count + 1))
+                    manifest_data, manifest_file, "outbound-" + vpc_suffix)
         else:
             self.generate_outbound_helm_template(
                 manifest_data, manifest_file, "outbound")

@@ -1,0 +1,67 @@
+region: us-west-2
+env_name: dev
+deployment_id: proxyperf-uswest2
+tags:
+  region: us-west-2
+  env_name: dev
+  deployment_id: proxyperf-uswest2
+
+private_connect_role_name: dev-us-west-2-proxyperf-uswest2-private-connect
+
+api_authorization: NONE
+api_authorizer_gdot_url: https://cloudatlas.salesforce.com/services/c2c/api/v1/validateJwt
+api_authorizer_c2c_key_secret_name: C2C-EC-Keys-Prod
+api_access_whitelist:
+  - 0.0.0.0/0
+lambda_layer_s3_key: zip/cni_common_v269.zip
+lambda_function_s3_key: zip/api_v4.zip
+lambda_memory_size: 2048
+
+monitoring:
+  image: 985884022631.dkr.ecr.us-west-2.amazonaws.com/cni-monitoring
+  version: '4'
+dataplane_inbound:
+  image: 985884022631.dkr.ecr.us-west-2.amazonaws.com/cni-nginx-proxy-inbound
+  version: '20'
+dataplane_outbound:
+  image: 985884022631.dkr.ecr.us-west-2.amazonaws.com/cni-nginx-proxy-outbound
+  version: '20'
+
+
+inbound_service_name: proxyperf-uswest2-cni-inbound
+outbound_service_name: proxyperf-uswest2-cni-outbound
+enable_sitebridge: false
+enable_transit_gateway: false
+
+inbound_data_plane_node_group_instance_types:
+  - m5.4xlarge
+inbound_data_plane_node_group_max_size: 6
+
+sitebridge_config:
+  bgp_asn: 64902
+  control_plane_ips:
+    - 192.168.100.193/32
+    - 192.168.100.191/32
+    - 192.168.100.179/32
+  data_plane_cidrs:
+    - 100.112.0.0/16
+    - 100.112.0.0/16
+    - 100.112.0.0/16
+  gateway_ips:
+    - 34.222.66.163/32
+    - 34.222.66.164/32
+    - 34.222.66.165/32
+  forwarded_domains:
+    - salesforce.com
+    - sfdc.net
+    - force.com
+
+
+vpc_suffix: 1
+outbound_vpcs_config:
+  '1':
+    vpc_cidr:
+      10.20.12.0/22
+  '2':
+    vpc_cidr:
+      10.200.0.0/16

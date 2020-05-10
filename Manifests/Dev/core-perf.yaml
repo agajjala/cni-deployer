@@ -16,7 +16,6 @@ inbound_data_plane_node_group_instance_types:
 inbound_data_plane_node_group_max_size: 6
 outbound_data_plane_node_group_instance_types:
   - m5.4xlarge
-outbound_vpc_cidr: 10.200.0.0/16
 outbound_vpc_private_subnet_cidrs:
   - 10.200.3.0/24
   - 10.200.4.0/24
@@ -34,6 +33,9 @@ dataplane_outbound:
   image: 985884022631.dkr.ecr.us-west-2.amazonaws.com/cni-nginx-proxy-outbound
   version: '19'
 outbound_vpcs_config:
-  vpc_cidrs:
-    - 10.200.0.0/16
-    - 10.201.0.0/16
+  '1':
+    vpc_cidr:
+      10.200.0.0/16
+  '2':
+    vpc_cidr:
+      10.201.0.0/16

@@ -39,7 +39,6 @@ inbound_data_plane_node_group_instance_types:
   - m5.xlarge
 inbound_data_plane_node_group_max_size: 6
 
-outbound_vpc_cidr: 10.0.4.0/22
 outbound_data_plane_node_group_instance_types:
   - m5.xlarge
 outbound_data_plane_node_group_max_size: 6
@@ -61,7 +60,7 @@ enable_transit_gateway: false
 vpc_suffix: 1
 outbound_vpcs_config:
   vpc_cidrs:
-    - 10.20.8.0/22
+    - 10.0.4.0/22
 inbound_service_name: stage1-uswest2-cni-nginx-inbound
 outbound_service_name: stage1-uswest2-cni-nginx-outbound
 loadbalancer:

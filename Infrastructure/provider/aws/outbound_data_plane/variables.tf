@@ -25,11 +25,11 @@ variable sfdc_vpn_cidrs {
   type        = list(string)
   default     = ["204.14.239.0/24", "13.110.54.0/24"] # AmerWest and AmerWest1
 }
-variable outbound_vpc_cidr {
-  description = "CIDR of the outbound VPC"
-  type        = string
-  default     = "10.20.12.0/22"
+
+variable "outbound_vpcs_config" {
+  type    = map
 }
+
 variable az_count {
   description = "Number of availability zones to deploy to"
   type        = number
@@ -44,16 +44,6 @@ variable enable_outbound_private_nat_routes {
   description = "If true, creates routes in private subnet route tables to route traffic to a NAT gateway. Has no effect is NAT gateways are not enabled."
   type        = bool
   default     = true
-}
-variable outbound_vpc_private_subnet_cidrs {
-  description = "List of the CIDRs to use for the outbound VPC private subnets"
-  type        = list(string)
-  default     = []
-}
-variable outbound_vpc_public_subnet_cidrs {
-  description = "List of the CIDRs to use for the outbound VPC public subnets"
-  type        = list(string)
-  default     = []
 }
 variable outbound_data_plane_node_group_instance_types {
   description = "Set of instance types to associate with the outbound data plane node group"

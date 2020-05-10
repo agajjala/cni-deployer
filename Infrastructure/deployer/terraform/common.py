@@ -55,6 +55,7 @@ def run_command(command, manifest, base_env=os.environ):
     Runs a Terraform command. The manifest is used to populate environment variables which are consumed by Terraform.
     """
     tf_env_vars = build_tf_env_vars(manifest)
+    print(tf_env_vars)
     try:
         process: CompletedProcess = subprocess.run(command, env=dict(base_env, **tf_env_vars))
         process.check_returncode()

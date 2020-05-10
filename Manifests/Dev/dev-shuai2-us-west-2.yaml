@@ -31,7 +31,10 @@ sitebridge_config:
     - salesforce.com
     - sfdc.net
     - force.com
-vpc_suffix: 1
+outbound_vpcs_config:
+  '1':
+    vpc_cidr:
+      10.20.8.0/22
 api_authorizer_c2c_key_secret_name: C2C-EC-Keys-Dev
 api_authorization: CUSTOM
 api_authorizer_gdot_url: https://login.stmpa.stm.salesforce.com/services/c2c/api/v1/validateJwt

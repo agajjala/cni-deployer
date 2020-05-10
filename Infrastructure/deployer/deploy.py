@@ -1,4 +1,5 @@
 import argparse
+import json
 import os
 from common import common
 from terraform.init import init
@@ -46,6 +47,7 @@ def validate_arguments(args):
     """
     assert (args.get('c') is not None)
     assert (args.get('manifest') is not None)
+    json.loads(args.get('manifest_override'))
 
 
 def get_fixed_arguments(args):
@@ -70,6 +72,9 @@ def run(args):
     :return:
     """
     manifest = common.load_yaml(args['manifest'])
+    additional_manifest = json.loads(args['manifest_override'])
+    print(additional_manifest)
+    manifest.update(additional_manifest)
 
     if args['c'] == 'init':
         init(manifest, args)
@@ -98,6 +103,7 @@ def main():
     parser.add_argument("-module", help="path to the target module")
     parser.add_argument("-manifest", help="path to the manifest to pass to the module")
     parser.add_argument("-automation", help="enables automatic approval of commands that require approval", default=False, action='store_true')
+    parser.add_argument("-manifest_override", help="Additional arguments as key value in json format", default="{}")
 
     args = parser.parse_args()
     deploy_args = get_fixed_arguments(args)
@@ -106,6 +112,8 @@ def main():
     validate_arguments(deploy_args)
 
     run(deploy_args)
+
+
 
 
 if __name__=='__main__':

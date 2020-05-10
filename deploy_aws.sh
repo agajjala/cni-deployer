@@ -51,8 +51,10 @@ MODULE_PATH=Infrastructure/provider/aws
 INBOUND_NAMESPACE=cni-inbound
 OUTBOUND_NAMESPACE=cni-outbound
 
+
+
 # source manifest variables
-eval "$(python "$DEPLOYER_PATH/export_to_env.py" -manifest "${MANIFEST}")"
+eval "$(python "$DEPLOYER_PATH/deployment_helper.py" -c "export_to_env" -manifest "${MANIFEST}")"
 AWS_REGION="$TF_VAR_region"
 export TF_IN_AUTOMATION=true
 
@@ -62,8 +64,16 @@ python "$DEPLOYER_PATH/deploy.py" -c apply -module $MODULE_PATH/stack_base -mani
 python "$DEPLOYER_PATH/deploy.py" -c plan -module $MODULE_PATH/inbound_data_plane -manifest "${MANIFEST}" -automation
 python "$DEPLOYER_PATH/deploy.py" -c apply -module $MODULE_PATH/inbound_data_plane -manifest "${MANIFEST}" -automation
 
-python "$DEPLOYER_PATH/deploy.py" -c plan -module $MODULE_PATH/outbound_data_plane -manifest "${MANIFEST}" -automation
-python "$DEPLOYER_PATH/deploy.py" -c apply -module $MODULE_PATH/outbound_data_plane -manifest "${MANIFEST}" -automation
+# Get list of all outbound VPC suffixes
+vpc_suffixes=`python "$DEPLOYER_PATH/deployment_helper.py" -c "get_outbound_vpc_suffixes" -manifest "${MANIFEST}"`
+
+
+for outbound_vpc_suffix in ${vpc_suffixes[@]};
+do
+  python "$DEPLOYER_PATH/deploy.py" -c plan -module $MODULE_PATH/outbound_data_plane -manifest "${MANIFEST}" -automation  -manifest_override "{ \"vpc_suffix\": \"$outbound_vpc_suffix\"}"
+  python "$DEPLOYER_PATH/deploy.py" -c apply -module $MODULE_PATH/outbound_data_plane -manifest "${MANIFEST}" -automation  -manifest_override "{ \"vpc_suffix\": \"$outbound_vpc_suffix\"}"
+
+done
 
 # generate k8s files using helm
 make template
@@ -78,13 +88,15 @@ enable_cross_zone_lb
 enable_ppv2_header
 
 # deploy k8s services for outbound
-OUTBOUND_CLUSTER_NAME=$(aws ssm --region "$TF_VAR_region" get-parameter --with-decryption --name="/$TF_VAR_env_name-$TF_VAR_region/$TF_VAR_deployment_id/outbound-data-plane/$TF_VAR_vpc_suffix/cluster-name" | jq -r .Parameter.Value)
-aws eks --region "$TF_VAR_region" update-kubeconfig --name "$OUTBOUND_CLUSTER_NAME"
-# TODO: Need to Loop for multiple Outbound VPCs
-kubectl apply -f "Manifests/Output/$TF_VAR_env_name-$TF_VAR_region-$TF_VAR_deployment_id-outbound-1-data-plane/$OUTBOUND_NAMESPACE/templates/"
-wait_for_lb_dns_name "$OUTBOUND_NAMESPACE"
-get_lb_arn "$LB_DNS_NAME"
-enable_cross_zone_lb
+for outbound_vpc_suffix in ${vpc_suffixes[@]};
+do
+  OUTBOUND_CLUSTER_NAME=$(aws ssm --region "$TF_VAR_region" get-parameter --with-decryption --name="/$TF_VAR_env_name-$TF_VAR_region/$TF_VAR_deployment_id/outbound-data-plane/$outbound_vpc_suffix/cluster-name" | jq -r .Parameter.Value)
+  aws eks --region "$TF_VAR_region" update-kubeconfig --name "$OUTBOUND_CLUSTER_NAME"
+  kubectl apply -f "Manifests/Output/$TF_VAR_env_name-$TF_VAR_region-$TF_VAR_deployment_id-outbound-$outbound_vpc_suffix-data-plane/$OUTBOUND_NAMESPACE/templates/"
+  wait_for_lb_dns_name "$OUTBOUND_NAMESPACE"
+  get_lb_arn "$LB_DNS_NAME"
+  enable_cross_zone_lb
+done
 
 python "${DEPLOYER_PATH}/deploy.py" -c plan -module $MODULE_PATH/control_plane -manifest "${MANIFEST}" -automation
 python "${DEPLOYER_PATH}/deploy.py" -c apply -module $MODULE_PATH/control_plane -manifest "${MANIFEST}" -automation
