@@ -166,4 +166,6 @@ resource aws_route53_zone_association outbound {
 resource aws_route53_zone_association sitebridge {
   zone_id = data.terraform_remote_state.stack_base.outputs.sitebridge_dns_zone.id
   vpc_id  = module.vpc.vpc_id
+
+  count = var.enable_sitebridge ? 1 : 0
 }

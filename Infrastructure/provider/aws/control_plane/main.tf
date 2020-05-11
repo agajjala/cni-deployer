@@ -61,6 +61,20 @@ module inbound_vpc_endpoint_service {
 }
 
 ###############################
+#  Outbound Proxy URLs
+###############################
+
+resource aws_route53_record outbound_proxy {
+  zone_id = data.terraform_remote_state.stack_base.outputs.sitebridge_dns_zone.zone_id
+  name    = format("core-%s.%s.aws.%s.cni%s", var.vpc_suffix, var.env_name, var.region, var.env_name)
+  type    = "CNAME"
+  ttl     = "60"
+  records = data.aws_lb.outbound.dns_name
+
+  count = var.enable_sitebridge ? 1 : 0
+}
+
+###############################
 #  Config Settings Tables
 ###############################
 
@@ -76,7 +90,7 @@ module config_settings_tables {
   outbound_vpc                    = data.terraform_remote_state.outbound_data_plane.outputs.vpc
   outbound_vpce_connections_topic = module.sns_topics.outbound_vpce_connections_topic
   outbound_private_subnets        = data.terraform_remote_state.outbound_data_plane.outputs.private_subnets
-  outbound_nlb                    = data.aws_lb.outbound
+  outbound_proxy_domain_name      = var.enable_sitebridge ? aws_route53_record.outbound_proxy[0].fqdn : data.aws_lb.outbound.dns_name
   nginx_sg                        = data.terraform_remote_state.outbound_data_plane.outputs.security_groups.nginx
 }
 

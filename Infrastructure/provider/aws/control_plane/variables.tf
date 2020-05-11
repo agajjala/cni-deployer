@@ -49,6 +49,11 @@ variable lambda_provisioned_concurrent_executions {
   type        = number
   default     = 0
 }
+variable enable_sitebridge {
+  description = "If false, skips creating resources related to Sitebridge."
+  type        = bool
+  default     = true
+}
 variable vpc_suffix {
   description = "Suffix of the outbound VPC"
   type        = string
