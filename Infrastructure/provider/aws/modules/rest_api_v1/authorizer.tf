@@ -31,7 +31,7 @@ resource aws_api_gateway_authorizer authorizer {
 
   lifecycle {
     # Manual changes to identity source via UI or CLI will be ignored
-    ignore_changes = ["identity_source"]
+    ignore_changes = [identity_source]
   }
 }
 

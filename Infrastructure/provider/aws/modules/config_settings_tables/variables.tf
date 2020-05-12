@@ -55,11 +55,9 @@ variable outbound_private_subnets {
     id = string
   }))
 }
-variable outbound_nlb {
-  description = "Network load balancer for the outbound data plane"
-  type = object({
-    dns_name = string
-  })
+variable outbound_proxy_domain_name {
+  description = "Domain name used by customers to reach the outbound proxy"
+  type = string
 }
 variable nginx_sg {
   description = "Security group attached to NGINX hosts in the outbound data plane"
