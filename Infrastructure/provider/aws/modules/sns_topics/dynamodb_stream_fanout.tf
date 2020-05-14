@@ -1,7 +1,7 @@
 module dynamodb_stream_fanout_kms_key {
   source             = "../kms_key"
   tags               = var.tags
-  admin_role_arns     = var.admin_role_arns
+  admin_principals   = var.admin_principals
   source_json_policy = data.aws_iam_policy_document.kms_key_sns_access.json
 }
 

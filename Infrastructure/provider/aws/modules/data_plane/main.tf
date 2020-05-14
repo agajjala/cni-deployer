@@ -49,7 +49,7 @@ module vpc_flow_log {
   resource_prefix        = var.resource_prefix
   tags                   = var.tags
   vpc_id                 = module.vpc.vpc_id
-  admin_role_arns         = var.admin_role_arns
+  admin_principals       = var.admin_principals
   flow_logs_iam_role_arn = var.flow_log_iam_role_arn
   retention_in_days      = var.flow_log_retention_in_days
 }
@@ -58,7 +58,7 @@ module bastion {
   source                = "../bastion"
   resource_prefix       = var.resource_prefix
   tags                  = var.tags
-  admin_role_arns        = var.admin_role_arns
+  admin_principals      = var.admin_principals
   autoscaling_group_arn = var.bastion_autoscaling_group_role_arn
   subnet_ids            = module.vpc.public_subnet_ids
   security_group_ids    = [
@@ -77,7 +77,7 @@ module eks_cluster {
   cluster_role_name            = var.data_plane_cluster_role_name
   node_group_role_arn          = var.data_plane_node_role_arn
   node_group_role_name         = var.data_plane_node_role_name
-  admin_role_arns               = var.admin_role_arns
+  admin_principals             = var.admin_principals
   retention_in_days            = var.flow_log_retention_in_days
   private_subnet_ids           = module.vpc.private_subnet_ids
   public_subnet_ids            = module.vpc.public_subnet_ids

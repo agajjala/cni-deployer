@@ -1,5 +1,3 @@
-import pytest
-import tempfile
 from helm_template_generator import *
 
 INBOUND_DEPLOYMENT_FILE_NAME = "cni-inbound-nginx-deployment.yaml"

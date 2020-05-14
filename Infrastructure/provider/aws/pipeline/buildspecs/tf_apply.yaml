@@ -1,0 +1,32 @@
+version: 0.2
+
+env:
+  variables:
+   TF_VERSION: 0.12.25
+  secrets-manager:
+    GIT_USERNAME: SF-SDN-GIT-TOKEN:GIT_USERNAME
+    GIT_PASSWORD: SF-SDN-GIT-TOKEN:GIT_PASSWORD
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.7
+    commands:
+      - apt install unzip -y
+      - wget https://releases.hashicorp.com/terraform/"$TF_VERSION"/terraform_"$TF_VERSION"_linux_amd64.zip
+      - unzip terraform_"$TF_VERSION"_linux_amd64.zip
+      - mv terraform /usr/local/bin/
+  pre_build:
+    commands:
+      - cd cni-deployer
+      - MANIFEST_PATH="$CODEBUILD_SRC_DIR/aws/$ENV_NAME/$MANIFEST_FILENAME"
+      - python Infrastructure/deployer/export_to_env.py -manifest "$MANIFEST_PATH"
+      - GIT_BRANCH="${TF_VAR_git_branch:-master}"
+      - GIT_COMMIT="${TF_VAR_git_commit:-HEAD}"
+      - git fetch origin "$GIT_BRANCH"
+      - git checkout "$GIT_BRANCH"
+      - git checkout "$GIT_COMMIT"
+  build:
+    commands:
+      - MODULE_PATH="$CODEBUILD_SRC_DIR/cni-deployer/Infrastructure/provider/aws/$MODULE_NAME"
+      - python Infrastructure/deployer/deploy.py -c apply -module "$MODULE_PATH" -manifest "$MANIFEST_PATH" -automation

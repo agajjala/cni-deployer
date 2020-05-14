@@ -11,7 +11,7 @@ module cluster_log {
   tags                = var.tags
   log_group_name      = "/aws/eks/${var.cluster_name}/cluster"
   retention_in_days   = var.retention_in_days
-  admin_role_arns      = var.admin_role_arns
+  admin_principals    = var.admin_principals
   kms_key_source_json = module.shared_policy_documents.kms_key_cloudwatch_access_json
 }
 

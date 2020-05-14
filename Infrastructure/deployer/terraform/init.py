@@ -52,4 +52,7 @@ def init(manifest, args):
 
     command = ['terraform', 'init'] + backend_config_args
 
+    if args['automation'] is True:
+        command.append('-no-color')
+
     return run_command(command, manifest)

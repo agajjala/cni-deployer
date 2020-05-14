@@ -1,5 +1,5 @@
-output admin_role_arns {
-  value = local.admin_role_arns
+output admin_principals {
+  value = local.admin_principals
 }
 
 output artifact_bucket {

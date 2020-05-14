@@ -3,7 +3,7 @@ variable resource_prefix {}
 variable tags {
   type = map(string)
 }
-variable admin_role_arns {
+variable admin_principals {
   type = list(string)
 }
 variable private_connect_role {

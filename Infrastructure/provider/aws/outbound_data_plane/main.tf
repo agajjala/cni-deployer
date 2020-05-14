@@ -69,7 +69,7 @@ module vpc_flow_log {
   resource_prefix        = local.resource_prefix
   tags                   = var.tags
   vpc_id                 = module.vpc.vpc_id
-  admin_role_arns        = data.terraform_remote_state.region_base.outputs.admin_role_arns
+  admin_principals       = data.terraform_remote_state.region_base.outputs.admin_principals
   flow_logs_iam_role_arn = data.terraform_remote_state.stack_base.outputs.iam.flow_logs_role.arn
   retention_in_days      = var.flow_logs_retention_in_days
 }
@@ -82,7 +82,7 @@ module bastion {
   source                = "../modules/bastion"
   resource_prefix       = local.resource_prefix
   tags                  = var.tags
-  admin_role_arns       = data.terraform_remote_state.region_base.outputs.admin_role_arns
+  admin_principals      = data.terraform_remote_state.region_base.outputs.admin_principals
   autoscaling_group_arn = data.terraform_remote_state.stack_base.outputs.iam.bastion_autoscaling_group_role.arn
   subnet_ids            = module.vpc.public_subnet_ids
   security_group_ids = [
@@ -105,7 +105,7 @@ module eks_cluster {
   cluster_role_name    = data.terraform_remote_state.stack_base.outputs.iam.data_plane_cluster_role.name
   node_group_role_arn  = data.terraform_remote_state.stack_base.outputs.iam.data_plane_node_group_role.arn
   node_group_role_name = data.terraform_remote_state.stack_base.outputs.iam.data_plane_node_group_role.name
-  admin_role_arns      = data.terraform_remote_state.region_base.outputs.admin_role_arns
+  admin_principals     = data.terraform_remote_state.region_base.outputs.admin_principals
   retention_in_days    = var.flow_logs_retention_in_days
   private_subnet_ids   = module.vpc.private_subnet_ids
   public_subnet_ids    = module.vpc.public_subnet_ids

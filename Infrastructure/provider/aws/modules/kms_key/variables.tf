@@ -2,8 +2,8 @@ variable tags {
   description = "Map of tags used to annotate each resource supporting tags"
   type        = map(string)
 }
-variable admin_role_arns {
-  description = "List of IAM role ARNs with AWS admin privileges on created resources"
+variable admin_principals {
+  description = "List of IAM role ARNs or ARN-like expressions to grant admin privileges on created resources"
   type        = list(string)
 }
 variable source_json_policy {

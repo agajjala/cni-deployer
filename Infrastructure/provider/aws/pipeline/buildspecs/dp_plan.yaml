@@ -1,0 +1,49 @@
+version: 0.2
+
+env:
+  secrets-manager:
+    GIT_USERNAME: SF-SDN-GIT-TOKEN:GIT_USERNAME
+    GIT_PASSWORD: SF-SDN-GIT-TOKEN:GIT_PASSWORD
+  exported-variables:
+    - PRESIGNED_PLAN_S3_URL
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.7
+    commands:
+      - curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+      - chmod 700 get_helm.sh
+      - ./get_helm.sh
+      - curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.15.10/2020-02-22/bin/darwin/amd64/kubectl
+      - chmod +x ./kubectl
+      - mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$PATH:$HOME/bin
+      - kubectl version --short --client
+  pre_build:
+    commands:
+      - git clone "https://$GIT_USERNAME:$GIT_PASSWORD@github.com/sf-sdn/cni-deployer.git" cni-deployer
+      - cd cni-deployer
+      - MANIFEST_PATH="$CODEBUILD_SRC_DIR/aws/$ENV_NAME/$MANIFEST_FILENAME"
+      - python Infrastructure/deployer/export_to_env.py -manifest "$MANIFEST_PATH"
+      - GIT_BRANCH="${TF_VAR_git_branch:-master}"
+      - GIT_COMMIT="${TF_VAR_git_commit:-HEAD}"
+      - git fetch origin "$GIT_BRANCH"
+      - git checkout "$GIT_BRANCH"
+      - git checkout "$GIT_COMMIT"
+  build:
+    commands:
+      - make setup
+      - python src/helm_template_generator.py --manifest_path $MANIFEST_PATH
+      - touch plan.txt
+      - python src/eks_dataplane_deploy.py --deploy-stage validate --manifest $MANIFEST_PATH --direction inbound 2>&1 | tee -a plan.txt
+      - python src/eks_dataplane_deploy.py --deploy-stage validate --manifest $MANIFEST_PATH --direction outbound 2>&1 | tee -a plan.txt
+  post_build:
+    commands:
+      - PLAN_S3_PATH="s3://$PIPELINE_S3_BUCKET/stage_output/$STAGE_NAME/plan.txt"
+      - aws s3 cp plan.txt "$PLAN_S3_PATH"
+      - aws configure set default.s3.signature_version s3v4
+      - PRESIGNED_PLAN_S3_URL=$(aws s3 presign "$PLAN_S3_PATH" --expires-in 3600)
+artifacts:
+  files:
+    - '**/*'
+  name: $(date -u +"%Y-%m-%d %H:%M:%S")

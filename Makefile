@@ -8,6 +8,7 @@ usage:
 
 .PHONY: setup
 setup:
+	pip install -q --upgrade pip
 	pip install -q -r requirements.txt
 
 .PHONY: template
