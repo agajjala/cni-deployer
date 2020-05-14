@@ -32,7 +32,7 @@ class ManifestProcessor:
         inbound_eks_cluster_name = self.form_eks_cluster_name(
             manifest_data['env_name'], manifest_data['region'], manifest_data['deployment_id'], cluster_name_suffix)
         self.create_output_template_dirs(inbound_eks_cluster_name)
-        response = subprocess.run(['helm', 'template', manifest_data['deployment_id'], INBOUND_HELM_TEMPLATE_PATH,
+        response = subprocess.run(['helm', 'template', INBOUND_HELM_TEMPLATE_PATH,
                                    '--values',  manifest_file, '--output-dir', os.path.join(HELM_TEMPLATE_OUTPUT_PATH, inbound_eks_cluster_name)])
         if response.returncode != 0:
             print(response)
@@ -42,7 +42,7 @@ class ManifestProcessor:
         outbound_eks_cluster_name = self.form_eks_cluster_name(
             manifest_data['env_name'], manifest_data['region'], manifest_data['deployment_id'], cluster_name_suffix)
         self.create_output_template_dirs(outbound_eks_cluster_name)
-        response = subprocess.run(['helm', 'template', manifest_data['deployment_id'], OUTBOUND_HELM_TEMPLATE_PATH,
+        response = subprocess.run(['helm', 'template', OUTBOUND_HELM_TEMPLATE_PATH,
                                    '--values',  manifest_file, '--output-dir', os.path.join(HELM_TEMPLATE_OUTPUT_PATH, outbound_eks_cluster_name)])
         if response.returncode != 0:
             print(response)
