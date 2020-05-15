@@ -55,6 +55,7 @@ def validate_eks_templates(cluster_name, templates_path):
         return
     elif response.returncode == 1:
         print("Template differences were found for EKS Cluster: %s." % (cluster_name))
+        print(response)
         return
     else:
         print(response)
