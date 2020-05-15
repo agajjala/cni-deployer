@@ -50,7 +50,13 @@ def validate_eks_templates(cluster_name, templates_path):
     # 0 No differences were found.
     # 1 Differences were found.
     # >1 Kubectl or diff failed with an error.
-    if response.returncode > 1:
+    if response.returncode == 0:
+        print("No template differences were found for EKS Cluster: %s." % (cluster_name))
+        return
+    elif response.returncode == 1:
+        print("Template differences were found for EKS Cluster: %s." % (cluster_name))
+        return
+    else:
         print(response)
         sys.exit('Validating EKS Cluster Templates failed')
     return
