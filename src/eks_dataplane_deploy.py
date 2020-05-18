@@ -3,6 +3,7 @@ import os
 import sys
 import subprocess
 import yaml
+from eks_nlb_setup import *
 
 
 def get_fixed_arguments(args):
@@ -109,7 +110,9 @@ def run(args):
         inbound_eks_deploy(args["deploy_stage"], manifest_data, args["direction"])
     else:
         outbound_eks_deploy(args["deploy_stage"], manifest_data)
-
+    
+    if args["deploy_stage"] == "validate":
+        eks_nlb_setup(manifest_data)
 
 def main():
     parser = argparse.ArgumentParser(
