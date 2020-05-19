@@ -3,7 +3,7 @@ import os
 import sys
 import subprocess
 import yaml
-from eks_nlb_setup import *
+from eks_setup_helper import *
 
 
 def get_fixed_arguments(args):
