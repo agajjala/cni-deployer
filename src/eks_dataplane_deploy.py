@@ -22,9 +22,16 @@ def validate_arguments(args):
     :return:
     """
     assert args.get("deploy_stage") is not None
-    assert (args.get("deploy_stage") == "deploy") or (args.get("deploy_stage") == "validate")
+    assert (
+        (args.get("deploy_stage") == "deploy")
+        or (args.get("deploy_stage") == "validate")
+        or (args.get("deploy_stage") == "setup")
+    )
     assert args.get("direction") is not None
-    assert (args.get("direction") == "inbound") or (args.get("direction") == "outbound")
+    assert (
+        (args.get("direction") == "inbound") 
+        or (args.get("direction") == "outbound")
+    )
     assert args.get("manifest") is not None
 
 
