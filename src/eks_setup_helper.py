@@ -7,6 +7,7 @@ import botocore
 import time
 from kubernetes import client, config
 from eks_dataplane_deploy import *
+import json
 
 INBOUND_NAMESPACE = "cni-inbound"
 OUTBOUND_NAMESPACE = "cni-outbound"
@@ -28,7 +29,7 @@ class AwsHelper:
         except botocore.exceptions.ClientError as error:
             print("Failed to add a AWS DDB Item in %s, for item: %s." % (table_name, item))
             raise error
-        print("Added item: %s to DDB Table: %s" %(item, table_name))
+        print("Added item: %s to DDB Table: %s" % (item, table_name))
 
     def aws_get_vpc_id(self, vpc_filters):
         return list(self.ec2Resource.vpcs.filter(Filters=vpc_filters))
@@ -196,10 +197,11 @@ def outbound_eks_nlb_setup(awsClient, manifest_data):
             )
 
             # Add CNAME Records for OUTBOUND EKS NLB NAMES IN SFDCSB.NET Zone
-            dns_name = "core-{}.{}.aws.{}.cni{}.sfdcsb.net".format(
-                vpc_suffix, manifest_data["env_name"], manifest_data["region"], manifest_data["env_name"]
-            )
-            awsClient.aws_add_r53_record(dns_name, nlb_name, zone_id)
+            if not manifest_data["enable_sitebridge"]:
+                dns_name = "core-{}.{}.aws.{}.cni{}.sfdcsb.net".format(
+                    vpc_suffix, manifest_data["env_name"], manifest_data["region"], manifest_data["env_name"]
+                )
+                awsClient.aws_add_r53_record(dns_name, nlb_name, zone_id)
 
             # Add the DDB Records for INFRA_VPCs
             infra_vpc_info = dict()
@@ -231,9 +233,12 @@ def outbound_eks_nlb_setup(awsClient, manifest_data):
             infra_vpc_info["security_group_ids"] = sg_list
             infra_vpc_info["status"] = "inService"
             infra_vpc_info["total_capacity"] = 500
-            infra_vpc_info["proxy_url"] = "https://core-{}.{}.aws.{}.cni{}.sfdcsb.net:443".format(
-                vpc_suffix, manifest_data["env_name"], manifest_data["region"], manifest_data["env_name"]
-            )
+            if not manifest_data["enable_sitebridge"]:
+                infra_vpc_info["proxy_url"] = "https://{}:443".format(nlb_name)
+            else:
+                infra_vpc_info["proxy_url"] = "https://core-{}.{}.aws.{}.cni{}.sfdcsb.net:443".format(
+                    vpc_suffix, manifest_data["env_name"], manifest_data["region"], manifest_data["env_name"]
+                )
             outbound_infra_vpcs_info.append(infra_vpc_info)
 
         print("*************************************************")
@@ -242,7 +247,7 @@ def outbound_eks_nlb_setup(awsClient, manifest_data):
         outbound_cfg_settings_tbl_name = "{}-{}-{}_OutboundConfigSettings".format(
             manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"]
         )
-        outbound_ddb_item = {"id": {"S": "infra_vpcs_test"}, "Payload": {"S": str(outbound_infra_vpcs_info)}}
+        outbound_ddb_item = {"id": {"S": "infra_vpcs_test"}, "Payload": {"S": json.dumps(outbound_infra_vpcs_info)}}
         awsClient.aws_ddb_put_item(outbound_cfg_settings_tbl_name, outbound_ddb_item)
 
 
