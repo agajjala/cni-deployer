@@ -30,11 +30,6 @@ def validate_arguments(args):
     assert (args.get('manifest') is not None)
 
 
-def process_manifest_file(manifest_file):
-    with open(manifest_file, 'r') as file:
-        return yaml.load(file, Loader=yaml.FullLoader)
-
-
 def update_kubeconfig(cluster_name, aws_region):
     # aws eks --region <region> update-kubeconfig --name <eks-cluster-name>
     response = subprocess.run(
@@ -97,7 +92,10 @@ def outbound_eks_deploy(deploy_stage, manifest_data):
         else:
             deploy_eks_templates(cluster_name, templates_path)
 
-
+def process_manifest_file(manifest_file):
+    with open(manifest_file, 'r') as file:
+        return yaml.load(file, Loader=yaml.FullLoader)
+        
 def run(args):
     """
     run the eks template validation for the given cluster

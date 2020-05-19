@@ -18,7 +18,26 @@ class AwsHelper:
         self.elbClient = boto3.client("elbv2")
         self.ssmClient = boto3.client("ssm")
         self.r53Client = boto3.client("route53")
+        self.ddbClient = boto3.client("dynamodb")
+        self.ec2Resource = boto3.resource("ec2")
         return
+
+    def aws_ddb_put_item(self, table_name, item):
+        try:
+            response = self.ddbClient.put_item(TableName=table_name, Item=item)
+        except botocore.exceptions.ClientError as error:
+            print("Failed to add a AWS DDB Item in %s, for item: %s." % (table_name, item))
+            raise error
+        print("Added item: %s to DDB Table: %s" %(item, table_name))
+
+    def aws_get_vpc_id(self, vpc_filters):
+        return list(self.ec2Resource.vpcs.filter(Filters=vpc_filters))
+
+    def aws_get_vpc_subnets(self, subnet_filters):
+        return list(self.ec2Resource.subnets.filter(Filters=subnet_filters))
+
+    def aws_get_vpc_security_groups(self, sg_filters):
+        return list(self.ec2Resource.security_groups.filter(Filters=sg_filters))
 
     def aws_add_r53_record(self, source, target, hosted_zone_id):
         try:
@@ -157,6 +176,7 @@ def outbound_eks_nlb_setup(awsClient, manifest_data):
     if "outbound_vpcs_config" in manifest_data:
         outbound_vpc_cfg = manifest_data["outbound_vpcs_config"]
         outbound_vpcs_count = len(outbound_vpc_cfg["vpc_cidrs"])
+        outbound_infra_vpcs_info = list()
         for vpc_count in range(outbound_vpcs_count):
             vpc_suffix = str(vpc_count + 1)
             # Update KUBECONFIG to OUTBOUND EKS Cluster
@@ -180,6 +200,50 @@ def outbound_eks_nlb_setup(awsClient, manifest_data):
                 vpc_suffix, manifest_data["env_name"], manifest_data["region"], manifest_data["env_name"]
             )
             awsClient.aws_add_r53_record(dns_name, nlb_name, zone_id)
+
+            # Add the DDB Records for INFRA_VPCs
+            infra_vpc_info = dict()
+            vpc_suffix = str(vpc_count + 1)
+            vpc_name = "{}-{}-{}-outbound-{}".format(
+                manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"], vpc_suffix
+            )
+            vpc_filters = [{"Name": "tag:Name", "Values": [vpc_name]}]
+            vpcs = list(awsClient.ec2Resource.vpcs.filter(Filters=vpc_filters))
+            infra_vpc_info["vpc_id"] = vpcs[0].id
+
+            # Subnet Filters
+            subnet_filters = [
+                {"Name": "vpc-id", "Values": [vpcs[0].id]},
+                {"Name": "tag:kubernetes.io/role/internal-elb", "Values": ["1"]},
+            ]
+            subnets = list(awsClient.ec2Resource.subnets.filter(Filters=subnet_filters))
+            subnet_list = list()
+            for subnet in subnets:
+                subnet_list.append(subnet.id)
+            infra_vpc_info["subnet_ids"] = subnet_list
+
+            # Security Group Filters
+            sg_filters = [{"Name": "vpc-id", "Values": [vpcs[0].id]}, {"Name": "group-name", "Values": ["*-nginx"]}]
+            sg_list = list()
+            sgs = list(awsClient.ec2Resource.security_groups.filter(Filters=sg_filters))
+            for sg in sgs:
+                sg_list.append(sg.id)
+            infra_vpc_info["security_group_ids"] = sg_list
+            infra_vpc_info["status"] = "inService"
+            infra_vpc_info["total_capacity"] = 500
+            infra_vpc_info["proxy_url"] = "https://core-{}.{}.aws.{}.cni{}.sfdcsb.net:443".format(
+                vpc_suffix, manifest_data["env_name"], manifest_data["region"], manifest_data["env_name"]
+            )
+            outbound_infra_vpcs_info.append(infra_vpc_info)
+
+        print("*************************************************")
+        print("*               OUTBOUND DDB SETUP              *")
+        print("*************************************************")
+        outbound_cfg_settings_tbl_name = "{}-{}-{}_OutboundConfigSettings".format(
+            manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"]
+        )
+        outbound_ddb_item = {"id": {"S": "infra_vpcs_test"}, "Payload": {"S": str(outbound_infra_vpcs_info)}}
+        awsClient.aws_ddb_put_item(outbound_cfg_settings_tbl_name, outbound_ddb_item)
 
 
 def eks_nlb_setup(manifest_data):
