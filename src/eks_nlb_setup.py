@@ -7,6 +7,7 @@ import botocore
 import time
 from kubernetes import client, config
 from eks_dataplane_deploy import *
+from eks_r53_setup import *
 
 INBOUND_NAMESPACE = "cni-inbound"
 OUTBOUND_NAMESPACE = "cni-outbound"
@@ -114,7 +115,11 @@ def outbound_eks_nlb_setup(manifest_data):
             print("Outbound-%s NLB Name: %s" %(str(vpc_count + 1), outbound_nlb_name))
             lb_arn = aws_elb_get_lb_arn(outbound_nlb_name.split('-', 1)[0])
             aws_elb_modify_tg_attributes(lb_arn, enable_ppv2=False, enable_crosszone_lb=True)
-
+            add_outbound_k8s_lb_dns_records(env_name=manifest_data['env_name'],
+                                        deployment_id=manifest_data['deployment_id'], 
+                                        region=manifest_data['region'], 
+                                        vpc_suffix=str(vpc_count + 1),
+                                        outbound_lb_url=outbound_nlb_name)
 
 def inbound_eks_nlb_setup(manifest_data):
     cluster_name = '{}-{}-{}-{}-data-plane'.format(manifest_data['env_name'], manifest_data['region'], manifest_data['deployment_id'], "inbound")
@@ -127,5 +132,6 @@ def inbound_eks_nlb_setup(manifest_data):
 def eks_nlb_setup(manifest_data):    
     inbound_eks_nlb_setup(manifest_data)
     outbound_eks_nlb_setup(manifest_data)
+
 
 
