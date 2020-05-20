@@ -318,7 +318,7 @@ data aws_iam_policy_document terraform_pipeline {
   }
 
   statement {
-    sid =  "AllowCodeBuildToRunTerraformPlanAndApply"
+    sid = "AllowCodeBuildToRunTerraformPlanAndApply"
 
     resources = [
       "*"

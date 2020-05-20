@@ -231,6 +231,7 @@ resource aws_codepipeline stack {
     }
   }
 
+  # create a stage for each module with a single instance (i.e. not outbound_data_plane)
   dynamic "stage" {
     for_each = local.unary_module_names
     content {
@@ -268,11 +269,11 @@ resource aws_codepipeline stack {
       }
 
       action {
-        name     = "TerraformApply"
-        category = "Build"
-        owner    = "AWS"
-        provider = "CodeBuild"
-        input_artifacts = ["${stage.value}_plan"]
+        name             = "TerraformApply"
+        category         = "Build"
+        owner            = "AWS"
+        provider         = "CodeBuild"
+        input_artifacts  = ["${stage.value}_plan"]
         output_artifacts = []
         version          = "1"
         run_order        = "3"
