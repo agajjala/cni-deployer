@@ -65,7 +65,7 @@ module vpc_flow_log {
   resource_prefix        = local.resource_prefix
   tags                   = var.tags
   vpc_id                 = module.vpc.vpc_id
-  admin_role_arns        = data.terraform_remote_state.region_base.outputs.admin_role_arns
+  admin_principals       = data.terraform_remote_state.region_base.outputs.admin_principals
   flow_logs_iam_role_arn = data.terraform_remote_state.stack_base.outputs.iam.flow_logs_role.arn
   retention_in_days      = var.flow_logs_retention_in_days
 }
@@ -110,7 +110,7 @@ module ec2 {
   region                 = var.region
   docker_image_id        = join(":", [var.monitoring.image, var.monitoring.version])
   tags                   = var.tags
-  admin_role_arns        = data.terraform_remote_state.region_base.outputs.admin_role_arns
+  admin_principals       = data.terraform_remote_state.region_base.outputs.admin_principals
   resource_prefix        = local.resource_prefix
   retention_in_days      = var.flow_logs_retention_in_days
 }

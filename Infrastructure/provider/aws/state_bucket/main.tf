@@ -1,6 +1,8 @@
 locals {
-  admin_role_arns   = formatlist("arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/%s", var.admin_role_names)
-  state_bucket_name = "sfdc-cni-tf-state-${var.env_name}-${var.region}"
+  resource_prefix          = "${var.env_name}-${var.region}"
+  pipeline_role_expression = "${local.resource_prefix}-*-pipeline"
+  admin_principals         = formatlist("arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/%s", concat(var.admin_role_names, [local.pipeline_role_expression]))
+  state_bucket_name        = "sfdc-cni-tf-state-${local.resource_prefix}"
 }
 
 terraform {}
@@ -14,7 +16,7 @@ module state_bucket {
   tags              = var.tags
   bucket_name       = local.state_bucket_name
   region            = var.region
-  admin_role_arns   = local.admin_role_arns
+  admin_principals  = local.admin_principals
   enable_mfa_delete = false
   force_destroy     = var.force_destroy_state_bucket
 }

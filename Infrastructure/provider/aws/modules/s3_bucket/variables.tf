@@ -6,7 +6,7 @@ variable region {
   description = "Region the bucket should be created in"
   type        = string
 }
-variable admin_role_arns {
+variable admin_principals {
   description = ""
   type        = list(string)
 }

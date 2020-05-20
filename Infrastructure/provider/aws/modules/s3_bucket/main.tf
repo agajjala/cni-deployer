@@ -7,11 +7,11 @@ locals {
 ###############################
 
 module bucket_key {
-  source          = "../kms_key"
-  tags            = var.tags
-  admin_role_arns  = var.admin_role_arns
-  enable_alias    = true
-  alias_name      = var.bucket_name
+  source           = "../kms_key"
+  tags             = var.tags
+  admin_principals = var.admin_principals
+  enable_alias     = true
+  alias_name       = var.bucket_name
 }
 
 ###############################

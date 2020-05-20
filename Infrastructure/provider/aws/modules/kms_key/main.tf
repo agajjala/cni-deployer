@@ -1,17 +1,24 @@
 data aws_iam_policy_document default {
   source_json = var.source_json_policy
   statement {
-    actions = [
-      "kms:*"
-    ]
     effect = "Allow"
     principals {
       type = "AWS"
-      identifiers = var.admin_role_arns
+      identifiers = [
+        "*"
+      ]
     }
+    actions = [
+      "kms:*"
+    ]
     resources = [
       "*"
     ]
+    condition {
+      test = "StringLike"
+      variable = "aws:PrincipalArn"
+      values = var.admin_principals
+    }
   }
   version = "2012-10-17"
 }

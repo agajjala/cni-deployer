@@ -43,7 +43,7 @@ module sns_topics {
   tags                            = var.tags
   region                          = var.region
   resource_prefix                 = local.resource_prefix
-  admin_role_arns                 = data.terraform_remote_state.region_base.outputs.admin_role_arns
+  admin_principals                = data.terraform_remote_state.region_base.outputs.admin_principals
   private_connect_role            = data.terraform_remote_state.stack_base.outputs.iam.private_connect_role
   private_link_event_handler_role = data.terraform_remote_state.stack_base.outputs.iam.private_link_event_handler_role
   private_link_stream_role        = data.terraform_remote_state.stack_base.outputs.iam.private_link_stream_role
