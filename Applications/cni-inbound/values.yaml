@@ -69,7 +69,7 @@ resources:
   requests:
     cpu: 1000m
   limits:
-    cpu: 1000m
+    cpu: 12000m
 
 nodeSelector: {}
 
@@ -97,7 +97,6 @@ lambdas:
   - pl-outbound-GET
   - pl-outbound-POST
   - pl-outbound-item-GET
-  - pl-outbound-item-POST 
+  - pl-outbound-item-POST
   - pl-outbound-item-DELETE
   - pl-outbound-item-PATCH
-  
