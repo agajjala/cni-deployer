@@ -28,10 +28,7 @@ def validate_arguments(args):
         or (args.get("deploy_stage") == "setup")
     )
     assert args.get("direction") is not None
-    assert (
-        (args.get("direction") == "inbound") 
-        or (args.get("direction") == "outbound")
-    )
+    assert (args.get("direction") == "inbound") or (args.get("direction") == "outbound")
     assert args.get("manifest") is not None
 
 
@@ -44,7 +41,7 @@ def update_kubeconfig(cluster_name, aws_region):
 
 
 def validate_eks_templates(cluster_name, templates_path):
-    print("*** Validating EKS Cluster Templates for Cluster: %s ***" % (cluster_name))
+    print("*********** Validating EKS Cluster Templates for Cluster: %s." % (cluster_name))
     response = subprocess.run(["kubectl", "diff", "-f", templates_path])
     # 0 No differences were found.
     # 1 Differences were found.
@@ -63,7 +60,7 @@ def validate_eks_templates(cluster_name, templates_path):
 
 
 def deploy_eks_templates(cluster_name, templates_path):
-    print("*** Deploying EKS Cluster Templates for Cluster: %s ***" % (cluster_name))
+    print("*********** Deploying EKS Cluster Templates for Cluster: %s ***" % (cluster_name))
     response = subprocess.run(["kubectl", "apply", "-f", templates_path])
     if response.returncode > 0:
         print(response)
@@ -78,8 +75,10 @@ def inbound_eks_deploy(deploy_stage, manifest_data, cluster_name_suffix):
     update_kubeconfig(cluster_name, manifest_data["region"])
     if deploy_stage == "validate":
         validate_eks_templates(cluster_name, templates_path)
-    else:
+    elif deploy_stage == "deploy":
         deploy_eks_templates(cluster_name, templates_path)
+    else:
+        pass
 
 
 def outbound_eks_deploy(deploy_stage, manifest_data):
@@ -98,8 +97,12 @@ def outbound_eks_deploy(deploy_stage, manifest_data):
             update_kubeconfig(cluster_name, manifest_data["region"])
         if deploy_stage == "validate":
             validate_eks_templates(cluster_name, templates_path)
-        else:
+        elif deploy_stage == "deploy":
             deploy_eks_templates(cluster_name, templates_path)
+        elif deploy_stage == "setup":
+            eks_nlb_setup(manifest_data)
+        else:
+            pass
 
 
 def process_manifest_file(manifest_file):
@@ -116,12 +119,15 @@ def run(args):
 
     manifest_data = process_manifest_file(args["manifest"])
     if args["direction"] == "inbound":
+        print("*************************************************")
+        print("*               INBOUND EKS SETUP               *")
+        print("*************************************************")
         inbound_eks_deploy(args["deploy_stage"], manifest_data, args["direction"])
     else:
+        print("*************************************************")
+        print("*               OUTBOUND EKS SETUP              *")
+        print("*************************************************")
         outbound_eks_deploy(args["deploy_stage"], manifest_data)
-
-    if args["deploy_stage"] == "setup":
-        eks_nlb_setup(manifest_data)
 
 
 def main():

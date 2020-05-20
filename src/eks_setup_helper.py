@@ -8,6 +8,7 @@ import time
 from kubernetes import client, config
 from eks_dataplane_deploy import *
 import json
+from pprint import pprint
 
 INBOUND_NAMESPACE = "cni-inbound"
 OUTBOUND_NAMESPACE = "cni-outbound"
@@ -27,9 +28,9 @@ class AwsHelper:
         try:
             response = self.ddbClient.put_item(TableName=table_name, Item=item)
         except botocore.exceptions.ClientError as error:
-            print("Failed to add a AWS DDB Item in %s, for item: %s." % (table_name, item))
+            pprint("Failed to add a AWS DDB Item in %s, for item: %s." % (table_name, item))
             raise error
-        print("Added item: %s to DDB Table: %s" % (item, table_name))
+        pprint("Added item: %s to DDB Table: %s" % (item, table_name))
 
     def aws_get_vpc_id(self, vpc_filters):
         return list(self.ec2Resource.vpcs.filter(Filters=vpc_filters))
@@ -198,6 +199,7 @@ def outbound_eks_nlb_setup(awsClient, manifest_data):
 
             # Add CNAME Records for OUTBOUND EKS NLB NAMES IN SFDCSB.NET Zone
             if not manifest_data["enable_sitebridge"]:
+                print("********** OUTBOUND EKS NLB DNS SETUP ***********")
                 dns_name = "core-{}.{}.aws.{}.cni{}.sfdcsb.net".format(
                     vpc_suffix, manifest_data["env_name"], manifest_data["region"], manifest_data["env_name"]
                 )
@@ -240,10 +242,7 @@ def outbound_eks_nlb_setup(awsClient, manifest_data):
                     vpc_suffix, manifest_data["env_name"], manifest_data["region"], manifest_data["env_name"]
                 )
             outbound_infra_vpcs_info.append(infra_vpc_info)
-
-        print("*************************************************")
-        print("*               OUTBOUND DDB SETUP              *")
-        print("*************************************************")
+        print("******** OUTBOUND INFRA VPC'S DDB SETUP *********")
         outbound_cfg_settings_tbl_name = "{}-{}-{}_OutboundConfigSettings".format(
             manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"]
         )
@@ -256,12 +255,12 @@ def eks_nlb_setup(manifest_data):
 
     # Setup Inbound EKS Cluster
     print("*************************************************")
-    print("*               INBOUND EKS SETUP               *")
+    print("*           INBOUND EKS NLB SETUP               *")
     print("*************************************************")
     inbound_eks_nlb_setup(awsClient, manifest_data)
 
     # Setup Outbound EKS Cluster
     print("*************************************************")
-    print("*               OUTBOUND EKS SETUP              *")
+    print("*           OUTBOUND EKS NLB SETUP              *")
     print("*************************************************")
     outbound_eks_nlb_setup(awsClient, manifest_data)
