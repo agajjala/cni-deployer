@@ -1,7 +1,7 @@
 module log_group_key {
   source             = "../kms_key"
   tags               = var.tags
-  admin_role_arns     = var.admin_role_arns
+  admin_principals   = var.admin_principals
   source_json_policy = var.kms_key_source_json
 }
 

@@ -30,7 +30,7 @@ variable enable_private_nat_routes {
   default = false
 }
 variable zone_name {}
-variable admin_role_arns {
+variable admin_principals {
   type = list(string)
 }
 variable flow_log_retention_in_days {}

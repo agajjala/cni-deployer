@@ -39,7 +39,7 @@ module shared_policy_documents {
 
 module monitoring_ec2_log {
   source              = "../log_group"
-  admin_role_arns     = var.admin_role_arns
+  admin_principals    = var.admin_principals
   kms_key_source_json = module.shared_policy_documents.kms_key_cloudwatch_access_json
   log_group_name      = "${var.resource_prefix}-ec2"
   retention_in_days   = var.retention_in_days

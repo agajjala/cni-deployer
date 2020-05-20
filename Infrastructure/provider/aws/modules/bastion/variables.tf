@@ -6,8 +6,8 @@ variable tags {
   type        = map(string)
   default     = {}
 }
-variable admin_role_arns {
-  description = "List of IAM role ARNs with AWS admin privileges on created resources"
+variable admin_principals {
+  description = "List of IAM role ARNs or ARN-like expressions to grant admin privileges on the KMS key used for EBS"
   type = list(string)
 }
 variable autoscaling_group_arn {
