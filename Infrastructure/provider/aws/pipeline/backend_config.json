@@ -1,0 +1,6 @@
+{
+  "bucket": "sfdc-cni-tf-state-{env_name}-{region}",
+  "dynamodb_table": "tf-state-lock",
+  "region": "{region}",
+  "key": "${deployment_id}/pipeline"
+}
