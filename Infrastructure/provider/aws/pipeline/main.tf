@@ -193,6 +193,70 @@ resource aws_codebuild_project terraform_apply {
   }
 }
 
+###################################
+#  CodeBuild for EKS Dataplane Plan
+###################################
+
+resource aws_codebuild_project dataplane_plan {
+  tags           = var.tags
+  name           = "${local.resource_prefix}-dp-plan"
+  service_role   = aws_iam_role.terraform_pipeline.arn
+  encryption_key = module.pipeline_bucket.bucket_key.arn
+  build_timeout  = local.plan_timeout
+  queued_timeout = local.plan_timeout
+
+  artifacts {
+    type = "CODEPIPELINE"
+  }
+
+  environment {
+    compute_type                = "BUILD_GENERAL1_SMALL"
+    image                       = "aws/codebuild/standard:2.0"
+    type                        = "LINUX_CONTAINER"
+    image_pull_credentials_type = "CODEBUILD"
+  }
+
+  source {
+    type = "CODEPIPELINE"
+    buildspec = templatefile("${path.module}/buildspecs/dp_plan.yaml", {
+      env_name        = var.env_name
+      resource_prefix = local.resource_prefix
+    })
+  }
+}
+
+###############################
+#  CodeBuild for TF Apply
+###############################
+
+resource aws_codebuild_project dataplane_apply {
+  tags           = var.tags
+  name           = "${local.resource_prefix}-dp-apply"
+  service_role   = aws_iam_role.terraform_pipeline.arn
+  encryption_key = module.pipeline_bucket.bucket_key.arn
+  build_timeout  = local.apply_timeout
+  queued_timeout = local.apply_timeout
+
+  artifacts {
+    type = "CODEPIPELINE"
+  }
+
+  environment {
+    compute_type                = "BUILD_GENERAL1_SMALL"
+    image                       = "aws/codebuild/standard:2.0"
+    type                        = "LINUX_CONTAINER"
+    image_pull_credentials_type = "CODEBUILD"
+  }
+
+  source {
+    type = "CODEPIPELINE"
+    buildspec = templatefile("${path.module}/buildspecs/dp_apply.yaml", {
+      env_name        = var.env_name
+      resource_prefix = local.resource_prefix
+    })
+  }
+}
+
 ###############################
 #  CodePipeline
 ###############################
@@ -288,6 +352,51 @@ resource aws_codepipeline stack {
             }
           ]))
         }
+      }
+    }
+  }
+
+  stage {
+    name = "DataplaneDeployment"
+
+    action {
+      name             = "DataplanePlan"
+      category         = "Build"
+      owner            = "AWS"
+      provider         = "CodeBuild"
+      input_artifacts  = ["ManifestSource"]
+      output_artifacts = []
+      version          = "1"
+      run_order        = "1"
+
+      configuration = {
+        ProjectName          = aws_codebuild_project.dataplane_plan.name
+        EnvironmentVariables = jsonencode(local.tf_codebuild_environment_variables)
+      }
+    }
+
+    action {
+      name      = "FirstApproval"
+      category  = "Approval"
+      owner     = "AWS"
+      provider  = "Manual"
+      version   = "1"
+      run_order = "2"
+    }
+
+    action {
+      name             = "DataplaneApply"
+      category         = "Build"
+      owner            = "AWS"
+      provider         = "CodeBuild"
+      input_artifacts  = ["ManifestSource"]
+      output_artifacts = []
+      version          = "1"
+      run_order        = "3"
+
+      configuration = {
+        ProjectName          = aws_codebuild_project.dataplane_apply.name
+        EnvironmentVariables = jsonencode(local.tf_codebuild_environment_variables)
       }
     }
   }

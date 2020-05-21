@@ -328,6 +328,7 @@ data aws_iam_policy_document terraform_pipeline {
       "iam:*",
       "secretsmanager:*",
       "ec2:*",
+      "elasticloadbalancing:*",
       "route53:*",
       "sns:*",
       "dynamodb:*",

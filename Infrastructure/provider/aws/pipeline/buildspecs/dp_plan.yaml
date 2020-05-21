@@ -1,0 +1,35 @@
+version: 0.2
+
+env:
+  secrets-manager:
+     GIT_USERNAME: SF-SDN-GIT-TOKEN:GIT_USERNAME
+     GIT_PASSWORD: SF-SDN-GIT-TOKEN:GIT_PASSWORD
+
+phases:
+  install:
+    runtime-versions:
+        python: 3.7
+    commands:
+        - curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get > get_helm.sh
+        - chmod +x get_helm.sh
+        - ./get_helm.sh
+        - curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.15.10/2020-02-22/bin/darwin/amd64/kubectl
+        - chmod +x ./kubectl
+        - mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$PATH:$HOME/bin
+  pre_build:
+    commands:
+        - kubectl version --short --client
+  build:
+    commands:
+        - echo $MANIFEST_FILENAME
+        - MANIFEST_PATH="$CODEBUILD_SRC_DIR"/aws/"$ENV_NAME"/"$MANIFEST_FILENAME"
+        - cd .. && git clone https://$GIT_USERNAME:$GIT_PASSWORD@github.com/sf-sdn/cni-deployer.git cni-deployer && cd cni-deployer
+        - make setup
+        - make test
+        - make template
+        - python src/eks_dataplane_deploy.py --deploy-stage validate --manifest $MANIFEST_PATH --direction inbound
+        - kubectl get pods -n cni-inbound
+        - python src/eks_dataplane_deploy.py --deploy-stage validate --manifest $MANIFEST_PATH --direction outbound
+        - kubectl get pods -n cni-outbound
+        - cd ..
+        - rm -rf cni-deployer
