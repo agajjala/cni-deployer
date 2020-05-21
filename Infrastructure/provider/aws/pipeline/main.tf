@@ -56,10 +56,10 @@ resource aws_secretsmanager_secret webhook {
 
 resource aws_secretsmanager_secret_version webhook {
   secret_id     = aws_secretsmanager_secret.webhook.arn
-  secret_string = random_password.password.result
+  secret_string = random_password.webhook_secret.result
 }
 
-resource random_password password {
+resource random_password webhook_secret {
   length  = 32
   special = true
 }
@@ -75,7 +75,7 @@ resource github_repository_webhook github_manifest {
     url          = aws_codepipeline_webhook.github_manifest.url
     content_type = "json"
     //    insecure_ssl = true
-    secret = random_password.password.result
+    secret = random_password.webhook_secret.result
   }
 
   events = ["push"]
@@ -92,7 +92,7 @@ resource aws_codepipeline_webhook github_manifest {
   target_action   = local.webhook_action_name
 
   authentication_configuration {
-    secret_token = random_password.password.result
+    secret_token = random_password.webhook_secret.result
   }
 
   filter {
