@@ -335,6 +335,10 @@ data aws_iam_policy_document terraform_pipeline {
       "eks:*",
       "ssm:*",
       "logs:*",
+      "execute-api:*",
+      "lambda:*",
+      "apigateway:*",
+      "events:*"
     ]
   }
 }
