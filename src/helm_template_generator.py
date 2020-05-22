@@ -42,7 +42,6 @@ class ManifestProcessor:
             [
                 "helm",
                 "template",
-                manifest_data["deployment_id"],
                 INBOUND_HELM_TEMPLATE_PATH,
                 "--values",
                 manifest_file,
@@ -63,7 +62,6 @@ class ManifestProcessor:
             [
                 "helm",
                 "template",
-                manifest_data["deployment_id"],
                 OUTBOUND_HELM_TEMPLATE_PATH,
                 "--values",
                 manifest_file,
@@ -106,6 +104,7 @@ class ManifestProcessor:
     def process(self):
         self.process_manifest_file(self.manifest_path)
 
+
 def get_fixed_arguments(args):
     """
     return the fixed arguments as a dictionary
@@ -114,10 +113,9 @@ def get_fixed_arguments(args):
     """
     return vars(args)
 
+
 def main():
-    parser = argparse.ArgumentParser(
-        description="This program generates EKS Helm Templates for manifests."
-    )
+    parser = argparse.ArgumentParser(description="This program generates EKS Helm Templates for manifests.")
     parser.add_argument("--manifest_path", help="path to the manifest file describing the deployment")
     args = parser.parse_args()
     deploy_args = get_fixed_arguments(args)
