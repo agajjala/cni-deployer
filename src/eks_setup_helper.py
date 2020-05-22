@@ -142,6 +142,8 @@ class K8sClient:
 
     def get_k8s_nlb_name(self, namespace):
         svc_list = self.get_k8s_services(namespace)
+        print(svc_list[0].status.load_balancer.ingress)
+        assert svc_list[0].status.load_balancer.ingress != None
         return svc_list[0].status.load_balancer.ingress[0].hostname
 
 

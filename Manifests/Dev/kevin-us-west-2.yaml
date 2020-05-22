@@ -42,7 +42,7 @@ outbound_data_plane_node_group_instance_types:
   - m5.4xlarge
 outbound_data_plane_node_group_max_size: 6
 metrics_exporter:
-  image: 325178561262.dkr.ecr.us-west-2.amazonaws.com/cni-metrics-exporter
+  image: 985884022631.dkr.ecr.us-west-2.amazonaws.com/cni-metrics-exporter
   version: '279'
 monitoring:
   image: 985884022631.dkr.ecr.us-west-2.amazonaws.com/cni-monitoring
