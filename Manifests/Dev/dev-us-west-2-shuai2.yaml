@@ -11,7 +11,7 @@ lambda_memory_size: 2048
 inbound_service_name: shuai2-cni-inbound
 outbound_service_name: shuai2-cni-outbound
 metrics_exporter:
-  image: 325178561262.dkr.ecr.us-west-2.amazonaws.com/cni-metrics-exporter
+  image: 985884022631.dkr.ecr.us-west-2.amazonaws.com/cni-metrics-exporter
   version: '279'
 monitoring:
   image: 985884022631.dkr.ecr.us-west-2.amazonaws.com/cni-monitoring
