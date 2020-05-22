@@ -58,4 +58,9 @@ api_access_whitelist:
   - 204.14.236.212/32
   # Monitoring VM
   - 54.185.241.154/32
+enable_sitebridge: false
+enable_transit_gateway: false
+outbound_vpcs_config:
+  vpc_cidrs:
+    - 10.20.12.0/22
 
