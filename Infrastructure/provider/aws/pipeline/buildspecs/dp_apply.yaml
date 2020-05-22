@@ -25,8 +25,7 @@ phases:
         - MANIFEST_PATH="$CODEBUILD_SRC_DIR"/aws/"$ENV_NAME"/"$MANIFEST_FILENAME"
         - cd .. && git clone https://$GIT_USERNAME:$GIT_PASSWORD@github.com/sf-sdn/cni-deployer.git cni-deployer && cd cni-deployer
         - make setup
-        - make test
-        - make template
+        - python src/helm_template_generator.py --manifest_path $MANIFEST_PATH
         - python src/eks_dataplane_deploy.py --deploy-stage deploy --manifest $MANIFEST_PATH --direction inbound
         - kubectl get pods -n cni-inbound
         - python src/eks_dataplane_deploy.py --deploy-stage deploy --manifest $MANIFEST_PATH --direction outbound
