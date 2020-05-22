@@ -246,7 +246,7 @@ def outbound_eks_nlb_setup(awsClient, manifest_data):
         outbound_cfg_settings_tbl_name = "{}-{}-{}_OutboundConfigSettings".format(
             manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"]
         )
-        outbound_ddb_item = {"id": {"S": "infra_vpcs_test"}, "Payload": {"S": json.dumps(outbound_infra_vpcs_info)}}
+        outbound_ddb_item = {"id": {"S": "infra_vpcs"}, "Payload": {"S": json.dumps(outbound_infra_vpcs_info)}}
         awsClient.aws_ddb_put_item(outbound_cfg_settings_tbl_name, outbound_ddb_item)
 
 
