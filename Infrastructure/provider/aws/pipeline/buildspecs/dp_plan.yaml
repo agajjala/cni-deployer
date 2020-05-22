@@ -10,8 +10,8 @@ phases:
     runtime-versions:
         python: 3.7
     commands:
-        - curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get > get_helm.sh
-        - chmod +x get_helm.sh
+        - curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+        - chmod 700 get_helm.sh
         - ./get_helm.sh
         - curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.15.10/2020-02-22/bin/darwin/amd64/kubectl
         - chmod +x ./kubectl
