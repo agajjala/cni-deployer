@@ -33,7 +33,9 @@ variable sfdc_vpn_cidrs {
     "204.14.239.107/32",
     "204.14.239.82/32",
     # AmerWest1
-    "13.110.54.0/26"]
+    "13.110.54.0/26",
+    # CodeBuild
+    "52.43.76.88/29"]
 }
 variable inbound_vpc_cidr {
   description = "CIDR of the inbound VPC"
