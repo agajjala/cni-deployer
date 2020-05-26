@@ -6,6 +6,7 @@ def apply(manifest, args):
 
     if args['automation'] is True:
         command.append('-auto-approve')
+        command.append('-no-color')
 
     command.append('terraform_plan')
 

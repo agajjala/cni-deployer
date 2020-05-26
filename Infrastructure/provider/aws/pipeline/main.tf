@@ -29,7 +29,7 @@ locals {
   apply_timeout       = "60"
   git_token_secret_id = "SF-SDN-GIT-TOKEN"
   git_token           = jsondecode(data.aws_secretsmanager_secret_version.github_oauth_token.secret_string)["GIT_PASSWORD"]
-  unary_module_names  = ["stack_base", "control_plane", "monitoring", "inbound_data_plane"]
+  unary_module_names  = ["stack_base", "monitoring", "inbound_data_plane", "control_plane"]
   tf_codebuild_environment_variables = [
     {
       name  = "ENV_NAME"
@@ -40,6 +40,11 @@ locals {
       name  = "MANIFEST_FILENAME"
       type  = "PLAINTEXT"
       value = local.manifest_filename
+    },
+    {
+      name  = "PIPELINE_S3_BUCKET"
+      type  = "PLAINTEXT"
+      value = module.pipeline_bucket.bucket.bucket
     }
   ]
 }
@@ -310,12 +315,18 @@ resource aws_codepipeline stack {
         output_artifacts = ["${stage.value}_plan"]
         version          = "1"
         run_order        = "1"
+        namespace        = stage.value
 
         configuration = {
           ProjectName = aws_codebuild_project.terraform_plan.name
           EnvironmentVariables = jsonencode(concat(local.tf_codebuild_environment_variables, [
             {
               name  = "MODULE_NAME"
+              type  = "PLAINTEXT"
+              value = stage.value
+            },
+            {
+              name  = "STAGE_NAME"
               type  = "PLAINTEXT"
               value = stage.value
             }
@@ -330,6 +341,9 @@ resource aws_codepipeline stack {
         provider  = "Manual"
         version   = "1"
         run_order = "2"
+        configuration = {
+          ExternalEntityLink = "#{${stage.value}.PRESIGNED_PLAN_S3_URL}"
+        }
       }
 
       action {

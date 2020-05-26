@@ -6,6 +6,8 @@ env:
   secrets-manager:
     GIT_USERNAME: SF-SDN-GIT-TOKEN:GIT_USERNAME
     GIT_PASSWORD: SF-SDN-GIT-TOKEN:GIT_PASSWORD
+  exported-variables:
+    - PRESIGNED_PLAN_S3_URL
 
 phases:
   install:
@@ -19,10 +21,17 @@ phases:
   pre_build:
     commands:
       - git clone https://"$GIT_USERNAME":"$GIT_PASSWORD"@github.com/sf-sdn/cni-deployer.git cni-deployer
+      - aws configure set default.s3.signature_version s3v4
   build:
     commands:
       - MANIFEST_PATH=aws/"$ENV_NAME"/"$MANIFEST_FILENAME"
-      - python cni-deployer/Infrastructure/deployer/deploy.py -c plan -module cni-deployer/Infrastructure/provider/aws/"$MODULE_NAME" -manifest "$MANIFEST_PATH"
+      - MODULE_PATH=cni-deployer/Infrastructure/provider/aws/"$MODULE_NAME"
+      - python cni-deployer/Infrastructure/deployer/deploy.py -c plan -module "$MODULE_PATH" -manifest "$MANIFEST_PATH" -automation
+      - cd "$MODULE_PATH"
+      - terraform show terraform_plan >> plan.txt
+      - TF_PLAN_S3_PATH="s3://$PIPELINE_S3_BUCKET/stage_output/$STAGE_NAME/plan.txt"
+      - aws s3 cp plan.txt "$TF_PLAN_S3_PATH"
+      - PRESIGNED_PLAN_S3_URL=$(aws s3 presign "$TF_PLAN_S3_PATH" --expires-in 3600)
 artifacts:
   files:
     - '**/*'
