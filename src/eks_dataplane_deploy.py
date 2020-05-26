@@ -88,14 +88,9 @@ def outbound_eks_deploy(deploy_stage, manifest_data):
     else:
         if "outbound_vpcs_config" in manifest_data:
             outbound_vpc_cfg = manifest_data["outbound_vpcs_config"]
-            print(type(outbound_vpc_cfg))
-            print(outbound_vpc_cfg)
             for vpc_suffix in outbound_vpc_cfg.keys():
                 cluster_name = "{}-{}-{}-{}-data-plane".format(
-                    manifest_data["env_name"],
-                    manifest_data["region"],
-                    manifest_data["deployment_id"],
-                    "outbound-" + vpc_suffix,
+                    manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"], "outbound-" + vpc_suffix
                 )
                 templates_path = "Manifests/Output/{}/cni-{}/templates/".format(cluster_name, "outbound")
                 update_kubeconfig(cluster_name, manifest_data["region"])
@@ -105,6 +100,9 @@ def outbound_eks_deploy(deploy_stage, manifest_data):
                     deploy_eks_templates(cluster_name, templates_path)
                 else:
                     pass
+        else:
+            print("Missing Outbound VPCs config in the manifest file")
+            sys.exit(1)
 
 
 def process_manifest_file(manifest_file):

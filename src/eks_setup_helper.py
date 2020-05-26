@@ -175,11 +175,9 @@ def outbound_eks_nlb_setup(awsClient, manifest_data):
     print("OUTBOUND VPC's SFDCSB.NET HostedZone-ID: %s" % (zone_id))
 
     # SETUP N-OUTBOUND VPC's
-    
+
     if "outbound_vpcs_config" in manifest_data:
         outbound_vpc_cfg = manifest_data["outbound_vpcs_config"]
-        print(type(outbound_vpc_cfg))
-        print(outbound_vpc_cfg)
         outbound_infra_vpcs_info = list()
         for vpc_suffix in outbound_vpc_cfg.keys():
             # Update KUBECONFIG to OUTBOUND EKS Cluster
@@ -248,6 +246,9 @@ def outbound_eks_nlb_setup(awsClient, manifest_data):
         )
         outbound_ddb_item = {"id": {"S": "infra_vpcs"}, "Payload": {"S": json.dumps(outbound_infra_vpcs_info)}}
         awsClient.aws_ddb_put_item(outbound_cfg_settings_tbl_name, outbound_ddb_item)
+    else:
+        print("Missing Outbound VPCs config in the manifest file")
+        sys.exit(1)
 
 
 def eks_nlb_setup(manifest_data):
