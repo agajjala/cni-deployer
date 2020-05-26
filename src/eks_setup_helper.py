@@ -175,12 +175,13 @@ def outbound_eks_nlb_setup(awsClient, manifest_data):
     print("OUTBOUND VPC's SFDCSB.NET HostedZone-ID: %s" % (zone_id))
 
     # SETUP N-OUTBOUND VPC's
+    
     if "outbound_vpcs_config" in manifest_data:
         outbound_vpc_cfg = manifest_data["outbound_vpcs_config"]
-        outbound_vpcs_count = len(outbound_vpc_cfg["vpc_cidrs"])
+        print(type(outbound_vpc_cfg))
+        print(outbound_vpc_cfg)
         outbound_infra_vpcs_info = list()
-        for vpc_count in range(outbound_vpcs_count):
-            vpc_suffix = str(vpc_count + 1)
+        for vpc_suffix in outbound_vpc_cfg.keys():
             # Update KUBECONFIG to OUTBOUND EKS Cluster
             cluster_name = "{}-{}-{}-{}-data-plane".format(
                 manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"], "outbound-" + vpc_suffix
@@ -207,7 +208,6 @@ def outbound_eks_nlb_setup(awsClient, manifest_data):
 
             # Add the DDB Records for INFRA_VPCs
             infra_vpc_info = dict()
-            vpc_suffix = str(vpc_count + 1)
             vpc_name = "{}-{}-{}-outbound-{}".format(
                 manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"], vpc_suffix
             )
@@ -246,7 +246,7 @@ def outbound_eks_nlb_setup(awsClient, manifest_data):
         outbound_cfg_settings_tbl_name = "{}-{}-{}_OutboundConfigSettings".format(
             manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"]
         )
-        outbound_ddb_item = {"id": {"S": "infra_vpcs_test"}, "Payload": {"S": json.dumps(outbound_infra_vpcs_info)}}
+        outbound_ddb_item = {"id": {"S": "infra_vpcs"}, "Payload": {"S": json.dumps(outbound_infra_vpcs_info)}}
         awsClient.aws_ddb_put_item(outbound_cfg_settings_tbl_name, outbound_ddb_item)
 
 
