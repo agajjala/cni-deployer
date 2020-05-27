@@ -69,6 +69,16 @@ class AwsHelper:
             % (source, target, hosted_zone_id, response["ChangeInfo"]["Status"])
         )
 
+    def aws_ssm_put_parameter(self, parameter_name, parameter_value, parameter_type):
+        try:
+            parameter = self.ssmClient.put_parameter(
+                Name=parameter_name, Value=parameter_value, Type=parameter_type, Overwrite=True
+            )
+        except botocore.exceptions.ClientError as error:
+            print("Failed to put AWS Systems Manager parameter: %s" % (parameter_name))
+            raise error
+        return
+
     def aws_ssm_fetch_parameter(self, parameter_name):
         try:
             parameter = self.ssmClient.get_parameter(Name=parameter_name, WithDecryption=True)
@@ -118,6 +128,11 @@ class AwsHelper:
 
         print("LB Attributes Modified: %s" % (response["Attributes"][0]))
 
+    def aws_nlb_get_name(self, lb_name):
+        nlb_name = lb_name.split("-", 1)[0]
+        nlb_net = lb_name.split("-", 1)[1].split(".", 1)[0]
+        return "net/{}/{}".format(nlb_name, nlb_net)
+
 
 class K8sClient:
     def __init__(self):
@@ -159,6 +174,16 @@ def inbound_eks_nlb_setup(awsClient, manifest_data):
     nlb_name = k8sClient.get_k8s_nlb_name(INBOUND_NAMESPACE)
     print("Retrieved Inbound NLB Name: %s" % (nlb_name))
 
+    # Update SSM Parameter Store with NLB Name
+    nlb_arn = awsClient.aws_nlb_get_name(nlb_name)
+    awsClient.aws_ssm_put_parameter(
+        parameter_name="/{}-{}/{}/inbound-data-plane/nlb-name".format(
+            manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"]
+        ),
+        parameter_value=nlb_arn,
+        parameter_type="SecureString",
+    )
+
     # Set the LB Attributes for Inbound EKS Cluster
     awsClient.aws_elb_modify_lb_attr(
         lb_name=nlb_name.split("-", 1)[0], attrKey="load_balancing.cross_zone.enabled", attrValue="true"
@@ -177,12 +202,11 @@ def outbound_eks_nlb_setup(awsClient, manifest_data):
     print("OUTBOUND VPC's SFDCSB.NET HostedZone-ID: %s" % (zone_id))
 
     # SETUP N-OUTBOUND VPC's
+
     if "outbound_vpcs_config" in manifest_data:
         outbound_vpc_cfg = manifest_data["outbound_vpcs_config"]
-        outbound_vpcs_count = len(outbound_vpc_cfg["vpc_cidrs"])
         outbound_infra_vpcs_info = list()
-        for vpc_count in range(outbound_vpcs_count):
-            vpc_suffix = str(vpc_count + 1)
+        for vpc_suffix in outbound_vpc_cfg.keys():
             # Update KUBECONFIG to OUTBOUND EKS Cluster
             cluster_name = "{}-{}-{}-{}-data-plane".format(
                 manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"], "outbound-" + vpc_suffix
@@ -194,6 +218,16 @@ def outbound_eks_nlb_setup(awsClient, manifest_data):
             nlb_name = k8sClient.get_k8s_nlb_name(OUTBOUND_NAMESPACE)
             print("Retrieved Outbound-%s NLB Name: %s" % (vpc_suffix, nlb_name))
 
+            # Update SSM Parameter Store with NLB Name
+            nlb_arn = awsClient.aws_nlb_get_name(nlb_name)
+            awsClient.aws_ssm_put_parameter(
+                parameter_name="/{}-{}/{}/outbound-data-plane/{}/nlb-name".format(
+                    manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"], vpc_suffix
+                ),
+                parameter_value=nlb_arn,
+                parameter_type="SecureString",
+            )
+            
             # Set the LB Attributes for OUTBOUND EKS Cluster
             awsClient.aws_elb_modify_lb_attr(
                 lb_name=nlb_name.split("-", 1)[0], attrKey="load_balancing.cross_zone.enabled", attrValue="true"
@@ -209,7 +243,6 @@ def outbound_eks_nlb_setup(awsClient, manifest_data):
 
             # Add the DDB Records for INFRA_VPCs
             infra_vpc_info = dict()
-            vpc_suffix = str(vpc_count + 1)
             vpc_name = "{}-{}-{}-outbound-{}".format(
                 manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"], vpc_suffix
             )
@@ -250,6 +283,9 @@ def outbound_eks_nlb_setup(awsClient, manifest_data):
         )
         outbound_ddb_item = {"id": {"S": "infra_vpcs"}, "Payload": {"S": json.dumps(outbound_infra_vpcs_info)}}
         awsClient.aws_ddb_put_item(outbound_cfg_settings_tbl_name, outbound_ddb_item)
+    else:
+        print("Missing Outbound VPCs config in the manifest file")
+        sys.exit(1)
 
 
 def eks_nlb_setup(manifest_data):

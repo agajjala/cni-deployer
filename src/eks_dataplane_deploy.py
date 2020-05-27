@@ -83,26 +83,26 @@ def inbound_eks_deploy(deploy_stage, manifest_data, cluster_name_suffix):
 
 def outbound_eks_deploy(deploy_stage, manifest_data):
 
-    if "outbound_vpcs_config" in manifest_data:
-        outbound_vpc_cfg = manifest_data["outbound_vpcs_config"]
-        outbound_vpcs_count = len(outbound_vpc_cfg["vpc_cidrs"])
-        for vpc_count in range(outbound_vpcs_count):
-            cluster_name = "{}-{}-{}-{}-data-plane".format(
-                manifest_data["env_name"],
-                manifest_data["region"],
-                manifest_data["deployment_id"],
-                "outbound-" + str(vpc_count + 1),
-            )
-            templates_path = "Manifests/Output/{}/cni-{}/templates/".format(cluster_name, "outbound")
-            update_kubeconfig(cluster_name, manifest_data["region"])
-        if deploy_stage == "validate":
-            validate_eks_templates(cluster_name, templates_path)
-        elif deploy_stage == "deploy":
-            deploy_eks_templates(cluster_name, templates_path)
-        elif deploy_stage == "setup":
-            eks_nlb_setup(manifest_data)
+    if deploy_stage == "setup":
+        eks_nlb_setup(manifest_data)
+    else:
+        if "outbound_vpcs_config" in manifest_data:
+            outbound_vpc_cfg = manifest_data["outbound_vpcs_config"]
+            for vpc_suffix in outbound_vpc_cfg.keys():
+                cluster_name = "{}-{}-{}-{}-data-plane".format(
+                    manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"], "outbound-" + vpc_suffix
+                )
+                templates_path = "Manifests/Output/{}/cni-{}/templates/".format(cluster_name, "outbound")
+                update_kubeconfig(cluster_name, manifest_data["region"])
+                if deploy_stage == "validate":
+                    validate_eks_templates(cluster_name, templates_path)
+                elif deploy_stage == "deploy":
+                    deploy_eks_templates(cluster_name, templates_path)
+                else:
+                    pass
         else:
-            pass
+            print("Missing Outbound VPCs config in the manifest file")
+            sys.exit(1)
 
 
 def process_manifest_file(manifest_file):

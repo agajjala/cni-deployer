@@ -34,6 +34,15 @@ resource aws_ec2_transit_gateway default {
   count = var.enable_transit_gateway ? 1 : 0
 }
 
+resource aws_ssm_parameter transit_gateway_id {
+  tags        = var.tags
+  name        = format("/%s-%s/%s/tgw/id", var.env_name, var.region, var.deployment_id)
+  type        = "SecureString"
+  value       = aws_ec2_transit_gateway.default.id
+
+  count       = var.enable_transit_gateway ? 1 : 0
+}
+
 ###############################
 #  Customer Gateways
 ###############################
@@ -58,6 +67,15 @@ resource aws_vpn_connection default {
   type                = aws_customer_gateway.default[count.index].type
 
   count = var.enable_sitebridge ? length(var.sitebridge_config.gateway_ips) : 0
+}
+
+resource aws_ssm_parameter vpn_connections_ids {
+  tags        = var.tags
+  name        = format("/%s-%s/%s/vpn/ids", var.env_name, var.region, var.deployment_id)
+  type        = "SecureString"
+  value       = join(",", aws_vpn_connection.default.*.id)
+
+  count       = var.enable_sitebridge ? 1 : 0
 }
 
 ###############################
