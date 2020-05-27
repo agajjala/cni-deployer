@@ -38,7 +38,7 @@ resource aws_ssm_parameter transit_gateway_id {
   tags        = var.tags
   name        = format("/%s-%s/%s/tgw/id", var.env_name, var.region, var.deployment_id)
   type        = "SecureString"
-  value       = aws_ec2_transit_gateway.default.id
+  value       = aws_ec2_transit_gateway.default[count.index].id
 
   count       = var.enable_transit_gateway ? 1 : 0
 }
