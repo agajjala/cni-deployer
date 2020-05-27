@@ -69,6 +69,16 @@ class AwsHelper:
             % (source, target, hosted_zone_id, response["ChangeInfo"]["Status"])
         )
 
+    def aws_ssm_put_parameter(self, parameter_name, parameter_value, parameter_type):
+        try:
+            parameter = self.ssmClient.put_parameter(
+                Name=parameter_name, Value=parameter_value, Type=parameter_type, Overwrite=True
+            )
+        except botocore.exceptions.ClientError as error:
+            print("Failed to put AWS Systems Manager parameter: %s" % (parameter_name))
+            raise error
+        return
+
     def aws_ssm_fetch_parameter(self, parameter_name):
         try:
             parameter = self.ssmClient.get_parameter(Name=parameter_name, WithDecryption=True)
@@ -118,6 +128,11 @@ class AwsHelper:
 
         print("LB Attributes Modified: %s" % (response["Attributes"][0]))
 
+    def aws_nlb_get_name(self, lb_name):
+        nlb_name = lb_name.split("-", 1)[0]
+        nlb_net = lb_name.split("-", 1)[1].split(".", 1)[0]
+        return "net/{}/{}".format(nlb_name, nlb_net)
+
 
 class K8sClient:
     def __init__(self):
@@ -157,6 +172,16 @@ def inbound_eks_nlb_setup(awsClient, manifest_data):
     nlb_name = k8sClient.get_k8s_nlb_name(INBOUND_NAMESPACE)
     print("Retrieved Inbound NLB Name: %s" % (nlb_name))
 
+    # Update SSM Parameter Store with NLB Name
+    nlb_arn = awsClient.aws_nlb_get_name(nlb_name)
+    awsClient.aws_ssm_put_parameter(
+        parameter_name="/{}-{}/{}/inbound-data-plane/nlb-name".format(
+            manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"]
+        ),
+        parameter_value=nlb_arn,
+        parameter_type="SecureString",
+    )
+
     # Set the LB Attributes for Inbound EKS Cluster
     awsClient.aws_elb_modify_lb_attr(
         lb_name=nlb_name.split("-", 1)[0], attrKey="load_balancing.cross_zone.enabled", attrValue="true"
@@ -191,6 +216,16 @@ def outbound_eks_nlb_setup(awsClient, manifest_data):
             nlb_name = k8sClient.get_k8s_nlb_name(OUTBOUND_NAMESPACE)
             print("Retrieved Outbound-%s NLB Name: %s" % (vpc_suffix, nlb_name))
 
+            # Update SSM Parameter Store with NLB Name
+            nlb_arn = awsClient.aws_nlb_get_name(nlb_name)
+            awsClient.aws_ssm_put_parameter(
+                parameter_name="/{}-{}/{}/outbound-data-plane/{}/nlb-name".format(
+                    manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"], vpc_suffix
+                ),
+                parameter_value=nlb_arn,
+                parameter_type="SecureString",
+            )
+            
             # Set the LB Attributes for OUTBOUND EKS Cluster
             awsClient.aws_elb_modify_lb_attr(
                 lb_name=nlb_name.split("-", 1)[0], attrKey="load_balancing.cross_zone.enabled", attrValue="true"
