@@ -83,7 +83,7 @@ class ManifestProcessor:
         if "outbound_vpcs_config" in manifest_data:
             outbound_vpc_cfg = manifest_data["outbound_vpcs_config"]
             for vpc_suffix in outbound_vpc_cfg.keys():
-                self.generate_outbound_helm_template(manifest_data, manifest_file, "outbound-" + vpc_suffix)
+                self.generate_outbound_helm_template(manifest_data, manifest_file, "outbound-" + str(vpc_suffix))
         else:
             self.generate_outbound_helm_template(manifest_data, manifest_file, "outbound")
 
