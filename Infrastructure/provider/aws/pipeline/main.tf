@@ -1,8 +1,17 @@
-variable region {}
-variable env_name {}
-variable deployment_id {}
+variable region {
+  type = string
+}
+variable env_name {
+  type = string
+}
+variable deployment_id {
+  type = string
+}
 variable tags {
   type = map(string)
+}
+variable git_branch {
+  type = string
 }
 
 terraform {
@@ -45,6 +54,11 @@ locals {
       name  = "PIPELINE_S3_BUCKET"
       type  = "PLAINTEXT"
       value = module.pipeline_bucket.bucket.bucket
+    },
+    {
+      name  = "GIT_BRANCH"
+      type  = "PLAINTEXT"
+      value = var.git_branch
     }
   ]
 }
@@ -107,7 +121,7 @@ resource aws_codepipeline_webhook github_manifest {
 
   filter {
     json_path    = "$.ref"
-    match_equals = "refs/heads/master"
+    match_equals = "refs/heads/${var.git_branch}"
   }
 }
 
@@ -294,7 +308,7 @@ resource aws_codepipeline stack {
       configuration = {
         Owner      = local.repo_org
         Repo       = local.repo_name
-        Branch     = "master"
+        Branch     = var.git_branch
         OAuthToken = local.git_token
       }
     }
@@ -379,7 +393,7 @@ resource aws_codepipeline stack {
       owner            = "AWS"
       provider         = "CodeBuild"
       input_artifacts  = ["ManifestSource"]
-      output_artifacts = []
+      output_artifacts = ["DataplaneDeployment_plan"]
       version          = "1"
       run_order        = "1"
 
@@ -403,7 +417,7 @@ resource aws_codepipeline stack {
       category         = "Build"
       owner            = "AWS"
       provider         = "CodeBuild"
-      input_artifacts  = ["ManifestSource"]
+      input_artifacts  = ["DataplaneDeployment_plan"]
       output_artifacts = []
       version          = "1"
       run_order        = "3"

@@ -19,17 +19,12 @@ phases:
   pre_build:
     commands:
         - kubectl version --short --client
+        - cd cni-deployer
   build:
     commands:
-        - echo $MANIFEST_FILENAME
-        - MANIFEST_PATH="$CODEBUILD_SRC_DIR"/aws/"$ENV_NAME"/"$MANIFEST_FILENAME"
-        - cd .. && git clone https://$GIT_USERNAME:$GIT_PASSWORD@github.com/sf-sdn/cni-deployer.git cni-deployer && cd cni-deployer
-        - make setup
-        - python src/helm_template_generator.py --manifest_path $MANIFEST_PATH
+        - MANIFEST_PATH="$CODEBUILD_SRC_DIR/aws/$ENV_NAME/$MANIFEST_FILENAME"
         - python src/eks_dataplane_deploy.py --deploy-stage deploy --manifest $MANIFEST_PATH --direction inbound
         - kubectl get pods -n cni-inbound
         - python src/eks_dataplane_deploy.py --deploy-stage deploy --manifest $MANIFEST_PATH --direction outbound
         - kubectl get pods -n cni-outbound
         - python src/eks_dataplane_deploy.py --deploy-stage setup --manifest $MANIFEST_PATH --direction outbound
-        - cd ..
-        - rm -rf cni-deployer

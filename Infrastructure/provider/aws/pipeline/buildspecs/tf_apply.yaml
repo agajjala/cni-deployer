@@ -16,7 +16,11 @@ phases:
       - wget https://releases.hashicorp.com/terraform/"$TF_VERSION"/terraform_"$TF_VERSION"_linux_amd64.zip
       - unzip terraform_"$TF_VERSION"_linux_amd64.zip
       - mv terraform /usr/local/bin/
+  pre_build:
+    commands:
+      - cd cni-deployer
   build:
     commands:
-      - MANIFEST_PATH=aws/"$ENV_NAME"/"$MANIFEST_FILENAME"
-      - python cni-deployer/Infrastructure/deployer/deploy.py -c apply -module cni-deployer/Infrastructure/provider/aws/"$MODULE_NAME" -manifest "$MANIFEST_PATH"
+      - MANIFEST_PATH="$CODEBUILD_SRC_DIR/aws/$ENV_NAME/$MANIFEST_FILENAME"
+      - MODULE_PATH="$CODEBUILD_SRC_DIR/cni-deployer/Infrastructure/provider/aws/$MODULE_NAME"
+      - python Infrastructure/deployer/deploy.py -c apply -module "$MODULE_PATH" -manifest "$MANIFEST_PATH" -automation

@@ -21,12 +21,15 @@ phases:
   pre_build:
     commands:
       - git clone https://"$GIT_USERNAME":"$GIT_PASSWORD"@github.com/sf-sdn/cni-deployer.git cni-deployer
+      - cd cni-deployer
+      - git fetch origin "$GIT_BRANCH"
+      - git checkout "$GIT_BRANCH"
       - aws configure set default.s3.signature_version s3v4
   build:
     commands:
-      - MANIFEST_PATH=aws/"$ENV_NAME"/"$MANIFEST_FILENAME"
-      - MODULE_PATH=cni-deployer/Infrastructure/provider/aws/"$MODULE_NAME"
-      - python cni-deployer/Infrastructure/deployer/deploy.py -c plan -module "$MODULE_PATH" -manifest "$MANIFEST_PATH" -automation
+      - MANIFEST_PATH="$CODEBUILD_SRC_DIR/aws/$ENV_NAME/$MANIFEST_FILENAME"
+      - MODULE_PATH="$CODEBUILD_SRC_DIR/cni-deployer/Infrastructure/provider/aws/$MODULE_NAME"
+      - python Infrastructure/deployer/deploy.py -c plan -module "$MODULE_PATH" -manifest "$MANIFEST_PATH" -automation
       - cd "$MODULE_PATH"
       - terraform show -no-color terraform_plan >> plan.txt
       - TF_PLAN_S3_PATH="s3://$PIPELINE_S3_BUCKET/stage_output/$STAGE_NAME/plan.txt"

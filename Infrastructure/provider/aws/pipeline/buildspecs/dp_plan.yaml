@@ -16,19 +16,23 @@ phases:
         - curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.15.10/2020-02-22/bin/darwin/amd64/kubectl
         - chmod +x ./kubectl
         - mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$PATH:$HOME/bin
+        - kubectl version --short --client
   pre_build:
     commands:
-        - kubectl version --short --client
+        - git clone https://"$GIT_USERNAME":"$GIT_PASSWORD"@github.com/sf-sdn/cni-deployer.git cni-deployer
+        - cd cni-deployer
+        - git fetch origin "$GIT_BRANCH"
+        - git checkout "$GIT_BRANCH"
   build:
     commands:
-        - echo $MANIFEST_FILENAME
-        - MANIFEST_PATH="$CODEBUILD_SRC_DIR"/aws/"$ENV_NAME"/"$MANIFEST_FILENAME"
-        - cd .. && git clone https://$GIT_USERNAME:$GIT_PASSWORD@github.com/sf-sdn/cni-deployer.git cni-deployer && cd cni-deployer
+        - MANIFEST_PATH="$CODEBUILD_SRC_DIR/aws/$ENV_NAME/$MANIFEST_FILENAME"
         - make setup
         - python src/helm_template_generator.py --manifest_path $MANIFEST_PATH
         - python src/eks_dataplane_deploy.py --deploy-stage validate --manifest $MANIFEST_PATH --direction inbound
         - kubectl get pods -n cni-inbound
         - python src/eks_dataplane_deploy.py --deploy-stage validate --manifest $MANIFEST_PATH --direction outbound
         - kubectl get pods -n cni-outbound
-        - cd ..
-        - rm -rf cni-deployer
+artifacts:
+  files:
+    - '**/*'
+  name: $(date -u +"%Y-%m-%d %H:%M:%S")
