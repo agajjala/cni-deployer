@@ -2,6 +2,12 @@
 
 set -eou pipefail
 
+# Usage:
+# ./deploy_aws.sh <PATH_TO_MANIFEST>
+#
+# Example:
+# ./deploy_aws.sh Manifests/Dev/manifest.yaml
+
 wait_for_lb_dns_name () {
   LB_DNS_NAME=""
   local namespace="$1"
