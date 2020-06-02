@@ -28,4 +28,6 @@ phases:
       - kubectl get pods -n cni-inbound
       - python src/eks_dataplane_deploy.py --deploy-stage deploy --manifest $MANIFEST_PATH --direction outbound
       - kubectl get pods -n cni-outbound
+      - python src/eks_dataplane_deploy.py --deploy-stage setup --manifest $MANIFEST_PATH --direction inbound
       - python src/eks_dataplane_deploy.py --deploy-stage setup --manifest $MANIFEST_PATH --direction outbound
+
