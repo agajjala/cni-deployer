@@ -20,7 +20,15 @@ class AwsHelper:
         self.r53Client = boto3.client("route53")
         self.ddbClient = boto3.client("dynamodb")
         self.ec2Resource = boto3.resource("ec2")
+        self.ec2Client = boto3.client("ec2")
         return
+
+    def aws_ec2_create_tags(self, resources, tags):
+        try:
+            response = self.ec2Client.create_tags(Resources=resources, Tags=tags)
+        except botocore.exceptions.ClientError as error:
+            print("Failed to create Tags for Resources: " + resources)
+            raise error
 
     def aws_ddb_put_item(self, table_name, item):
         try:
@@ -82,7 +90,7 @@ class AwsHelper:
             parameter = self.ssmClient.get_parameter(Name=parameter_name, WithDecryption=True)
         except botocore.exceptions.ClientError as error:
             print("Failed to fetch AWS Systems Manager parameter: %s" % (parameter_name))
-            raise error
+            return ""
 
         return parameter["Parameter"]["Value"]
 
@@ -121,7 +129,7 @@ class AwsHelper:
                 LoadBalancerArn=self.aws_elb_get_lb_arn(lb_name), Attributes=[{"Key": attrKey, "Value": attrValue}]
             )
         except botocore.exceptions.ClientError as error:
-            print("Failed to modify loadbalancer attributes for LBn: %s" % (lb_name))
+            print("Failed to modify loadbalancer attributes for LB: %s" % (lb_name))
             raise error
 
         print("LB Attributes Modified: %s" % (response["Attributes"][0]))
@@ -130,6 +138,69 @@ class AwsHelper:
         nlb_name = lb_name.split("-", 1)[0]
         nlb_net = lb_name.split("-", 1)[1].split(".", 1)[0]
         return "net/{}/{}".format(nlb_name, nlb_net)
+
+    def aws_create_vpc_endpoint_service_configuration(self, lb_name, tags):
+        lb_arn = [self.aws_elb_get_lb_arn(lb_name)]
+        try:
+            response = self.ec2Client.create_vpc_endpoint_service_configuration(
+                NetworkLoadBalancerArns=lb_arn, AcceptanceRequired=True
+            )
+        except botocore.exceptions.ClientError as error:
+            print("Failed to create vpc endpoint service configuration for LB_NAME: %s" % (lb_name))
+            raise error
+
+        # create tags
+        self.aws_ec2_create_tags(resources=[response["ServiceConfiguration"]["ServiceId"]], tags=tags)
+        return (
+            response["ServiceConfiguration"]["ServiceId"],
+            response["ServiceConfiguration"]["ServiceName"],
+            response["ServiceConfiguration"]["ServiceState"],
+        )
+
+    def aws_describe_vpc_endpoint_service_configurations(self, serviceID, Filters):
+        try:
+            if serviceID != "":
+                response = self.ec2Client.describe_vpc_endpoint_service_configurations(ServiceIds=[serviceID], Filters=Filters)
+            else:
+                response = self.ec2Client.describe_vpc_endpoint_service_configurations(Filters=Filters)
+        except botocore.exceptions.ClientError as error:
+            print("Failed to describe vpc endpoint service configuration for ServiceID: %s" % (serviceID))
+            raise error
+
+        if len(response["ServiceConfigurations"]) != 1:
+            print("Invalid vpc endpoint service configuration for ServiceID: %s" % (serviceID))
+            return "", "", ""
+
+        print(
+            "vpc endpoint service configuration state: %s for ServiceID: %s"
+            % (response["ServiceConfigurations"][0]["ServiceState"], serviceID)
+        )
+        return (
+            response["ServiceConfigurations"][0]["ServiceId"],
+            response["ServiceConfigurations"][0]["ServiceName"],
+            response["ServiceConfigurations"][0]["ServiceState"],
+        )
+
+    def aws_create_vpc_endpoint_connection_notification(self, serviceID, ConnNotifArn, ConnNotifEvents):
+        try:
+            response = self.ec2Client.create_vpc_endpoint_connection_notification(
+                ServiceId=serviceID, ConnectionNotificationArn=ConnNotifArn, ConnectionEvents=ConnNotifEvents
+            )
+        except botocore.exceptions.ClientError as error:
+            print("Failed to create vpc endpoint connection notification for ServiceID: %s" % (serviceID))
+            raise error
+
+        print("Created vpc endpoint connection notification for ServiceID: %s" % (serviceID))
+
+    def aws_modify_vpc_endpoint_service_permissions(self, serviceID, AllowedPrincipals):
+        try:
+            response = self.ec2Client.modify_vpc_endpoint_service_permissions(
+                ServiceId=serviceID, AddAllowedPrincipals=AllowedPrincipals
+            )
+        except botocore.exceptions.ClientError as error:
+            print("Failed to modify vpc endpoint service permissions for ServiceID: %s" % (serviceID))
+            raise error
+        print("Modified VPC Endpoint service permissions for ServiceID: %s(%s)" % (serviceID, response["ReturnValue"]))
 
 
 class K8sClient:
@@ -155,7 +226,6 @@ class K8sClient:
 
     def get_k8s_nlb_name(self, namespace):
         svc_list = self.get_k8s_services(namespace)
-        print(svc_list[0].status.load_balancer.ingress)
         assert svc_list[0].status.load_balancer.ingress != None
         return svc_list[0].status.load_balancer.ingress[0].hostname
 
@@ -190,6 +260,69 @@ def inbound_eks_nlb_setup(awsClient, manifest_data):
     # Set the LB TGT GRP Atrributes for Inbound EKS Cluster
     awsClient.aws_elb_modify_tgt_attr(lb_name=nlb_name.split("-", 1)[0], attrKey="proxy_protocol_v2.enabled", attrValue="true")
 
+    # Get the  VPC Endpoint service configuration for Inbound NLB if present
+    query_filters = [
+        {"Name": "tag:env_name", "Values": [manifest_data["env_name"]]},
+        {"Name": "tag:deployment_id", "Values": [manifest_data["deployment_id"]]},
+        {"Name": "tag:region", "Values": [manifest_data["region"]]},
+    ]
+
+    svc_id_parameter_key = "/{}-{}/{}/inbound-data-plane/vpce-svc-id".format(
+        manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"]
+    )
+    svc_id = awsClient.aws_ssm_fetch_parameter(parameter_name=svc_id_parameter_key)
+    svcID, svcName, svcState = awsClient.aws_describe_vpc_endpoint_service_configurations(serviceID=svc_id, Filters=query_filters)
+    print("Retrieved ServiceID: %s, ServiceName: %s, ServiceState: %s" % (svcID, svcName, svcState))
+
+    # Create the VPC Endpoint service configuration if not present
+    if svcState != "Available":
+        print("Creating the VPC Endpoint service configuration...")
+        Tags = [
+            {"Key": "env_name", "Value": manifest_data["env_name"]},
+            {"Key": "deployment_id", "Value": manifest_data["deployment_id"]},
+            {"Key": "region", "Value": manifest_data["region"]},
+        ]
+        svcID, svcName, svcState = awsClient.aws_create_vpc_endpoint_service_configuration(
+            lb_name=nlb_name.split("-", 1)[0], tags=Tags
+        )
+
+        time.sleep(10)
+        # Get the lastest status of the VPC Endpoint service configuration
+        Filters = [{"Name": "service-name", "Values": [svcName]}, {"Name": "service-state", "Values": ["Available"]}]
+        svcID, svcName, svcState = awsClient.aws_describe_vpc_endpoint_service_configurations(serviceID=svcID, Filters=Filters)
+        print("Created ServiceID: %s, ServiceName: %s, ServiceState: %s" % (svcID, svcName, svcState))
+
+    # Create a VPC EndPoint Connection Notification
+    conn_notif_arn_parameter_key = "/{}-{}/{}/inbound-data-plane/vpce-sns-topic".format(
+        manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"]
+    )
+    connNotifARN = awsClient.aws_ssm_fetch_parameter(parameter_name=conn_notif_arn_parameter_key)
+    if connNotifARN == "":
+        sys.exit(1)
+
+    awsClient.aws_create_vpc_endpoint_connection_notification(
+        serviceID=svcID, ConnNotifArn=connNotifARN, ConnNotifEvents=["Accept", "Reject", "Connect", "Delete"]
+    )
+
+    # Update the VPC Endpoint Service Permissions
+    awsClient.aws_modify_vpc_endpoint_service_permissions(serviceID=svcID, AllowedPrincipals=["*"])
+
+    # Update SSM Paremeter Store with VPC Endpoint Service Name
+    awsClient.aws_ssm_put_parameter(
+        parameter_name="/{}-{}/{}/inbound-data-plane/vpce-svc-id".format(
+            manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"]
+        ),
+        parameter_value=svcID,
+        parameter_type="SecureString",
+    )
+
+    inbound_svc_info = {"service_id": svcID}
+    inbound_ddb_item = {"id": {"S": "endpoint"}, "Payload": {"S": json.dumps(inbound_svc_info)}}
+    inbound_cfg_settings_tbl_name = "{}-{}-{}_InboundConfigSettings".format(
+        manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"]
+    )
+    awsClient.aws_ddb_put_item(inbound_cfg_settings_tbl_name, inbound_ddb_item)
+
 
 def outbound_eks_nlb_setup(awsClient, manifest_data):
     # Fetch SFDCSB.NET Hosted ZOne -ID from AWS SSM
@@ -197,6 +330,9 @@ def outbound_eks_nlb_setup(awsClient, manifest_data):
         manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"]
     )
     zone_id = awsClient.aws_ssm_fetch_parameter(parameter_name=r53_parameter_key)
+    if zone_id == "":
+        sys.exit(1)
+
     print("OUTBOUND VPC's SFDCSB.NET HostedZone-ID: %s" % (zone_id))
 
     # SETUP N-OUTBOUND VPC's
@@ -225,7 +361,7 @@ def outbound_eks_nlb_setup(awsClient, manifest_data):
                 parameter_value=nlb_arn,
                 parameter_type="SecureString",
             )
-            
+
             # Set the LB Attributes for OUTBOUND EKS Cluster
             awsClient.aws_elb_modify_lb_attr(
                 lb_name=nlb_name.split("-", 1)[0], attrKey="load_balancing.cross_zone.enabled", attrValue="true"
@@ -286,17 +422,20 @@ def outbound_eks_nlb_setup(awsClient, manifest_data):
         sys.exit(1)
 
 
-def eks_nlb_setup(manifest_data):
+def eks_nlb_setup(manifest_data, direction):
     awsClient = AwsHelper()
-
-    # Setup Inbound EKS Cluster
-    print("*************************************************")
-    print("*           INBOUND EKS NLB SETUP               *")
-    print("*************************************************")
-    inbound_eks_nlb_setup(awsClient, manifest_data)
-
-    # Setup Outbound EKS Cluster
-    print("*************************************************")
-    print("*           OUTBOUND EKS NLB SETUP              *")
-    print("*************************************************")
-    outbound_eks_nlb_setup(awsClient, manifest_data)
+    if direction == "inbound":
+        # Setup Inbound EKS Cluster
+        print("*************************************************")
+        print("*           INBOUND EKS NLB SETUP               *")
+        print("*************************************************")
+        inbound_eks_nlb_setup(awsClient, manifest_data)
+    elif direction == "outbound":
+        # Setup Outbound EKS Cluster
+        print("*************************************************")
+        print("*           OUTBOUND EKS NLB SETUP              *")
+        print("*************************************************")
+        outbound_eks_nlb_setup(awsClient, manifest_data)
+    else:
+        print("Invalid direction")
+        sys.exit(1)

@@ -68,23 +68,27 @@ def deploy_eks_templates(cluster_name, templates_path):
 
 
 def inbound_eks_deploy(deploy_stage, manifest_data, cluster_name_suffix):
-    cluster_name = "{}-{}-{}-{}-data-plane".format(
-        manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"], cluster_name_suffix
-    )
-    templates_path = "Manifests/Output/{}/cni-{}/templates/".format(cluster_name, cluster_name_suffix)
-    update_kubeconfig(cluster_name, manifest_data["region"])
-    if deploy_stage == "validate":
-        validate_eks_templates(cluster_name, templates_path)
-    elif deploy_stage == "deploy":
-        deploy_eks_templates(cluster_name, templates_path)
+
+    if deploy_stage == "setup":
+        eks_nlb_setup(manifest_data, "inbound")
     else:
-        pass
+        cluster_name = "{}-{}-{}-{}-data-plane".format(
+            manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"], cluster_name_suffix
+        )
+        templates_path = "Manifests/Output/{}/cni-{}/templates/".format(cluster_name, cluster_name_suffix)
+        update_kubeconfig(cluster_name, manifest_data["region"])
+        if deploy_stage == "validate":
+            validate_eks_templates(cluster_name, templates_path)
+        elif deploy_stage == "deploy":
+            deploy_eks_templates(cluster_name, templates_path)
+        else:
+            pass
 
 
 def outbound_eks_deploy(deploy_stage, manifest_data):
 
     if deploy_stage == "setup":
-        eks_nlb_setup(manifest_data)
+        eks_nlb_setup(manifest_data, "outbound")
     else:
         if "outbound_vpcs_config" in manifest_data:
             outbound_vpc_cfg = manifest_data["outbound_vpcs_config"]
