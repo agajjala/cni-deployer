@@ -272,8 +272,7 @@ def inbound_eks_nlb_setup(awsClient, manifest_data):
     # Set the LB TGT GRP Atrributes for Inbound EKS Cluster
     awsClient.aws_elb_modify_tgt_attr(lb_name=nlb_name.split("-", 1)[0], attrKey="proxy_protocol_v2.enabled", attrValue="true")
 
-    # Get the  VPC Endpoint service configuration for Inbound NLB if present
-    # --key '{"id":{"S":"endpoint"}}'
+    # Get the  VPC Endpoint service configuration from DDB for Inbound NLB if present
     inbound_ddb_key = {"id": {"S": "endpoint"}}
     inbound_cfg_settings_tbl_name = "{}-{}-{}_InboundConfigSettings".format(
         manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"]
@@ -310,8 +309,12 @@ def inbound_eks_nlb_setup(awsClient, manifest_data):
         awsClient.aws_modify_vpc_endpoint_service_permissions(serviceID=svcID, AllowedPrincipals=["*"])
 
         # Update DDB with the VPC Endpoint Service Info
-        inbound_svc_info = {"service_id": svcID}
-        inbound_ddb_item = {"id": {"S": "endpoint"}, "Payload": {"S": json.dumps(inbound_svc_info)}}
+        inbound_svc_id = {"service_id": svcID}
+        inbound_ddb_item = {"id": {"S": "endpoint"}, "Payload": {"S": json.dumps(inbound_svc_id)}}
+        awsClient.aws_ddb_put_item(inbound_cfg_settings_tbl_name, inbound_ddb_item)
+
+        inbound_svc_name = {"service_name": svcName}
+        inbound_ddb_item = {"id": {"S": "info"}, "Payload": {"S": json.dumps(inbound_svc_name)}}
         awsClient.aws_ddb_put_item(inbound_cfg_settings_tbl_name, inbound_ddb_item)
     else:
         svc_info = json.loads(ddb_item["Payload"]["S"])
