@@ -30,6 +30,14 @@ class AwsHelper:
             print("Failed to create Tags for Resources: " + resources)
             raise error
 
+    def aws_ddb_scan_table(self, table_name):
+        try:
+            response = self.ddbClient.scan(TableName=table_name)
+        except botocore.exceptions.ClientError as error:
+            print("Failed to scan the DDB Table: " + table_name)
+            raise error
+        return response["Items"]
+
     def aws_ddb_get_item(self, table_name, key):
         try:
             response = self.ddbClient.get_item(TableName=table_name, Key=key)
@@ -242,196 +250,207 @@ class K8sClient:
         return svc_list[0].status.load_balancer.ingress[0].hostname
 
 
-def inbound_eks_nlb_setup(awsClient, manifest_data):
-    # Update KUBECONFIG to INBOUND EKS Cluster
-    cluster_name = "{}-{}-{}-{}-data-plane".format(
-        manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"], "inbound"
-    )
-    update_kubeconfig(cluster_name, manifest_data["region"])
-    k8sClient = K8sClient()
-
-    # Fetch the NLB Name for the Inbound EKS Cluster
-    nlb_name = k8sClient.get_k8s_nlb_name(INBOUND_NAMESPACE)
-    print("Retrieved Inbound NLB Name: %s" % (nlb_name))
-
-    # Update SSM Parameter Store with NLB Name
-    nlb_arn = awsClient.aws_nlb_get_name(nlb_name)
-    awsClient.aws_ssm_put_parameter(
-        parameter_name="/{}-{}/{}/inbound-data-plane/nlb-name".format(
-            manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"]
-        ),
-        parameter_value=nlb_arn,
-        parameter_type="SecureString",
-    )
-
-    # Set the LB Attributes for Inbound EKS Cluster
-    awsClient.aws_elb_modify_lb_attr(
-        lb_name=nlb_name.split("-", 1)[0], attrKey="load_balancing.cross_zone.enabled", attrValue="true"
-    )
-
-    # Set the LB TGT GRP Atrributes for Inbound EKS Cluster
-    awsClient.aws_elb_modify_tgt_attr(lb_name=nlb_name.split("-", 1)[0], attrKey="proxy_protocol_v2.enabled", attrValue="true")
-
-    # Get the  VPC Endpoint service configuration from DDB for Inbound NLB if present
-    inbound_ddb_key = {"id": {"S": "endpoint"}}
+def inbound_eks_nlb_setup(deploy_stage, manifest_data):
+    awsClient = AwsHelper()
     inbound_cfg_settings_tbl_name = "{}-{}-{}_InboundConfigSettings".format(
         manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"]
     )
-    ddb_item = awsClient.aws_ddb_get_item(table_name=inbound_cfg_settings_tbl_name, key=inbound_ddb_key)
-    if ddb_item == None:
-        print("Inbound Config Settings Table endpoint info empty")
-        print("Creating the VPC Endpoint service configuration...")
-        Tags = [
-            {"Key": "env_name", "Value": manifest_data["env_name"]},
-            {"Key": "deployment_id", "Value": manifest_data["deployment_id"]},
-            {"Key": "region", "Value": manifest_data["region"]},
-        ]
-        svcID, svcName, svcState = awsClient.aws_create_vpc_endpoint_service_configuration(
-            lb_name=nlb_name.split("-", 1)[0], tags=Tags
+    if deploy_stage == "pre-setup":
+        pprint(awsClient.aws_ddb_scan_table(table_name=inbound_cfg_settings_tbl_name))
+    elif deploy_stage == "setup":
+        # Update KUBECONFIG to INBOUND EKS Cluster
+        cluster_name = "{}-{}-{}-{}-data-plane".format(
+            manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"], "inbound"
+        )
+        update_kubeconfig(cluster_name, manifest_data["region"])
+        k8sClient = K8sClient()
+
+        # Fetch the NLB Name for the Inbound EKS Cluster
+        nlb_name = k8sClient.get_k8s_nlb_name(INBOUND_NAMESPACE)
+        print("Retrieved Inbound NLB Name: %s" % (nlb_name))
+
+        # Update SSM Parameter Store with NLB Name
+        nlb_arn = awsClient.aws_nlb_get_name(nlb_name)
+        awsClient.aws_ssm_put_parameter(
+            parameter_name="/{}-{}/{}/inbound-data-plane/nlb-name".format(
+                manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"]
+            ),
+            parameter_value=nlb_arn,
+            parameter_type="SecureString",
         )
 
-        time.sleep(10)
-        # Get the lastest status of the VPC Endpoint service configuration
-        Filters = [{"Name": "service-name", "Values": [svcName]}, {"Name": "service-state", "Values": ["Available"]}]
-        svcID, svcName, svcState = awsClient.aws_describe_vpc_endpoint_service_configurations(serviceID=svcID, Filters=Filters)
-        print("Created ServiceID: %s, ServiceName: %s, ServiceState: %s" % (svcID, svcName, svcState))
-
-        # Create a VPC EndPoint Connection Notification
-        conn_notif_arn_parameter_key = "/{}-{}/{}/inbound-data-plane/vpce-sns-topic".format(
-            manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"]
-        )
-        connNotifARN = awsClient.aws_ssm_fetch_parameter(parameter_name=conn_notif_arn_parameter_key)
-        awsClient.aws_create_vpc_endpoint_connection_notification(
-            serviceID=svcID, ConnNotifArn=connNotifARN, ConnNotifEvents=["Accept", "Reject", "Connect", "Delete"]
+        # Set the LB Attributes for Inbound EKS Cluster
+        awsClient.aws_elb_modify_lb_attr(
+            lb_name=nlb_name.split("-", 1)[0], attrKey="load_balancing.cross_zone.enabled", attrValue="true"
         )
 
-        # Update the VPC Endpoint Service Permissions
-        awsClient.aws_modify_vpc_endpoint_service_permissions(serviceID=svcID, AllowedPrincipals=["*"])
+        # Set the LB TGT GRP Atrributes for Inbound EKS Cluster
+        awsClient.aws_elb_modify_tgt_attr(
+            lb_name=nlb_name.split("-", 1)[0], attrKey="proxy_protocol_v2.enabled", attrValue="true"
+        )
 
-        # Update DDB with the VPC Endpoint Service Info
-        inbound_svc_id = {"service_id": svcID}
-        inbound_ddb_item = {"id": {"S": "endpoint"}, "Payload": {"S": json.dumps(inbound_svc_id)}}
-        awsClient.aws_ddb_put_item(inbound_cfg_settings_tbl_name, inbound_ddb_item)
+        # Get the  VPC Endpoint service configuration from DDB for Inbound NLB if present
+        inbound_ddb_key = {"id": {"S": "endpoint"}}
+        ddb_item = awsClient.aws_ddb_get_item(table_name=inbound_cfg_settings_tbl_name, key=inbound_ddb_key)
+        if ddb_item == None:
+            print("Inbound Config Settings Table endpoint info empty")
+            print("Creating the VPC Endpoint service configuration...")
+            Tags = [
+                {"Key": "env_name", "Value": manifest_data["env_name"]},
+                {"Key": "deployment_id", "Value": manifest_data["deployment_id"]},
+                {"Key": "region", "Value": manifest_data["region"]},
+            ]
+            svcID, svcName, svcState = awsClient.aws_create_vpc_endpoint_service_configuration(
+                lb_name=nlb_name.split("-", 1)[0], tags=Tags
+            )
 
-        inbound_svc_name = {"service_name": svcName}
-        inbound_ddb_item = {"id": {"S": "info"}, "Payload": {"S": json.dumps(inbound_svc_name)}}
-        awsClient.aws_ddb_put_item(inbound_cfg_settings_tbl_name, inbound_ddb_item)
+            time.sleep(10)
+            # Get the lastest status of the VPC Endpoint service configuration
+            Filters = [{"Name": "service-name", "Values": [svcName]}, {"Name": "service-state", "Values": ["Available"]}]
+            svcID, svcName, svcState = awsClient.aws_describe_vpc_endpoint_service_configurations(
+                serviceID=svcID, Filters=Filters
+            )
+            print("Created ServiceID: %s, ServiceName: %s, ServiceState: %s" % (svcID, svcName, svcState))
+
+            # Create a VPC EndPoint Connection Notification
+            conn_notif_arn_parameter_key = "/{}-{}/{}/inbound-data-plane/vpce-sns-topic".format(
+                manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"]
+            )
+            connNotifARN = awsClient.aws_ssm_fetch_parameter(parameter_name=conn_notif_arn_parameter_key)
+            awsClient.aws_create_vpc_endpoint_connection_notification(
+                serviceID=svcID, ConnNotifArn=connNotifARN, ConnNotifEvents=["Accept", "Reject", "Connect", "Delete"]
+            )
+
+            # Update the VPC Endpoint Service Permissions
+            awsClient.aws_modify_vpc_endpoint_service_permissions(serviceID=svcID, AllowedPrincipals=["*"])
+
+            # Update DDB with the VPC Endpoint Service ID
+            inbound_svc_id = {"service_id": svcID}
+            inbound_ddb_item = {"id": {"S": "endpoint"}, "Payload": {"S": json.dumps(inbound_svc_id)}}
+            awsClient.aws_ddb_put_item(inbound_cfg_settings_tbl_name, inbound_ddb_item)
+
+            # Update DDB with the VPC Endpoint Service Name
+            inbound_svc_name = {"service_name": svcName}
+            inbound_ddb_item = {"id": {"S": "info"}, "Payload": {"S": json.dumps(inbound_svc_name)}}
+            awsClient.aws_ddb_put_item(inbound_cfg_settings_tbl_name, inbound_ddb_item)
+
+            # Update DDB with the Route53 ZoneID and ZoneDomain
+            inbound_r53_zoneid_parameter_key = "/{}-{}/{}/inbound-data-plane/zone/id".format(
+                manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"]
+            )
+            inbound_r53_zoneid = awsClient.aws_ssm_fetch_parameter(parameter_name=inbound_r53_zoneid_parameter_key)
+            inbound_r53_zonename_parameter_key = "/{}-{}/{}/inbound-data-plane/zone/name".format(
+                manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"]
+            )
+            inbound_r53_zonename = awsClient.aws_ssm_fetch_parameter(parameter_name=inbound_r53_zonename_parameter_key)
+            inbound_r53_zone_info = {"hosted_zoneid": inbound_r53_zoneid, "hosted_zone_domain": inbound_r53_zonename}
+            inbound_ddb_item = {"id": {"S": "route53"}, "Payload": {"S": json.dumps(inbound_r53_zone_info)}}
+            awsClient.aws_ddb_put_item(inbound_cfg_settings_tbl_name, inbound_ddb_item)
+        else:
+            svc_info = json.loads(ddb_item["Payload"]["S"])
+            svcID, svcName, svcState = awsClient.aws_describe_vpc_endpoint_service_configurations(
+                serviceID=svc_info["service_id"], Filters=[]
+            )
+            print("Retrieved ServiceID: %s, ServiceName: %s, ServiceState: %s" % (svcID, svcName, svcState))
     else:
-        svc_info = json.loads(ddb_item["Payload"]["S"])
-        svcID, svcName, svcState = awsClient.aws_describe_vpc_endpoint_service_configurations(
-            serviceID=svc_info["service_id"], Filters=[]
-        )
-        print("Retrieved ServiceID: %s, ServiceName: %s, ServiceState: %s" % (svcID, svcName, svcState))
+        pass
 
 
-def outbound_eks_nlb_setup(awsClient, manifest_data):
-    # Fetch SFDCSB.NET Hosted ZOne -ID from AWS SSM
-    r53_parameter_key = "/{}-{}/{}/stack_base/r53/sfdcsb".format(
+def outbound_eks_nlb_setup(deploy_stage, manifest_data):
+    awsClient = AwsHelper()
+    outbound_cfg_settings_tbl_name = "{}-{}-{}_OutboundConfigSettings".format(
         manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"]
     )
-    zone_id = awsClient.aws_ssm_fetch_parameter(parameter_name=r53_parameter_key)
-    print("OUTBOUND VPC's SFDCSB.NET HostedZone-ID: %s" % (zone_id))
-
-    # SETUP N-OUTBOUND VPC's
-    if "outbound_vpcs_config" in manifest_data:
-        outbound_vpc_cfg = manifest_data["outbound_vpcs_config"]
-        outbound_infra_vpcs_info = list()
-        for vpc_suffix in [str(key) for key in outbound_vpc_cfg.keys()]:
-            # Update KUBECONFIG to OUTBOUND EKS Cluster
-            cluster_name = "{}-{}-{}-{}-data-plane".format(
-                manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"], "outbound-" + vpc_suffix
-            )
-            update_kubeconfig(cluster_name, manifest_data["region"])
-            k8sClient = K8sClient()
-
-            # Fetch the NLB Name for the OUTBOUND EKS Cluster
-            nlb_name = k8sClient.get_k8s_nlb_name(OUTBOUND_NAMESPACE)
-            print("Retrieved Outbound-%s NLB Name: %s" % (vpc_suffix, nlb_name))
-
-            # Update SSM Parameter Store with NLB Name
-            nlb_arn = awsClient.aws_nlb_get_name(nlb_name)
-            awsClient.aws_ssm_put_parameter(
-                parameter_name="/{}-{}/{}/outbound-data-plane/{}/nlb-name".format(
-                    manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"], vpc_suffix
-                ),
-                parameter_value=nlb_arn,
-                parameter_type="SecureString",
-            )
-
-            # Set the LB Attributes for OUTBOUND EKS Cluster
-            awsClient.aws_elb_modify_lb_attr(
-                lb_name=nlb_name.split("-", 1)[0], attrKey="load_balancing.cross_zone.enabled", attrValue="true"
-            )
-
-            # Add CNAME Records for OUTBOUND EKS NLB NAMES IN SFDCSB.NET Zone
-            if not manifest_data["enable_sitebridge"]:
-                print("********** OUTBOUND EKS NLB DNS SETUP ***********")
-                dns_name = "core-{}.{}.aws.{}.cni{}.sfdcsb.net".format(
-                    vpc_suffix, manifest_data["env_name"], manifest_data["region"], manifest_data["env_name"]
-                )
-                awsClient.aws_add_r53_record(dns_name, nlb_name, zone_id)
-
-            # Add the DDB Records for INFRA_VPCs
-            infra_vpc_info = dict()
-            vpc_name = "{}-{}-{}-outbound-{}".format(
-                manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"], vpc_suffix
-            )
-            vpc_filters = [{"Name": "tag:Name", "Values": [vpc_name]}]
-            vpcs = list(awsClient.ec2Resource.vpcs.filter(Filters=vpc_filters))
-            infra_vpc_info["vpc_id"] = vpcs[0].id
-
-            # Subnet Filters
-            subnet_filters = [
-                {"Name": "vpc-id", "Values": [vpcs[0].id]},
-                {"Name": "tag:kubernetes.io/role/internal-elb", "Values": ["1"]},
-            ]
-            subnets = list(awsClient.ec2Resource.subnets.filter(Filters=subnet_filters))
-            subnet_list = list()
-            for subnet in subnets:
-                subnet_list.append(subnet.id)
-            infra_vpc_info["subnet_ids"] = subnet_list
-
-            # Security Group Filters
-            sg_filters = [{"Name": "vpc-id", "Values": [vpcs[0].id]}, {"Name": "group-name", "Values": ["*-nginx"]}]
-            sg_list = list()
-            sgs = list(awsClient.ec2Resource.security_groups.filter(Filters=sg_filters))
-            for sg in sgs:
-                sg_list.append(sg.id)
-            infra_vpc_info["security_group_ids"] = sg_list
-            infra_vpc_info["status"] = "inService"
-            infra_vpc_info["total_capacity"] = 500
-            if not manifest_data["enable_sitebridge"]:
-                infra_vpc_info["proxy_url"] = "https://{}:443".format(nlb_name)
-            else:
-                infra_vpc_info["proxy_url"] = "https://core-{}.{}.aws.{}.cni{}.sfdcsb.net:443".format(
-                    vpc_suffix, manifest_data["env_name"], manifest_data["region"], manifest_data["env_name"]
-                )
-            outbound_infra_vpcs_info.append(infra_vpc_info)
-        print("******** OUTBOUND INFRA VPC'S DDB SETUP *********")
-        outbound_cfg_settings_tbl_name = "{}-{}-{}_OutboundConfigSettings".format(
+    if deploy_stage == "pre-setup":
+        pprint(awsClient.aws_ddb_scan_table(table_name=outbound_cfg_settings_tbl_name))
+    elif deploy_stage == "setup":
+        # Fetch SFDCSB.NET Hosted ZOne -ID from AWS SSM
+        r53_parameter_key = "/{}-{}/{}/stack_base/r53/sfdcsb".format(
             manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"]
         )
-        outbound_ddb_item = {"id": {"S": "infra_vpcs"}, "Payload": {"S": json.dumps(outbound_infra_vpcs_info)}}
-        awsClient.aws_ddb_put_item(outbound_cfg_settings_tbl_name, outbound_ddb_item)
-    else:
-        print("Missing Outbound VPCs config in the manifest file")
-        sys.exit(1)
+        zone_id = awsClient.aws_ssm_fetch_parameter(parameter_name=r53_parameter_key)
+        print("OUTBOUND VPC's SFDCSB.NET HostedZone-ID: %s" % (zone_id))
 
+        # SETUP N-OUTBOUND VPC's
+        if "outbound_vpcs_config" in manifest_data:
+            outbound_vpc_cfg = manifest_data["outbound_vpcs_config"]
+            outbound_infra_vpcs_info = list()
+            for vpc_suffix in [str(key) for key in outbound_vpc_cfg.keys()]:
+                # Update KUBECONFIG to OUTBOUND EKS Cluster
+                cluster_name = "{}-{}-{}-{}-data-plane".format(
+                    manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"], "outbound-" + vpc_suffix
+                )
+                update_kubeconfig(cluster_name, manifest_data["region"])
+                k8sClient = K8sClient()
 
-def eks_nlb_setup(manifest_data, direction):
-    awsClient = AwsHelper()
-    if direction == "inbound":
-        # Setup Inbound EKS Cluster
-        print("*************************************************")
-        print("*           INBOUND EKS NLB SETUP               *")
-        print("*************************************************")
-        inbound_eks_nlb_setup(awsClient, manifest_data)
-    elif direction == "outbound":
-        # Setup Outbound EKS Cluster
-        print("*************************************************")
-        print("*           OUTBOUND EKS NLB SETUP              *")
-        print("*************************************************")
-        outbound_eks_nlb_setup(awsClient, manifest_data)
+                # Fetch the NLB Name for the OUTBOUND EKS Cluster
+                nlb_name = k8sClient.get_k8s_nlb_name(OUTBOUND_NAMESPACE)
+                print("Retrieved Outbound-%s NLB Name: %s" % (vpc_suffix, nlb_name))
+
+                # Update SSM Parameter Store with NLB Name
+                nlb_arn = awsClient.aws_nlb_get_name(nlb_name)
+                awsClient.aws_ssm_put_parameter(
+                    parameter_name="/{}-{}/{}/outbound-data-plane/{}/nlb-name".format(
+                        manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"], vpc_suffix
+                    ),
+                    parameter_value=nlb_arn,
+                    parameter_type="SecureString",
+                )
+
+                # Set the LB Attributes for OUTBOUND EKS Cluster
+                awsClient.aws_elb_modify_lb_attr(
+                    lb_name=nlb_name.split("-", 1)[0], attrKey="load_balancing.cross_zone.enabled", attrValue="true"
+                )
+
+                # Add CNAME Records for OUTBOUND EKS NLB NAMES IN SFDCSB.NET Zone
+                if not manifest_data["enable_sitebridge"]:
+                    print("********** OUTBOUND EKS NLB DNS SETUP ***********")
+                    dns_name = "core-{}.{}.aws.{}.cni{}.sfdcsb.net".format(
+                        vpc_suffix, manifest_data["env_name"], manifest_data["region"], manifest_data["env_name"]
+                    )
+                    awsClient.aws_add_r53_record(dns_name, nlb_name, zone_id)
+
+                # Add the DDB Records for INFRA_VPCs
+                infra_vpc_info = dict()
+                vpc_name = "{}-{}-{}-outbound-{}".format(
+                    manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"], vpc_suffix
+                )
+                vpc_filters = [{"Name": "tag:Name", "Values": [vpc_name]}]
+                vpcs = list(awsClient.ec2Resource.vpcs.filter(Filters=vpc_filters))
+                infra_vpc_info["vpc_id"] = vpcs[0].id
+
+                # Subnet Filters
+                subnet_filters = [
+                    {"Name": "vpc-id", "Values": [vpcs[0].id]},
+                    {"Name": "tag:kubernetes.io/role/internal-elb", "Values": ["1"]},
+                ]
+                subnets = list(awsClient.ec2Resource.subnets.filter(Filters=subnet_filters))
+                subnet_list = list()
+                for subnet in subnets:
+                    subnet_list.append(subnet.id)
+                infra_vpc_info["subnet_ids"] = subnet_list
+
+                # Security Group Filters
+                sg_filters = [{"Name": "vpc-id", "Values": [vpcs[0].id]}, {"Name": "group-name", "Values": ["*-nginx"]}]
+                sg_list = list()
+                sgs = list(awsClient.ec2Resource.security_groups.filter(Filters=sg_filters))
+                for sg in sgs:
+                    sg_list.append(sg.id)
+                infra_vpc_info["security_group_ids"] = sg_list
+                infra_vpc_info["status"] = "inService"
+                infra_vpc_info["total_capacity"] = 500
+                if not manifest_data["enable_sitebridge"]:
+                    infra_vpc_info["proxy_url"] = "https://{}:443".format(nlb_name)
+                else:
+                    infra_vpc_info["proxy_url"] = "https://core-{}.{}.aws.{}.cni{}.sfdcsb.net:443".format(
+                        vpc_suffix, manifest_data["env_name"], manifest_data["region"], manifest_data["env_name"]
+                    )
+                outbound_infra_vpcs_info.append(infra_vpc_info)
+            print("******** OUTBOUND INFRA VPC'S DDB SETUP *********")
+            outbound_ddb_item = {"id": {"S": "infra_vpcs"}, "Payload": {"S": json.dumps(outbound_infra_vpcs_info)}}
+            awsClient.aws_ddb_put_item(outbound_cfg_settings_tbl_name, outbound_ddb_item)
+        else:
+            print("Missing Outbound VPCs config in the manifest file")
+            sys.exit(1)
     else:
-        print("Invalid direction")
-        sys.exit(1)
+        pass

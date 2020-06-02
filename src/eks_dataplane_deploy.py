@@ -23,8 +23,9 @@ def validate_arguments(args):
     assert args.get("deploy_stage") is not None
     assert (
         (args.get("deploy_stage") == "deploy")
-        or (args.get("deploy_stage") == "validate")
+        or (args.get("deploy_stage") == "pre-deploy")
         or (args.get("deploy_stage") == "setup")
+        or (args.get("deploy_stage") == "pre-setup")
     )
     assert args.get("direction") is not None
     assert (args.get("direction") == "inbound") or (args.get("direction") == "outbound")
@@ -67,46 +68,38 @@ def deploy_eks_templates(cluster_name, templates_path):
         sys.exit("Deploying EKS Cluster Templates failed")
 
 
-def inbound_eks_deploy(deploy_stage, manifest_data, cluster_name_suffix):
-
-    if deploy_stage == "setup":
-        eks_nlb_setup(manifest_data, "inbound")
+def inbound_eks_deploy(deploy_stage, manifest_data):
+    cluster_name = "{}-{}-{}-{}-data-plane".format(
+        manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"], "inbound"
+    )
+    templates_path = "Manifests/Output/{}/cni-{}/templates/".format(cluster_name, "inbound")
+    update_kubeconfig(cluster_name, manifest_data["region"])
+    if deploy_stage == "pre-deploy":
+        validate_eks_templates(cluster_name, templates_path)
+    elif deploy_stage == "deploy":
+        deploy_eks_templates(cluster_name, templates_path)
     else:
-        cluster_name = "{}-{}-{}-{}-data-plane".format(
-            manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"], cluster_name_suffix
-        )
-        templates_path = "Manifests/Output/{}/cni-{}/templates/".format(cluster_name, cluster_name_suffix)
-        update_kubeconfig(cluster_name, manifest_data["region"])
-        if deploy_stage == "validate":
-            validate_eks_templates(cluster_name, templates_path)
-        elif deploy_stage == "deploy":
-            deploy_eks_templates(cluster_name, templates_path)
-        else:
-            pass
+        pass
 
 
 def outbound_eks_deploy(deploy_stage, manifest_data):
-
-    if deploy_stage == "setup":
-        eks_nlb_setup(manifest_data, "outbound")
+    if "outbound_vpcs_config" in manifest_data:
+        outbound_vpc_cfg = manifest_data["outbound_vpcs_config"]
+        for vpc_suffix in [str(key) for key in outbound_vpc_cfg.keys()]:
+            cluster_name = "{}-{}-{}-{}-data-plane".format(
+                manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"], "outbound-" + vpc_suffix
+            )
+            templates_path = "Manifests/Output/{}/cni-{}/templates/".format(cluster_name, "outbound")
+            update_kubeconfig(cluster_name, manifest_data["region"])
+            if deploy_stage == "pre-deploy":
+                validate_eks_templates(cluster_name, templates_path)
+            elif deploy_stage == "deploy":
+                deploy_eks_templates(cluster_name, templates_path)
+            else:
+                pass
     else:
-        if "outbound_vpcs_config" in manifest_data:
-            outbound_vpc_cfg = manifest_data["outbound_vpcs_config"]
-            for vpc_suffix in [str(key) for key in outbound_vpc_cfg.keys()]:
-                cluster_name = "{}-{}-{}-{}-data-plane".format(
-                    manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"], "outbound-" + vpc_suffix
-                )
-                templates_path = "Manifests/Output/{}/cni-{}/templates/".format(cluster_name, "outbound")
-                update_kubeconfig(cluster_name, manifest_data["region"])
-                if deploy_stage == "validate":
-                    validate_eks_templates(cluster_name, templates_path)
-                elif deploy_stage == "deploy":
-                    deploy_eks_templates(cluster_name, templates_path)
-                else:
-                    pass
-        else:
-            print("Missing Outbound VPCs config in the manifest file")
-            sys.exit(1)
+        print("Missing Outbound VPCs config in the manifest file")
+        sys.exit(1)
 
 
 def process_manifest_file(manifest_file):
@@ -123,22 +116,35 @@ def run(args):
 
     manifest_data = process_manifest_file(args["manifest"])
     if args["direction"] == "inbound":
-        print("*************************************************")
-        print("*               INBOUND EKS SETUP               *")
-        print("*************************************************")
-        inbound_eks_deploy(args["deploy_stage"], manifest_data, args["direction"])
+        if args["deploy_stage"] == "pre-deploy" or args["deploy_stage"] == "deploy":
+            print("*************************************************")
+            print("*               INBOUND EKS SETUP               *")
+            print("*************************************************")
+            inbound_eks_deploy(args["deploy_stage"], manifest_data)
+        if args["deploy_stage"] == "pre-setup" or args["deploy_stage"] == "setup":
+            print("*************************************************")
+            print("*           INBOUND EKS NLB SETUP               *")
+            print("*************************************************")
+            inbound_eks_nlb_setup(args["deploy_stage"], manifest_data)
+    elif args["direction"] == "outbound":
+        if args["deploy_stage"] == "pre-deploy" or args["deploy_stage"] == "deploy":
+            print("*************************************************")
+            print("*               OUTBOUND EKS SETUP              *")
+            print("*************************************************")
+            outbound_eks_deploy(args["deploy_stage"], manifest_data)
+        if args["deploy_stage"] == "pre-setup" or args["deploy_stage"] == "setup":
+            print("*************************************************")
+            print("*           OUTBOUND EKS NLB SETUP              *")
+            print("*************************************************")
+            outbound_eks_nlb_setup(args["deploy_stage"], manifest_data)
     else:
-        print("*************************************************")
-        print("*               OUTBOUND EKS SETUP              *")
-        print("*************************************************")
-        outbound_eks_deploy(args["deploy_stage"], manifest_data)
-
+        pass
 
 def main():
     parser = argparse.ArgumentParser(
         description="This program validates EKS Application Templates with existing EKS cluster and Deploys them."
     )
-    parser.add_argument("--deploy-stage", help="option to validate/deploy the EKS templates")
+    parser.add_argument("--deploy-stage", help="option to [pre-deploy/deploy/pre-setup/setup] the EKS templates")
     parser.add_argument("--manifest", help="path to the manifest file describing the deployment")
     parser.add_argument("--direction", help="cluster direction inbound/outbound")
     args = parser.parse_args()

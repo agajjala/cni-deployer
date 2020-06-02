@@ -35,8 +35,10 @@ phases:
       - make setup
       - python src/helm_template_generator.py --manifest_path $MANIFEST_PATH
       - touch plan.txt
-      - python src/eks_dataplane_deploy.py --deploy-stage validate --manifest $MANIFEST_PATH --direction inbound 2>&1 | tee -a plan.txt
-      - python src/eks_dataplane_deploy.py --deploy-stage validate --manifest $MANIFEST_PATH --direction outbound 2>&1 | tee -a plan.txt
+      - python src/eks_dataplane_deploy.py --deploy-stage pre-deploy --manifest $MANIFEST_PATH --direction inbound 2>&1 | tee -a plan.txt
+      - python src/eks_dataplane_deploy.py --deploy-stage pre-setup --manifest $MANIFEST_PATH --direction inbound 2>&1 | tee -a plan.txt
+      - python src/eks_dataplane_deploy.py --deploy-stage pre-deploy --manifest $MANIFEST_PATH --direction outbound 2>&1 | tee -a plan.txt
+      - python src/eks_dataplane_deploy.py --deploy-stage pre-setup --manifest $MANIFEST_PATH --direction outbound 2>&1 | tee -a plan.txt
   post_build:
     commands:
       - PLAN_S3_PATH="s3://$PIPELINE_S3_BUCKET/stage_output/$STAGE_NAME/plan.txt"
