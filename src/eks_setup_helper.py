@@ -30,6 +30,19 @@ class AwsHelper:
             print("Failed to create Tags for Resources: " + resources)
             raise error
 
+    def aws_ddb_get_item(self, table_name, key):
+        try:
+            response = self.ddbClient.get_item(TableName=table_name, Key=key)
+        except botocore.exceptions.ClientError as error:
+            pprint("Failed to get AWS DDB Item: %s, in table: %s." % (key, table_name))
+            raise error
+
+        if "Item" not in response:
+            print("AWS DDB Table: %s has no items matching with key: %s" % (table_name, key))
+            return None
+
+        return response["Item"]
+
     def aws_ddb_put_item(self, table_name, item):
         try:
             response = self.ddbClient.put_item(TableName=table_name, Item=item)
@@ -90,8 +103,7 @@ class AwsHelper:
             parameter = self.ssmClient.get_parameter(Name=parameter_name, WithDecryption=True)
         except botocore.exceptions.ClientError as error:
             print("Failed to fetch AWS Systems Manager parameter: %s" % (parameter_name))
-            return ""
-
+            raise error
         return parameter["Parameter"]["Value"]
 
     def aws_elb_get_lb_arn(self, lb_name):
@@ -261,21 +273,14 @@ def inbound_eks_nlb_setup(awsClient, manifest_data):
     awsClient.aws_elb_modify_tgt_attr(lb_name=nlb_name.split("-", 1)[0], attrKey="proxy_protocol_v2.enabled", attrValue="true")
 
     # Get the  VPC Endpoint service configuration for Inbound NLB if present
-    query_filters = [
-        {"Name": "tag:env_name", "Values": [manifest_data["env_name"]]},
-        {"Name": "tag:deployment_id", "Values": [manifest_data["deployment_id"]]},
-        {"Name": "tag:region", "Values": [manifest_data["region"]]},
-    ]
-
-    svc_id_parameter_key = "/{}-{}/{}/inbound-data-plane/vpce-svc-id".format(
+    # --key '{"id":{"S":"endpoint"}}'
+    inbound_ddb_key = {"id": {"S": "endpoint"}}
+    inbound_cfg_settings_tbl_name = "{}-{}-{}_InboundConfigSettings".format(
         manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"]
     )
-    svc_id = awsClient.aws_ssm_fetch_parameter(parameter_name=svc_id_parameter_key)
-    svcID, svcName, svcState = awsClient.aws_describe_vpc_endpoint_service_configurations(serviceID=svc_id, Filters=query_filters)
-    print("Retrieved ServiceID: %s, ServiceName: %s, ServiceState: %s" % (svcID, svcName, svcState))
-
-    # Create the VPC Endpoint service configuration if not present
-    if svcState != "Available":
+    ddb_item = awsClient.aws_ddb_get_item(table_name=inbound_cfg_settings_tbl_name, key=inbound_ddb_key)
+    if ddb_item == None:
+        print("Inbound Config Settings Table endpoint info empty")
         print("Creating the VPC Endpoint service configuration...")
         Tags = [
             {"Key": "env_name", "Value": manifest_data["env_name"]},
@@ -292,36 +297,28 @@ def inbound_eks_nlb_setup(awsClient, manifest_data):
         svcID, svcName, svcState = awsClient.aws_describe_vpc_endpoint_service_configurations(serviceID=svcID, Filters=Filters)
         print("Created ServiceID: %s, ServiceName: %s, ServiceState: %s" % (svcID, svcName, svcState))
 
-    # Create a VPC EndPoint Connection Notification
-    conn_notif_arn_parameter_key = "/{}-{}/{}/inbound-data-plane/vpce-sns-topic".format(
-        manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"]
-    )
-    connNotifARN = awsClient.aws_ssm_fetch_parameter(parameter_name=conn_notif_arn_parameter_key)
-    if connNotifARN == "":
-        sys.exit(1)
-
-    awsClient.aws_create_vpc_endpoint_connection_notification(
-        serviceID=svcID, ConnNotifArn=connNotifARN, ConnNotifEvents=["Accept", "Reject", "Connect", "Delete"]
-    )
-
-    # Update the VPC Endpoint Service Permissions
-    awsClient.aws_modify_vpc_endpoint_service_permissions(serviceID=svcID, AllowedPrincipals=["*"])
-
-    # Update SSM Paremeter Store with VPC Endpoint Service Name
-    awsClient.aws_ssm_put_parameter(
-        parameter_name="/{}-{}/{}/inbound-data-plane/vpce-svc-id".format(
+        # Create a VPC EndPoint Connection Notification
+        conn_notif_arn_parameter_key = "/{}-{}/{}/inbound-data-plane/vpce-sns-topic".format(
             manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"]
-        ),
-        parameter_value=svcID,
-        parameter_type="SecureString",
-    )
+        )
+        connNotifARN = awsClient.aws_ssm_fetch_parameter(parameter_name=conn_notif_arn_parameter_key)
+        awsClient.aws_create_vpc_endpoint_connection_notification(
+            serviceID=svcID, ConnNotifArn=connNotifARN, ConnNotifEvents=["Accept", "Reject", "Connect", "Delete"]
+        )
 
-    inbound_svc_info = {"service_id": svcID}
-    inbound_ddb_item = {"id": {"S": "endpoint"}, "Payload": {"S": json.dumps(inbound_svc_info)}}
-    inbound_cfg_settings_tbl_name = "{}-{}-{}_InboundConfigSettings".format(
-        manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"]
-    )
-    awsClient.aws_ddb_put_item(inbound_cfg_settings_tbl_name, inbound_ddb_item)
+        # Update the VPC Endpoint Service Permissions
+        awsClient.aws_modify_vpc_endpoint_service_permissions(serviceID=svcID, AllowedPrincipals=["*"])
+
+        # Update DDB with the VPC Endpoint Service Info
+        inbound_svc_info = {"service_id": svcID}
+        inbound_ddb_item = {"id": {"S": "endpoint"}, "Payload": {"S": json.dumps(inbound_svc_info)}}
+        awsClient.aws_ddb_put_item(inbound_cfg_settings_tbl_name, inbound_ddb_item)
+    else:
+        svc_info = json.loads(ddb_item["Payload"]["S"])
+        svcID, svcName, svcState = awsClient.aws_describe_vpc_endpoint_service_configurations(
+            serviceID=svc_info["service_id"], Filters=[]
+        )
+        print("Retrieved ServiceID: %s, ServiceName: %s, ServiceState: %s" % (svcID, svcName, svcState))
 
 
 def outbound_eks_nlb_setup(awsClient, manifest_data):
@@ -330,13 +327,9 @@ def outbound_eks_nlb_setup(awsClient, manifest_data):
         manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"]
     )
     zone_id = awsClient.aws_ssm_fetch_parameter(parameter_name=r53_parameter_key)
-    if zone_id == "":
-        sys.exit(1)
-
     print("OUTBOUND VPC's SFDCSB.NET HostedZone-ID: %s" % (zone_id))
 
     # SETUP N-OUTBOUND VPC's
-
     if "outbound_vpcs_config" in manifest_data:
         outbound_vpc_cfg = manifest_data["outbound_vpcs_config"]
         outbound_infra_vpcs_info = list()
