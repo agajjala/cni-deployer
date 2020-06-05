@@ -11,8 +11,12 @@ data:
   {{- $inboundconfigsettingstablename := (printf "%v-%v-%v_InboundConfigSettings" .Values.env_name .Values.region .Values.deployment_id) }}
   {{- $inboundprivatelinkstablename := (printf "%v-%v-%v_InboundPrivateLinks" .Values.env_name .Values.region .Values.deployment_id) }}
   {{- $authorizerfunctionname := (printf "%v-%v-%v-authorizer" .Values.env_name .Values.region .Values.deployment_id) }}
+  {{- $inboundnlbssmparameterkey := (printf "/%v-%v/%v/inbound-data-plane/nlb-name" .Values.env_name .Values.region .Values.deployment_id)}}
+  {{- $tgwssmparameterkey := (printf "/%v-%v/%v/tgw/id" .Values.env_name .Values.region .Values.deployment_id)}}
   metrics_export_cfg: |
     region: {{ .Values.region }}
+    env: {{ .Values.env_name }}
+    deployment_id: {{ .Values.deployment_id }}
     metrics_query_configs:
       - namespace: "AWS/ApiGateway"
         period: 60
@@ -118,6 +122,59 @@ data:
         metrics_list:
           - Errors
           - Duration
+      {{- end }}
+      - namespace: "AWS/NetworkELB"
+        period: 60
+        ssmParameterName: "{{ $inboundnlbssmparameterkey }}"
+        dimension_filters:
+          - config:
+              keys: ["LoadBalancer"]
+              values: [""]
+        metrics_list:
+        - ActiveFlowCount
+        - ActiveFlowCount_TCP
+        - ConsumedLCUs
+        - ConsumedLCUs_TCP
+        - HealthyHostCount
+        - NewFlowCount
+        - NewFlowCount_TCP
+        - ProcessedBytes
+        - ProcessedBytes_TCP
+        - TCP_Client_Reset_Count
+        - TCP_ELB_Reset_Count
+        - TCP_Target_Reset_Count
+        - UnHealthyHostCount
+      {{- if eq .Values.enable_sitebridge true}}
+      {{range $index := until 3}}
+      {{- $vpnssmparameterkey := (printf "/%v-%v/%v/vpn/%v/id" $.Values.env_name $.Values.region $.Values.deployment_id $index | toStrings) }}
+      - namespace: "AWS/VPN"
+        period: 60
+        ssmParameterName: "{{ $vpnssmparameterkey }}"
+        dimension_filters:
+          - config:
+              keys: ["VpnId"]
+              values: [""]
+        metrics_list:
+        - TunnelDataOut
+        - TunnelDataIn
+        - TunnelState
+      {{end}}
+      - namespace: "AWS/TransitGateway"
+        period: 60
+        ssmParameterName: "{{ $tgwssmparameterkey }}"
+        dimension_filters:
+          - config:
+              keys: ["TransitGateway"]
+              values: [""]
+        metrics_list:
+        - BytesDropCountBlackhole
+        - BytesDropCountNoRoute
+        - BytesIn
+        - BytesOut
+        - PacketDropCountBlackhole
+        - PacketDropCountNoRoute
+        - PacketsIn
+        - PacketsOut
       {{- end }}
 ---
 apiVersion: apps/v1

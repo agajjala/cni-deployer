@@ -76,7 +76,7 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
-
+enable_sitebridge: false
 lambdas:
   - authorizer
   - custom-metrics

@@ -9,6 +9,7 @@ data:
   {{- $clustername := (printf "%v-%v-%v-%v-data-plane" .Values.env_name .Values.region .Values.deployment_id .Values.direction) }}
   {{- $outboundconfigsettingstablename := (printf "%v-%v-%v_OutboundConfigSettings" .Values.env_name .Values.region .Values.deployment_id) }}
   {{- $outboundprivatelinkstablename := (printf "%v-%v-%v_OutboundPrivateLinks" .Values.env_name .Values.region .Values.deployment_id) }}
+  {{- $outboundnlbssmparameterkey := (printf "/%v-%v/%v/outbound-data-plane/%v/nlb-name" .Values.env_name .Values.region .Values.deployment_id .Values.vpc_suffix) }}
   metrics_export_cfg: |
     region: {{ .Values.region }}
     metrics_query_configs:
@@ -72,6 +73,27 @@ data:
           - ProvisionedWriteCapacityUnits
           - ProvisionedReadCapacityUnits
           - ConditionalCheckFailedRequests
+      - namespace: "AWS/NetworkELB"
+        period: 60
+        ssmParameterName: "{{ $outboundnlbssmparameterkey }}"
+        dimension_filters:
+          - config:
+              keys: ["LoadBalancer"]
+              values: [""]
+        metrics_list:
+        - ActiveFlowCount
+        - ActiveFlowCount_TCP
+        - ConsumedLCUs
+        - ConsumedLCUs_TCP
+        - HealthyHostCount
+        - NewFlowCount
+        - NewFlowCount_TCP
+        - ProcessedBytes
+        - ProcessedBytes_TCP
+        - TCP_Client_Reset_Count
+        - TCP_ELB_Reset_Count
+        - TCP_Target_Reset_Count
+        - UnHealthyHostCount
 
 ---
 apiVersion: apps/v1
