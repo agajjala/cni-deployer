@@ -133,6 +133,7 @@ module eks_cluster {
   node_group_desired_size   = var.inbound_data_plane_node_group_desired_size
   node_group_max_size       = var.inbound_data_plane_node_group_max_size
   node_group_min_size       = var.inbound_data_plane_node_group_min_size
+  eks_k8s_version           = var.eks_k8s_version
 }
 
 resource aws_ssm_parameter cluster_name {

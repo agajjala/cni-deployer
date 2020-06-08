@@ -19,6 +19,7 @@ resource aws_eks_cluster data_plane {
   name                      = var.cluster_name
   role_arn                  = var.cluster_role_arn
   enabled_cluster_log_types = var.enabled_cluster_log_types
+  version                   = var.eks_k8s_version
 
   vpc_config {
     endpoint_private_access = true
