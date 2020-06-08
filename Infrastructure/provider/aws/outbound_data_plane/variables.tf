@@ -23,7 +23,7 @@ variable flow_logs_retention_in_days {
 variable sfdc_vpn_cidrs {
   description = "List of SFDC VPN CIDRs for access whitelisting"
   type        = list(string)
-  default     = [
+  default = [
     # AmerWest
     "204.14.239.17/32",
     "204.14.239.18/32",
@@ -34,12 +34,15 @@ variable sfdc_vpn_cidrs {
     "204.14.239.82/32",
     # AmerWest1
     "13.110.54.0/26",
-    # CodeBuild
-    "52.43.76.88/29"]
+    # CodeBuild(usw1, usw2, use1, use2)
+    "13.56.32.200/29",
+    "52.43.76.88/29",
+    "34.228.4.208/28",
+  "52.15.247.208/29"]
 }
 
 variable "outbound_vpcs_config" {
-  type    = map
+  type = map
 }
 
 variable az_count {
@@ -101,4 +104,9 @@ variable sitebridge_config {
 }
 variable vpc_suffix {
   type = string
+}
+variable eks_k8s_version {
+  type        = string
+  default     = "1.16"
+  description = "Desired Kubernetes master version. If version is not specified in the manifest, the default version is used at resource creation"
 }

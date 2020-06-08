@@ -19,6 +19,7 @@ resource aws_eks_cluster data_plane {
   name                      = var.cluster_name
   role_arn                  = var.cluster_role_arn
   enabled_cluster_log_types = var.enabled_cluster_log_types
+  version                   = var.eks_k8s_version
 
   vpc_config {
     endpoint_private_access = true
@@ -65,7 +66,7 @@ resource aws_eks_node_group data_plane {
   }
 
   remote_access {
-    ec2_ssh_key               = var.node_group_key_name
+    ec2_ssh_key = var.node_group_key_name
     source_security_group_ids = [
       var.bastion_security_group_id
     ]
