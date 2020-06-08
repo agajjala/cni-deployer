@@ -23,7 +23,7 @@ variable flow_logs_retention_in_days {
 variable sfdc_vpn_cidrs {
   description = "List of SFDC VPN CIDRs for access whitelisting"
   type        = list(string)
-  default     = [
+  default = [
     # AmerWest
     "204.14.239.17/32",
     "204.14.239.18/32",
@@ -38,7 +38,7 @@ variable sfdc_vpn_cidrs {
     "13.56.32.200/29",
     "52.43.76.88/29",
     "34.228.4.208/28",
-    "52.15.247.208/29"]
+  "52.15.247.208/29"]
 }
 variable inbound_vpc_cidr {
   description = "CIDR of the inbound VPC"

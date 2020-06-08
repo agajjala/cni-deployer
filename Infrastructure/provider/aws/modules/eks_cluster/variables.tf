@@ -47,6 +47,6 @@ variable node_group_min_size {
   type = number
 }
 variable eks_k8s_version {
-  type = string
+  type        = string
   description = "Desired Kubernetes master version. If version is not specified in the manifest, the default version is used at resource creation"
 }

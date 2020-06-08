@@ -14,13 +14,13 @@ locals {
     The VPC requires fewer public addresses to be allocated compared to private addresses, so the last subnet CIDR in the
     prefix is used as a base CIDR for creating public subnets.
   */
-  vpc_config = var.outbound_vpcs_config[var.vpc_suffix]
-  vpc_cidr  = local.vpc_config["vpc_cidr"]
+  vpc_config              = var.outbound_vpcs_config[var.vpc_suffix]
+  vpc_cidr                = local.vpc_config["vpc_cidr"]
   public_subnet_base_cidr = cidrsubnet(local.vpc_cidr, 2, var.az_count)
-  private_subnet_cidrs = lookup(local.vpc_config,"vpc_private_subnet_cidrs", [
+  private_subnet_cidrs = lookup(local.vpc_config, "vpc_private_subnet_cidrs", [
     for i in range(var.az_count) : cidrsubnet(local.vpc_cidr, 2, i)
   ])
-  public_subnet_cidrs = lookup(local.vpc_config,"vpc_public_subnet_cidrs", [
+  public_subnet_cidrs = lookup(local.vpc_config, "vpc_public_subnet_cidrs", [
     for i in range(var.az_count) : cidrsubnet(local.public_subnet_base_cidr, 2, i)
   ])
 }
@@ -124,10 +124,10 @@ module eks_cluster {
 }
 
 resource aws_ssm_parameter cluster_name {
-  tags        = var.tags
-  name        = format("/%s-%s/%s/outbound-data-plane/%s/cluster-name", var.env_name, var.region, var.deployment_id, var.vpc_suffix)
-  type        = "SecureString"
-  value       = module.eks_cluster.cluster.name
+  tags  = var.tags
+  name  = format("/%s-%s/%s/outbound-data-plane/%s/cluster-name", var.env_name, var.region, var.deployment_id, var.vpc_suffix)
+  type  = "SecureString"
+  value = module.eks_cluster.cluster.name
 }
 
 ###############################
@@ -143,18 +143,18 @@ resource aws_ec2_transit_gateway_vpc_attachment tgw_attachment {
 }
 
 module sitebridge_vpc_routing {
-  source                       = "../modules/sitebridge_vpc_routing"
-  enable_sitebridge            = var.enable_sitebridge
-  tags                         = var.tags
-  resource_prefix              = local.resource_prefix
-  vpc_id                       = module.vpc.vpc_id
-  private_subnet_ids           = module.vpc.private_subnet_ids
-  transit_gateway              = data.terraform_remote_state.stack_base.outputs.transit_gateway
-  sitebridge_sg_id             = module.eks_cluster.cluster_security_group_id
-  control_plane_ips            = var.sitebridge_config.control_plane_ips
-  data_plane_cidrs             = var.sitebridge_config.data_plane_cidrs
-  private_route_table_ids      = module.vpc.private_route_table_ids
-  forwarded_domains            = var.sitebridge_config.forwarded_domains
+  source                  = "../modules/sitebridge_vpc_routing"
+  enable_sitebridge       = var.enable_sitebridge
+  tags                    = var.tags
+  resource_prefix         = local.resource_prefix
+  vpc_id                  = module.vpc.vpc_id
+  private_subnet_ids      = module.vpc.private_subnet_ids
+  transit_gateway         = data.terraform_remote_state.stack_base.outputs.transit_gateway
+  sitebridge_sg_id        = module.eks_cluster.cluster_security_group_id
+  control_plane_ips       = var.sitebridge_config.control_plane_ips
+  data_plane_cidrs        = var.sitebridge_config.data_plane_cidrs
+  private_route_table_ids = module.vpc.private_route_table_ids
+  forwarded_domains       = var.sitebridge_config.forwarded_domains
 }
 
 ###############################

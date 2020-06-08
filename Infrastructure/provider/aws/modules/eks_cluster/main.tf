@@ -66,7 +66,7 @@ resource aws_eks_node_group data_plane {
   }
 
   remote_access {
-    ec2_ssh_key               = var.node_group_key_name
+    ec2_ssh_key = var.node_group_key_name
     source_security_group_ids = [
       var.bastion_security_group_id
     ]

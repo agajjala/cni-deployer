@@ -137,10 +137,10 @@ module eks_cluster {
 }
 
 resource aws_ssm_parameter cluster_name {
-  tags        = var.tags
-  name        = format("/%s-%s/%s/inbound-data-plane/cluster-name", var.env_name, var.region, var.deployment_id)
-  type        = "SecureString"
-  value       = module.eks_cluster.cluster.name
+  tags  = var.tags
+  name  = format("/%s-%s/%s/inbound-data-plane/cluster-name", var.env_name, var.region, var.deployment_id)
+  type  = "SecureString"
+  value = module.eks_cluster.cluster.name
 }
 
 ###############################
@@ -156,18 +156,18 @@ resource aws_ec2_transit_gateway_vpc_attachment tgw_attachment {
 }
 
 module sitebridge_vpc_routing {
-  source                       = "../modules/sitebridge_vpc_routing"
-  enable_sitebridge            = var.enable_sitebridge
-  tags                         = var.tags
-  resource_prefix              = local.resource_prefix
-  vpc_id                       = module.vpc.vpc_id
-  private_subnet_ids           = module.vpc.private_subnet_ids
-  transit_gateway              = data.terraform_remote_state.stack_base.outputs.transit_gateway
-  sitebridge_sg_id             = module.eks_cluster.cluster_security_group_id
-  control_plane_ips            = var.sitebridge_config.control_plane_ips
-  data_plane_cidrs             = var.sitebridge_config.data_plane_cidrs
-  private_route_table_ids      = module.vpc.private_route_table_ids
-  forwarded_domains            = var.sitebridge_config.forwarded_domains
+  source                  = "../modules/sitebridge_vpc_routing"
+  enable_sitebridge       = var.enable_sitebridge
+  tags                    = var.tags
+  resource_prefix         = local.resource_prefix
+  vpc_id                  = module.vpc.vpc_id
+  private_subnet_ids      = module.vpc.private_subnet_ids
+  transit_gateway         = data.terraform_remote_state.stack_base.outputs.transit_gateway
+  sitebridge_sg_id        = module.eks_cluster.cluster_security_group_id
+  control_plane_ips       = var.sitebridge_config.control_plane_ips
+  data_plane_cidrs        = var.sitebridge_config.data_plane_cidrs
+  private_route_table_ids = module.vpc.private_route_table_ids
+  forwarded_domains       = var.sitebridge_config.forwarded_domains
 }
 
 ###############################
