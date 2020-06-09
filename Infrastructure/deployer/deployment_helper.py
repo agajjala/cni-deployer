@@ -11,17 +11,17 @@ def export_to_environment(manifest_file_path):
         print(f'export {key}={shlex.quote(value)}')
 
 
-def get_outbound_vpc_suffixes(manifest_file_path):
+def print_outbound_vpc_suffixes(manifest_file_path):
     manifest = common.load_yaml(manifest_file_path)
-    vpc_suffixes = tuple(manifest['outbound_vpcs_config'].keys())
-    print(' '.join(vpc_suffixes))
+    for vpc_suffix in manifest['outbound_vpcs_config'].keys():
+        print(vpc_suffix)
 
 
 def main():
     parser = argparse.ArgumentParser(
         description="This program wraps terraform to provide some additional flexibility")
     parser.add_argument(
-        "-c", help='the helper command you want to run [export_to_env, get_outbound_vpc_suffixes]')
+        "-c", help='the helper command you want to run [export_to_env, print_outbound_vpc_suffixes]')
     parser.add_argument(
         "-manifest", help="path to the manifest to pass to the module")
 
@@ -29,8 +29,8 @@ def main():
 
     if args['c'] == 'export_to_env':
         export_to_environment(args["manifest"])
-    elif args['c'] == 'get_outbound_vpc_suffixes':
-        get_outbound_vpc_suffixes(args["manifest"])
+    elif args['c'] == 'print_outbound_vpc_suffixes':
+        print_outbound_vpc_suffixes(args["manifest"])
     else:
         raise(ValueError(args['c']))
 

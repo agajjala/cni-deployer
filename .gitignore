@@ -24,4 +24,4 @@ src/__pycache__
 .pytest_cache
 .coverage
 
-terraform_plan
+terraform_plan*

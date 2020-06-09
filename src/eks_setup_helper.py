@@ -313,7 +313,7 @@ def inbound_eks_nlb_setup(deploy_stage, manifest_data):
             print("Created ServiceID: %s, ServiceName: %s, ServiceState: %s" % (svcID, svcName, svcState))
 
             # Create a VPC EndPoint Connection Notification
-            conn_notif_arn_parameter_key = "/{}-{}/{}/inbound-data-plane/vpce-sns-topic".format(
+            conn_notif_arn_parameter_key = "/{}-{}/{}/control-plane/inbound-vpce-sns-topic".format(
                 manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"]
             )
             connNotifARN = awsClient.aws_ssm_fetch_parameter(parameter_name=conn_notif_arn_parameter_key)
@@ -365,7 +365,7 @@ def outbound_eks_nlb_setup(deploy_stage, manifest_data):
         pprint(awsClient.aws_ddb_scan_table(table_name=outbound_cfg_settings_tbl_name))
     elif deploy_stage == "setup":
         # Fetch SFDCSB.NET Hosted ZOne -ID from AWS SSM
-        r53_parameter_key = "/{}-{}/{}/stack_base/r53/sfdcsb".format(
+        r53_parameter_key = "/{}-{}/{}/stack-base/sfdcsb/zone/id".format(
             manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"]
         )
         zone_id = awsClient.aws_ssm_fetch_parameter(parameter_name=r53_parameter_key)

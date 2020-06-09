@@ -182,3 +182,17 @@ resource aws_route53_zone zone {
     vpc_id = module.vpc.vpc_id
   }
 }
+
+resource aws_ssm_parameter zone_id {
+  tags        = var.tags
+  name        = format("/%s-%s/%s/inbound-data-plane/zone/id", var.env_name, var.region, var.deployment_id)
+  type        = "SecureString"
+  value       = aws_route53_zone.zone.zone_id
+}
+
+resource aws_ssm_parameter zone_name {
+  tags        = var.tags
+  name        = format("/%s-%s/%s/inbound-data-plane/zone/name", var.env_name, var.region, var.deployment_id)
+  type        = "SecureString"
+  value       = aws_route53_zone.zone.name
+}

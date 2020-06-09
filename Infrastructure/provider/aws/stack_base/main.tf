@@ -117,6 +117,13 @@ resource aws_route53_zone sitebridge_dns_zone {
   }
 }
 
+resource aws_ssm_parameter sitebridge_dns_zone_id {
+  tags        = var.tags
+  name        = format("/%s-%s/%s/stack-base/sfdcsb/zone/id", var.env_name, var.region, var.deployment_id)
+  type        = "SecureString"
+  value       = aws_route53_zone.sitebridge_dns_zone.zone_id
+}
+
 ###############################
 #  Outbound Key Pairs
 ###############################

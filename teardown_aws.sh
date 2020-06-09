@@ -15,7 +15,7 @@ INBOUND_NAMESPACE=cni-inbound
 OUTBOUND_NAMESPACE=cni-outbound
 
 # source manifest variables
-eval "$(python "$DEPLOYER_PATH/export_to_env.py" -manifest "${MANIFEST}")"
+eval "$(python "$DEPLOYER_PATH/deployment_helper.py" -c "export_to_env" -manifest "${MANIFEST}")"
 AWS_REGION="$TF_VAR_region"
 export TF_IN_AUTOMATION=true
 

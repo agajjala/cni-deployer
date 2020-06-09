@@ -6,24 +6,6 @@ provider aws {
   region = var.region
 }
 
-provider kubernetes {
-  alias                  = "inbound"
-  version                = "1.10.0"
-  host                   = data.terraform_remote_state.inbound_data_plane.outputs.cluster.endpoint
-  cluster_ca_certificate = base64decode(data.terraform_remote_state.inbound_data_plane.outputs.cluster.certificate_authority.0.data)
-  token                  = data.aws_eks_cluster_auth.inbound.token
-  load_config_file       = false
-}
-
-provider kubernetes {
-  alias                  = "outbound"
-  version                = "1.10.0"
-  host                   = data.terraform_remote_state.outbound_data_plane.outputs.cluster.endpoint
-  cluster_ca_certificate = base64decode(data.terraform_remote_state.outbound_data_plane.outputs.cluster.certificate_authority.0.data)
-  token                  = data.aws_eks_cluster_auth.outbound.token
-  load_config_file       = false
-}
-
 locals {
   resource_prefix = join("-", [var.env_name, var.region, var.deployment_id])
   common_environment_variables = {
@@ -49,29 +31,12 @@ module sns_topics {
   private_link_stream_role        = data.terraform_remote_state.stack_base.outputs.iam.private_link_stream_role
 }
 
-###############################
-#  VPC Endpoint Service
-###############################
-
-module inbound_vpc_endpoint_service {
-  source                     = "../modules/vpc_endpoint_service"
-  tags                       = var.tags
-  vpce_connections_topic_arn = module.sns_topics.inbound_vpce_connections_topic.arn
-  nlb_arn                    = data.aws_lb.inbound.arn
-}
-
-###############################
-#  Outbound Proxy URLs
-###############################
-
-resource aws_route53_record outbound_proxy {
-  zone_id = data.terraform_remote_state.stack_base.outputs.sitebridge_dns_zone.zone_id
-  name    = format("core-%s.%s.aws.%s.cni%s", var.vpc_suffix, var.env_name, var.region, var.env_name)
-  type    = "CNAME"
-  ttl     = "60"
-  records = data.aws_lb.outbound.dns_name
-
-  count = var.enable_sitebridge ? 1 : 0
+# Consumed in EKS setup for finishing the inbound config settings creation
+resource aws_ssm_parameter inbound_vpce_sns_topic {
+  tags        = var.tags
+  name        = format("/%s-%s/%s/control-plane/inbound-vpce-sns-topic", var.env_name, var.region, var.deployment_id)
+  type        = "SecureString"
+  value       = module.sns_topics.inbound_vpce_connections_topic.arn
 }
 
 ###############################
@@ -83,15 +48,9 @@ module config_settings_tables {
   tags                            = var.tags
   resource_prefix                 = local.resource_prefix
   api_key                         = data.aws_secretsmanager_secret_version.api_key.secret_string
-  inbound_zone                    = data.terraform_remote_state.inbound_data_plane.outputs.zone
-  inbound_vpc_endpoint_service    = module.inbound_vpc_endpoint_service.service
   private_link_access_role        = data.terraform_remote_state.stack_base.outputs.iam.private_connect_role
   outbound_zone                   = data.terraform_remote_state.stack_base.outputs.outbound_dns_zone
-  outbound_vpc                    = data.terraform_remote_state.outbound_data_plane.outputs.vpc
   outbound_vpce_connections_topic = module.sns_topics.outbound_vpce_connections_topic
-  outbound_private_subnets        = data.terraform_remote_state.outbound_data_plane.outputs.private_subnets
-  outbound_proxy_domain_name      = var.enable_sitebridge ? aws_route53_record.outbound_proxy[0].fqdn : data.aws_lb.outbound.dns_name
-  nginx_sg                        = data.terraform_remote_state.outbound_data_plane.outputs.security_groups.nginx
 }
 
 ###############################

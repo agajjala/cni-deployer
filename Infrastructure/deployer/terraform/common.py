@@ -2,6 +2,8 @@ import os
 import subprocess
 from subprocess import CompletedProcess, CalledProcessError
 
+DEFAULT_PLAN_NAME = 'terraform_plan'
+
 
 def build_tf_env_vars(manifest):
     """
@@ -48,6 +50,13 @@ def _serialize_to_hcl_string(data, is_root):
         return f'"{data}"'
     else:
         raise Exception(f'Encountered unexpected type {type(data)} with value: {data}')
+
+
+def get_plan_name(manifest):
+    if 'vpc_suffix' in manifest:
+        return f"{DEFAULT_PLAN_NAME}_{manifest.get('vpc_suffix', '')}"
+    else:
+        return DEFAULT_PLAN_NAME
 
 
 def run_command(command, manifest, base_env=os.environ):

@@ -65,14 +65,13 @@ python "$DEPLOYER_PATH/deploy.py" -c plan -module $MODULE_PATH/inbound_data_plan
 python "$DEPLOYER_PATH/deploy.py" -c apply -module $MODULE_PATH/inbound_data_plane -manifest "${MANIFEST}" -automation
 
 # Get list of all outbound VPC suffixes
-vpc_suffixes=`python "$DEPLOYER_PATH/deployment_helper.py" -c "get_outbound_vpc_suffixes" -manifest "${MANIFEST}"`
+VPC_SUFFIX_LIST=$(python "$DEPLOYER_PATH/deployment_helper.py" -c "print_outbound_vpc_suffixes" -manifest "$MANIFEST")
 
 
-for outbound_vpc_suffix in ${vpc_suffixes[@]};
+for outbound_vpc_suffix in $VPC_SUFFIX_LIST;
 do
   python "$DEPLOYER_PATH/deploy.py" -c plan -module $MODULE_PATH/outbound_data_plane -manifest "${MANIFEST}" -automation  -manifest_override "{ \"vpc_suffix\": \"$outbound_vpc_suffix\"}"
   python "$DEPLOYER_PATH/deploy.py" -c apply -module $MODULE_PATH/outbound_data_plane -manifest "${MANIFEST}" -automation  -manifest_override "{ \"vpc_suffix\": \"$outbound_vpc_suffix\"}"
-
 done
 
 # generate k8s files using helm

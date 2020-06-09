@@ -30,13 +30,19 @@ phases:
   build:
     commands:
       - MODULE_PATH="$CODEBUILD_SRC_DIR/cni-deployer/Infrastructure/provider/aws/$MODULE_NAME"
-      - python Infrastructure/deployer/deploy.py -c plan -module "$MODULE_PATH" -manifest "$MANIFEST_PATH" -automation
-      - cd "$MODULE_PATH"
-      - terraform show -no-color terraform_plan >> plan.txt
+      - VPC_SUFFIX_LIST=$(python Infrastructure/deployer/deployment_helper.py -c "print_outbound_vpc_suffixes" -manifest "$MANIFEST_PATH")
+      - |
+        for vpc_suffix in $VPC_SUFFIX_LIST;
+        do
+          python Infrastructure/deployer/deploy.py -c plan -module "$MODULE_PATH" -manifest "$MANIFEST_PATH" -automation -manifest_override "{ \"vpc_suffix\": \"$vpc_suffix\"}"
+          cd "$MODULE_PATH"
+          terraform show -no-color "terraform_plan_$vpc_suffix" >> plan.txt
+          cd -
+        done
   post_build:
     commands:
       - PLAN_S3_PATH="s3://$PIPELINE_S3_BUCKET/stage_output/$PIPELINE_EXECUTION_ID/$STAGE_NAME/plan.txt"
-      - aws s3 cp plan.txt "$PLAN_S3_PATH"
+      - aws s3 cp "$MODULE_PATH/plan.txt" "$PLAN_S3_PATH"
       - aws configure set default.s3.signature_version s3v4
       - PRESIGNED_PLAN_S3_URL=$(aws s3 presign "$PLAN_S3_PATH" --expires-in 3600)
 artifacts:

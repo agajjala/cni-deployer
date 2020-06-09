@@ -27,4 +27,9 @@ phases:
   build:
     commands:
       - MODULE_PATH="$CODEBUILD_SRC_DIR/cni-deployer/Infrastructure/provider/aws/$MODULE_NAME"
-      - python Infrastructure/deployer/deploy.py -c apply -module "$MODULE_PATH" -manifest "$MANIFEST_PATH" -automation
+      - VPC_SUFFIX_LIST=$(python Infrastructure/deployer/deployment_helper.py -c "print_outbound_vpc_suffixes" -manifest "$MANIFEST_PATH")
+      - |
+        for vpc_suffix in $VPC_SUFFIX_LIST;
+        do
+          python Infrastructure/deployer/deploy.py -c apply -module "$MODULE_PATH" -manifest "$MANIFEST_PATH" -automation -manifest_override "{ \"vpc_suffix\": \"$vpc_suffix\"}"
+        done

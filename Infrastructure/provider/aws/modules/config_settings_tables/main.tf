@@ -43,49 +43,6 @@ resource aws_dynamodb_table_item inbound_auth {
   })
 }
 
-resource aws_dynamodb_table_item inbound_info {
-  table_name = aws_dynamodb_table.inbound.name
-  hash_key   = local.hash_key
-
-  item = jsonencode({
-    "${local.hash_key}" = {
-      "S" = "info"
-    }
-    "Payload" = {
-      "S" = "{\"service_name\": \"${var.inbound_vpc_endpoint_service.service_name}\"}"
-    }
-  })
-}
-
-resource aws_dynamodb_table_item inbound_route53 {
-  table_name = aws_dynamodb_table.inbound.name
-  hash_key   = local.hash_key
-
-  item = jsonencode({
-    "${local.hash_key}" = {
-      "S" = "route53"
-    }
-    "Payload" = {
-      "S" = "{\"hosted_zoneid\": \"${var.inbound_zone.id}\", \"hosted_zone_domain\": \"${var.inbound_zone.name}\"}"
-    }
-  })
-}
-
-resource aws_dynamodb_table_item inbound_endpoint {
-  table_name = aws_dynamodb_table.inbound.name
-  hash_key   = local.hash_key
-
-  item = jsonencode({
-    "${local.hash_key}" = {
-      "S" = "endpoint"
-    }
-    "Payload" = {
-      "S" = "{\"service_id\": \"${var.inbound_vpc_endpoint_service.id}\"}"
-    }
-  })
-}
-
-
 ###############################
 #  Outbound
 ###############################
@@ -169,16 +126,3 @@ resource aws_dynamodb_table_item outbound_connection_notification_topic {
   })
 }
 
-resource aws_dynamodb_table_item outbound_infra_vpcs {
-  table_name = aws_dynamodb_table.outbound.name
-  hash_key   = local.hash_key
-
-  item = jsonencode({
-    "${local.hash_key}" = {
-      "S" = "infra_vpcs"
-    }
-    "Payload" = {
-      "S" : "[{\"vpc_id\": \"${var.outbound_vpc.id}\", \"subnet_ids\": ${jsonencode(var.outbound_private_subnets[*].id)}, \"proxy_url\": \"${format("https://%s:443", var.outbound_proxy_domain_name)}\", \"status\": \"inService\", \"total_capacity\": 490, \"security_group_ids\": [\"${var.nginx_sg.id}\"]}]"
-    }
-  })
-}

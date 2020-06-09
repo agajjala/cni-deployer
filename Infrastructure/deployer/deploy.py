@@ -73,7 +73,6 @@ def run(args):
     """
     manifest = common.load_yaml(args['manifest'])
     additional_manifest = json.loads(args['manifest_override'])
-    print(additional_manifest)
     manifest.update(additional_manifest)
 
     if args['c'] == 'init':
