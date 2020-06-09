@@ -5,9 +5,57 @@ variable tags {
   description = "Map of tags used to annotate each resource supporting tags"
   type        = map(string)
 }
-variable api_access_whitelist {
-  description = "List of CIDRs to whitelist network traffic to the control plane API Gateway"
+variable api_access_whitelist_ips {
+  description = "List of IPs to whitelist network traffic to the control plane API Gateway"
   type        = list(string)
+  default     = []
+}
+variable api_dev_access_whitelist {
+  description = "List of DEV SFDC VPN IPs to whitelist network traffic to the control plane API Gateway"
+  type        = list(string)
+  default = [
+    # AmerWest
+    "204.14.239.17/32",
+    "204.14.239.18/32",
+    "204.14.239.13/32",
+    "204.14.239.105/32",
+    "204.14.239.106/32",
+    "204.14.239.107/32",
+    "204.14.239.82/32",
+    # AmerWest1
+    "13.110.54.0/26",
+    # AmerEast
+    "204.14.236.215/32",
+    "204.14.236.150/32",
+    "204.14.236.152/32",
+    "204.14.236.153/32",
+    "204.14.236.154/32",
+    "204.14.236.219/32",
+    "204.14.236.218/32",
+  "204.14.236.212/32"]
+}
+variable api_prod_access_whitelist {
+  description = "List of PROD SFDC IPs to whitelist network traffic to the control plane API Gateway"
+  type        = list(string)
+  default = [
+    # PRD
+    "136.146.95.8/32",
+    # PHX
+    "136.147.46.8/32",
+    # DFW
+    "136.147.62.8/32",
+    # IAD
+    "13.108.238.8/32",
+    # PH2
+    "13.110.6.8/32",
+    # IA2
+    "13.110.14.8/32",
+    # ORD
+    "13.108.254.8/32",
+    # IA4
+    "13.110.74.8/32",
+    # IA5
+  "13.110.78.8/32"]
 }
 variable api_authorization {
   description = "Type of API Gateway authorization to use"

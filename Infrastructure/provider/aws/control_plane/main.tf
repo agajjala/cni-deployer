@@ -14,6 +14,7 @@ locals {
     CNI_ENV              = var.env_name
     CNI_DEPLOYMENT_ID    = var.deployment_id
   }
+  api_access_whitelist = "${var.env_name == "prod" ? var.api_prod_access_whitelist : var.api_dev_access_whitelist}"
 }
 
 ###############################
@@ -82,7 +83,7 @@ module rest_api {
   source                             = "../modules/rest_api"
   tags                               = var.tags
   resource_prefix                    = local.resource_prefix
-  api_access_whitelist               = var.api_access_whitelist
+  api_access_whitelist               = concat(local.api_access_whitelist, var.api_access_whitelist_ips)
   api_authorization                  = var.api_authorization
   api_authorizer_gdot_url            = var.api_authorizer_gdot_url
   api_authorizer_c2c_key_secret_name = var.api_authorizer_c2c_key_secret_name
