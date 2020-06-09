@@ -14,6 +14,8 @@ variable api_dev_access_whitelist {
   description = "List of DEV SFDC VPN IPs to whitelist network traffic to the control plane API Gateway"
   type        = list(string)
   default = [
+    # PRD
+    "136.146.95.8/32",
     # AmerWest
     "204.14.239.17/32",
     "204.14.239.18/32",
