@@ -517,7 +517,7 @@ resource aws_codepipeline stack {
       run_order        = "3"
 
       configuration = {
-        ProjectName          = aws_codebuild_project.terraform_apply_outbound.name
+        ProjectName = aws_codebuild_project.terraform_apply_outbound.name
         EnvironmentVariables = jsonencode(concat(local.tf_codebuild_environment_variables, [
           {
             name  = "MODULE_NAME"
