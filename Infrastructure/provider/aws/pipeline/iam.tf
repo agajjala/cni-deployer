@@ -93,6 +93,8 @@ data aws_iam_policy_document terraform_pipeline {
       "s3:GetObject",
       "s3:GetObjectVersion",
       "s3:ListBucket",
+      "s3:GetBucketAcl",
+      "s3:GetBucketLocation"
     ]
   }
 
@@ -169,6 +171,10 @@ data aws_iam_policy_document terraform_pipeline {
       "codebuild:ListBuilds",
       "codebuild:ListBuildsForProject",
       "codebuild:ListProjects",
+      "codebuild:CreateReportGroup",
+      "codebuild:CreateReport",
+      "codebuild:UpdateReport",
+      "codebuild:BatchPutTestCases"
     ]
   }
 
@@ -227,6 +233,7 @@ data aws_iam_policy_document terraform_pipeline {
       "iam:*",
       "secretsmanager:*",
       "ec2:*",
+      "ecr:*",
       "elasticloadbalancing:*",
       "kms:*",
       "route53:*",
@@ -240,7 +247,8 @@ data aws_iam_policy_document terraform_pipeline {
       "apigateway:*",
       "events:*",
       "autoscaling:*",
-      "xray:*"
+      "xray:*",
+      "cloudwatch:*"
     ]
   }
 }
