@@ -248,8 +248,7 @@ data aws_iam_policy_document terraform_pipeline {
       "events:*",
       "autoscaling:*",
       "xray:*",
-      "cloudwatch:*",
-      "s3:*"
+      "cloudwatch:*"
     ]
   }
 }
