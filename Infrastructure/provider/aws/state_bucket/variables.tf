@@ -7,7 +7,8 @@ variable tags {
 variable admin_role_names {
   type = list(string)
   default = [
-    "PCSKAdministratorAccessRole"
+    "PCSKAdministratorAccessRole",
+    "PCSKDeveloperRole"
   ]
 }
 variable force_destroy_state_bucket {
