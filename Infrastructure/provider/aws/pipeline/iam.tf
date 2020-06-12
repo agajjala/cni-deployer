@@ -259,7 +259,8 @@ data aws_iam_policy_document terraform_pipeline {
       "events:*",
       "autoscaling:*",
       "xray:*",
-      "cloudwatch:*"
+      "cloudwatch:*",
+      "route53resolver:*"
     ]
   }
 }
