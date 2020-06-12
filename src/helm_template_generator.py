@@ -54,7 +54,11 @@ class ManifestProcessor:
             print(response)
             sys.exit("Helm template generation failed")
 
-    def generate_outbound_helm_template(self, manifest_data, manifest_file, cluster_name_suffix):
+    def generate_outbound_helm_template(self, manifest_data, manifest_file, vpc_suffix):
+        cluster_name_suffix = "outbound"
+        if vpc_suffix != "":
+            cluster_name_suffix += "-" + vpc_suffix
+        
         outbound_eks_cluster_name = self.form_eks_cluster_name(
             manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"], cluster_name_suffix
         )
@@ -69,6 +73,8 @@ class ManifestProcessor:
                 manifest_file,
                 "--output-dir",
                 os.path.join(HELM_TEMPLATE_OUTPUT_PATH, outbound_eks_cluster_name),
+                "--set",
+                "vpc_suffix="+vpc_suffix
             ]
         )
         if response.returncode != 0:
@@ -83,9 +89,9 @@ class ManifestProcessor:
         if "outbound_vpcs_config" in manifest_data:
             outbound_vpc_cfg = manifest_data["outbound_vpcs_config"]
             for vpc_suffix in [str(key) for key in outbound_vpc_cfg.keys()]:
-                self.generate_outbound_helm_template(manifest_data, manifest_file, "outbound-" + vpc_suffix)
+                self.generate_outbound_helm_template(manifest_data, manifest_file, vpc_suffix)
         else:
-            self.generate_outbound_helm_template(manifest_data, manifest_file, "outbound")
+            self.generate_outbound_helm_template(manifest_data, manifest_file, "")
 
     def process_manifest_file(self, manifest_file):
         with open(manifest_file, "r") as file:
