@@ -12,6 +12,8 @@ data:
   {{- $outboundnlbssmparameterkey := (printf "/%v-%v/%v/outbound-data-plane/%v/nlb-name" .Values.env_name .Values.region .Values.deployment_id .Values.vpc_suffix) }}
   metrics_export_cfg: |
     region: {{ .Values.region }}
+    env: {{ .Values.env_name }}
+    deployment_id: {{ .Values.deployment_id }}
     metrics_query_configs:
       - namespace: "ContainerInsights"
         period: 60
