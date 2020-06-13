@@ -37,7 +37,7 @@ variable monitoring_s3_bucket {
 variable write_local_pem_files {
   description = "If true, writes generated private keys as local pem files in the directory of the root module"
   type        = bool
-  default     = true
+  default     = false
 }
 variable enable_transit_gateway {
   description = "If false, skips creating the transit gateway."

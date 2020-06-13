@@ -14,10 +14,21 @@ resource aws_iam_role terraform_pipeline {
             "codepipeline.amazonaws.com"
           ]
         }
+      },
+      {
+        Effect = "Allow"
+        Action = "sts:AssumeRole"
+        Principal = {
+          AWS = "*"
+        }
+        Condition = {
+          StringLike = {
+            "aws:PrincipalArn" = data.terraform_remote_state.region_base.outputs.admin_principals
+          }
+        }
       }
     ]
   })
-
 }
 
 data aws_iam_policy_document terraform_pipeline {
@@ -248,7 +259,8 @@ data aws_iam_policy_document terraform_pipeline {
       "events:*",
       "autoscaling:*",
       "xray:*",
-      "cloudwatch:*"
+      "cloudwatch:*",
+      "route53resolver:*"
     ]
   }
 }

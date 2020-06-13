@@ -26,6 +26,12 @@ resource aws_lambda_function function {
       variables = environment.value
     }
   }
+
+  lifecycle {
+    ignore_changes = [
+      vpc_config
+    ]
+  }
 }
 
 resource aws_lambda_alias alias {
