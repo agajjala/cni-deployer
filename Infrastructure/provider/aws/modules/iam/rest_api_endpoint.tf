@@ -36,7 +36,7 @@ resource aws_iam_role_policy_attachment rest_api_endpoint_route53_read_write {
   policy_arn = aws_iam_policy.route53_read_write.arn
 }
 
-resource aws_iam_role_policy_attachment private_connect_cloudwatch_write {
+resource aws_iam_role_policy_attachment rest_api_endpoint_cloudwatch_write {
   role       = aws_iam_role.private_connect.name
   policy_arn = aws_iam_policy.cloudwatch_metrics_write.arn
 }
