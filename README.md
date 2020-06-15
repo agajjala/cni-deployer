@@ -8,9 +8,8 @@ cni-tf
 ├── Infrastructure
 │   ├── deployer     --> Command Line Tool for deployment
 │   └── provider     --> TF Infrastructure-as-code
-├── Manifests
-│   ├── Dev          --> CNI Deployment Manifests for Developers
-│   └── Prod         --> CNI Deployment Manifests for Production
+├── scripts          --> Utility scripts
+├── src              --> Scripts used to manage k8s deployments
 └── README.md
 ```
 
@@ -67,38 +66,21 @@ If you have Docker installed, follow these additional steps ([this will ensure y
    pip install -r requirements.txt
    ```
 
-## Deploy a test environment
+## Deploy a test environment using CodePipeline
 
-1. Make a copy of the base manifest file.
+1. Ensure the `master` branch of [cni-manifests](https://github.com/sf-sdn/cni-manifests) has the manifest you wish to deploy. If it does not yet exist or requires further changes, raise a PR for the changes required.
 
-    ```
-   cp base_manifest.yaml test_manifest.yaml
-   ```
+2. Ensure you have [cni-manifests](https://github.com/sf-sdn/cni-manifests) cloned locally and checked out to the latest `master` after PRs from step 1 are merged, if any were needed.
 
-2. Populate the empty values in `cni_test.tfvars.json` to reflect your desired setup. The table below details the meaning of each field.
-
-    | Name | Description | Type
-    |------|-------------|------|
-    | region | Name of the AWS region to deploy to | `string` |
-    | env | Name of the environment to deploy to | `string` |
-    | deployment\_id | Short ID used to further distinguish a deployment. Must be less than 10 characters. | `string` |
-    | tags | Map of tags used to annotate each resource supporting tags | `map(string)` |
-    | lambda\_layer\_s3\_key | Name of the lambda layer object in the S3 bucket | `string` |
-    | lambda\_function\_s3\_key | Name of the lambda function object in the S3 bucket | `string` |
-
-3. Run the following command to perform a sanity check on your manifest:
-
-   ```
-   python deployer/deploy.py -c plan -module provider/aws/cni_test/ -manifest -manifest test_manifest.yaml
-   ```
-
-4. If the previous step was successful, run this command to deploy the environment:
+3. Run the following script:
 
     ```
-    python deployer/deploy.py -c apply -module provider/aws/cni_test/ -manifest -manifest test_manifest.yaml
-    ```
+   ./scripts/deploy_pipeline.sh <PATH TO MANIFEST FILE>
+   ```
 
-5. You should now have a running test environment.
+4. Once the above script completes, you should have a CodePipeline deployed to the region specified in the manifest.
+
+In each stage of the pipeline, there is a manual approval step following each plan step. These manual approval steps require manual confirmation before the pipeline will proceed further.
 
 ## deploy.py
 
