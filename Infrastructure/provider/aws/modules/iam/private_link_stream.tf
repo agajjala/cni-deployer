@@ -40,3 +40,8 @@ resource aws_iam_role_policy_attachment private_link_stream_sns_write {
   role       = aws_iam_role.private_link_stream.name
   policy_arn = aws_iam_policy.sns_write.arn
 }
+
+resource aws_iam_role_policy_attachment private_link_stream_cloudwatch_write {
+  role       = aws_iam_role.private_link_stream.name
+  policy_arn = aws_iam_policy.cloudwatch_metrics_write.arn
+}

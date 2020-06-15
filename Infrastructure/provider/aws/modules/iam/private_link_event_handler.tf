@@ -35,3 +35,8 @@ resource aws_iam_role_policy_attachment private_link_event_handler_private_link_
   role       = aws_iam_role.private_link_event_handler.name
   policy_arn = aws_iam_policy.private_link_event_handler.arn
 }
+
+resource aws_iam_role_policy_attachment private_link_event_handler_cloudwatch_write {
+  role       = aws_iam_role.private_link_event_handler.name
+  policy_arn = aws_iam_policy.cloudwatch_metrics_write.arn
+}
