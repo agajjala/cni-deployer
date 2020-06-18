@@ -20,10 +20,11 @@ do
   printf "Pushing %s to ECR...\n" "${imageName}"
   for region in "${REGIONS[@]}"
   do
-    ECR_IMAGE_NAME="$ACCOUNT_ID.dkr.ecr.$region.amazonaws.com/$imageName"
+    ECR_REGISTRY_URL="$ACCOUNT_ID.dkr.ecr.$region.amazonaws.com"
+    ECR_IMAGE_NAME="$ECR_REGISTRY_URL/$imageName"
     ECR_IMAGE_NAME_TAG="$ECR_IMAGE_NAME:$STRATA_IMAGE_VERSION"
 
-    $(aws ecr get-login --no-include-email --region "$region")
+    aws ecr get-login-password --region "$region" | docker login --username AWS --password-stdin "$ECR_REGISTRY_URL"
     docker tag dva-registry.internal.salesforce.com/dva/sdn/"$imageName":"$STRATA_IMAGE_VERSION" "$ECR_IMAGE_NAME_TAG"
     docker push "$ECR_IMAGE_NAME_TAG"
   done
