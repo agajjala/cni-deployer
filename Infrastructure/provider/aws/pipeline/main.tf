@@ -10,6 +10,10 @@ variable deployment_id {
 variable tags {
   type = map(string)
 }
+variable manifests_repo_branch {
+  type    = string
+  default = "master"
+}
 
 terraform {
   backend s3 {}
@@ -107,7 +111,6 @@ resource github_repository_webhook github_manifest {
   configuration {
     url          = aws_codepipeline_webhook.github_manifest.url
     content_type = "json"
-    //    insecure_ssl = true
     secret = random_password.webhook_secret.result
   }
 
@@ -130,12 +133,12 @@ resource aws_codepipeline_webhook github_manifest {
 
   filter {
     json_path    = "$.head_commit.modified"
-    match_equals = "/aws/${var.env_name}/${local.resource_prefix}.yaml"
+    match_equals = "aws/${var.env_name}/${local.resource_prefix}.yaml"
   }
 
   filter {
     json_path    = "$.ref"
-    match_equals = "refs/heads/master"
+    match_equals = "refs/heads/${var.manifests_repo_branch}"
   }
 }
 
@@ -377,10 +380,11 @@ resource aws_codepipeline stack {
       version          = "1"
 
       configuration = {
-        Owner      = local.repo_org
-        Repo       = local.repo_name
-        Branch     = "master"
-        OAuthToken = local.git_token
+        Owner                = local.repo_org
+        Repo                 = local.repo_name
+        Branch               = var.manifests_repo_branch
+        OAuthToken           = local.git_token
+        PollForSourceChanges = false
       }
     }
   }

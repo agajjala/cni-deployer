@@ -25,8 +25,8 @@ phases:
       - cd cni-deployer
       - MANIFEST_PATH="$CODEBUILD_SRC_DIR/aws/$ENV_NAME/$MANIFEST_FILENAME"
       - eval "$(python Infrastructure/deployer/deployment_helper.py -c export_to_env -manifest $MANIFEST_PATH)"
-      - GIT_BRANCH="${TF_VAR_git_branch:-master}"
-      - GIT_COMMIT="${TF_VAR_git_commit:-HEAD}"
+      - GIT_BRANCH="${TF_VAR_deployer_repo_branch:-master}"
+      - GIT_COMMIT="${TF_VAR_deployer_repo_commit:-HEAD}"
       - git fetch origin "$GIT_BRANCH"
       - git checkout "$GIT_BRANCH"
       - git checkout "$GIT_COMMIT"
