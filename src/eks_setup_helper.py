@@ -376,6 +376,7 @@ def outbound_eks_nlb_setup(deploy_stage, manifest_data):
             outbound_vpc_cfg = manifest_data["outbound_vpcs_config"]
             outbound_infra_vpcs_info = list()
             for vpc_suffix in [str(key) for key in outbound_vpc_cfg.keys()]:
+                outbound_infra_vpc_cfg = outbound_vpc_cfg[int(vpc_suffix)]
                 # Update KUBECONFIG to OUTBOUND EKS Cluster
                 cluster_name = "{}-{}-{}-{}-data-plane".format(
                     manifest_data["env_name"], manifest_data["region"], manifest_data["deployment_id"], "outbound-" + vpc_suffix
@@ -438,7 +439,8 @@ def outbound_eks_nlb_setup(deploy_stage, manifest_data):
                     sg_list.append(sg.id)
                 infra_vpc_info["security_group_ids"] = sg_list
                 infra_vpc_info["status"] = "inService"
-                infra_vpc_info["total_capacity"] = 500
+                # Set Default Infra VPC VPCEndpoint Capacity of 500 if no override is set
+                infra_vpc_info["total_capacity"] = outbound_infra_vpc_cfg.get("vpce_limit", 500)
                 if "enable_sitebridge" in manifest_data:
                     infra_vpc_info["proxy_url"] = "https://core-{}.{}.aws.{}.cni{}.sfdcsb.net:443".format(
                         vpc_suffix, manifest_data["env_name"], manifest_data["region"], manifest_data["env_name"]
