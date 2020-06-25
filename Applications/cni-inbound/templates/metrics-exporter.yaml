@@ -122,6 +122,8 @@ data:
         metrics_list:
           - Errors
           - Duration
+          - ConcurrentExecutions
+          - Invocations
       {{- end }}
       - namespace: "AWS/NetworkELB"
         period: 60
